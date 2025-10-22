@@ -24,8 +24,8 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@19.1.0)
       '@inverted-tech/fragments':
-        specifier: ^0.3.4
-        version: 0.3.4
+        specifier: ^0.3.5
+        version: 0.3.5
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
         version: 1.1.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -365,8 +365,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@inverted-tech/fragments@0.3.4':
-    resolution: {integrity: sha512-XjqJEsvqXtN1Isklpcbd1NErCbqLNo7NfpPiuS0qC6OF2GxlFwrUihtsUUapAezi9Q5J8IgsArBqf3Xkaf4iwg==}
+  '@inverted-tech/fragments@0.3.5':
+    resolution: {integrity: sha512-ZNTH4DIK2ckgX39hGF+kw0GF5/p91mr2j/abkrJ3eWIebpLfBJoMcrppz9x0Mve78odRfN7D7FzdrLAfRGcHxA==}
 
   '@isaacs/fs-minipass@4.0.1':
     resolution: {integrity: sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w==}
@@ -1729,7 +1729,7 @@ snapshots:
   '@img/sharp-win32-x64@0.34.4':
     optional: true
 
-  '@inverted-tech/fragments@0.3.4':
+  '@inverted-tech/fragments@0.3.5':
     dependencies:
       '@bufbuild/protobuf': 2.10.0
       '@bufbuild/protovalidate': 1.0.0(@bufbuild/protobuf@2.10.0)
