@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from 'react';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { create } from '@bufbuild/protobuf';
 import { useForm } from '@tanstack/react-form';
 
@@ -17,6 +17,8 @@ import {
 import { Input } from '@/components/ui/input';
 
 import { FormCard } from './form-card';
+import { loginAction } from '@/app/actions/auth';
+import { redirect, useRouter, useSearchParams } from 'next/navigation';
 // Use protovalidate with generated protobuf schemas
 import { getValidator } from '@inverted-tech/fragments/validation';
 import { AuthenticateUserRequest, AuthenticateUserRequestSchema } from '@inverted-tech/fragments/Authentication/index';
@@ -59,8 +61,53 @@ function extractViolationMessages(err: unknown): string[] {
 	return msgs;
 }
 
+// Build a map of field -> [messages] from protovalidate violations
+function toFieldMessageMap(
+	violations: Array<any> | undefined | null
+): Map<string, string[]> {
+	const byField = new Map<string, string[]>();
+	if (!Array.isArray(violations)) return byField;
+
+	for (const v of violations) {
+		let key: string | undefined;
+
+		// Common protovalidate shape (TS runtime): v.field is an array of FieldDescriptors
+		if (Array.isArray(v?.field) && v.field.length > 0) {
+			const last = v.field[v.field.length - 1];
+			key = last?.jsonName ?? last?.name ?? last?.localName;
+		}
+
+		// Older/alternative shape: fieldPath/elements with { name }
+		if (!key) {
+			const path =
+				((v as any)?.fieldPath?.elements ?? (v as any)?.field?.elements)
+					?.map((e: any) => e?.name)
+					.filter(Boolean)
+					.join('.') || '';
+			if (path) key = path.split('.')[path.split('.').length - 1] || undefined;
+		}
+
+		// Last‑resort inference from message text
+		if (!key && typeof v?.message === 'string') {
+			const msg = v.message as string;
+			if (/password\b/i.test(msg)) key = 'Password';
+			else if (/^username\b/i.test(msg) || /user\s*name/i.test(msg)) key = 'UserName';
+		}
+
+		const finalKey = key ?? '_';
+		const list = byField.get(finalKey) || [];
+		list.push(v?.message ?? 'Invalid');
+		byField.set(finalKey, list);
+	}
+
+	return byField;
+}
+
 export function LoginForm() {
 	const validatorRef = useProtoValidator();
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 	const form = useForm({
 		defaultValues: {
 			UserName: '',
@@ -69,103 +116,34 @@ export function LoginForm() {
 		onSubmit: async ({ value }) => {
 			// Validate using protovalidate against the generated schema
 			const validator = validatorRef.current ?? (await getValidator());
+			const payload = create(AuthenticateUserRequestSchema, value)
+			const validateRes = await validator.validate(AuthenticateUserRequestSchema, payload);
 
-			// 0) Local UX guard so errors always show, even if proto rules are missing
-			const localMsgs: Record<'UserName' | 'Password', string[]> = {
-				UserName: [],
-				Password: [],
-			};
-			// if (!value?.UserName)
-			// 	localMsgs.UserName.push('Username is required');
-			// if (!value?.Password)
-			// 	localMsgs.Password.push('Password is required');
-			// if (localMsgs.UserName.length || localMsgs.Password.length) {
-			// 	for (const k of ['UserName', 'Password'] as const) {
-			// 		if (!localMsgs[k].length) continue;
-			// 		form.setFieldMeta(k, (meta: any) => ({
-			// 			...meta,
-			// 			isTouched: true,
-			// 			errors: localMsgs[k].map((m) => ({ message: m })),
-			// 		}));
-			// 	}
-			// 	// inline-only: toast removed
-			// 	return; // block submit early when obviously missing values
-			// }
-			try {
-				const msg = create(AuthenticateUserRequestSchema, value);
-				const r = await validator.validate(
-					AuthenticateUserRequestSchema,
-					msg
-				);
-				if (r?.kind === 'invalid') {
-					// Apply field errors for shadcn Field components
-					const violations = r.violations || [];
-					const byField = new Map<string, string[]>();
-					for (const v of violations) {
-						const path =
-							((v as any)?.fieldPath?.elements ?? (v as any)?.field?.elements)
-								?.map((e: any) => e?.name)
-								.filter(Boolean)
-								.join('.') || '';
-						let key = (path || '').split('.')[0] as
-							| string
-							| undefined;
-						// Fallback: try to infer from message prefix when fieldPath missing
-						const msg = v?.message ?? '';
-						if (!key) {
-							if (/^password\b/i.test(msg)) key = 'Password';
-							else if (
-								/^username\b/i.test(msg) ||
-								/user\s*name/i.test(msg)
-							)
-								key = 'UserName';
-						}
-						const finalKey = key || '_';
-						const list = byField.get(finalKey) || [];
-						list.push(msg || 'Invalid');
-						byField.set(finalKey, list);
-					}
-					for (const [name, messages] of byField.entries()) {
-						// Only set for known fields in this form to satisfy TS types
-						const target = name === '_' ? 'UserName' : name;
-						if (target === 'UserName' || target === 'Password') {
-							form.setFieldMeta(target, (meta: any) => {
-								const prior: Array<{ message?: string }> =
-									Array.isArray(meta?.errors)
-										? meta.errors
-										: [];
-								const nextNew = messages.map((m) => ({
-									message: m,
-								}));
-								// simple de-dupe by message text
-								const seen = new Set<string | undefined>();
-								const combined = [...prior, ...nextNew].filter(
-									(e) => {
-										const key = e?.message;
-										if (seen.has(key)) return false;
-										seen.add(key);
-										return true;
-									}
-								);
-								return {
-									...meta,
-									isTouched: true,
-									errors: combined,
-								};
-							});
-						}
-					}
-
-					// inline-only: mapping applied above; nothing else to do here
-					return; // block submit
+			if (validateRes.kind === 'invalid') {
+				const byField = toFieldMessageMap(validateRes.error.violations);
+				setFieldErrors(Object.fromEntries(byField));
+				// mark fields touched so UI styles apply
+				for (const name of ['UserName', 'Password'] as const) {
+					form.setFieldMeta(name, (meta: any) => ({ ...meta, isTouched: true }));
 				}
-			} catch (e) {
-				const msgs = extractViolationMessages(e);
-				// inline-only: toast removed
-				console.log(`FAILED: ${msgs}`);
-				return; // block submit
+				return; // block submit on validation errors
 			}
-			// inline-only: toast removed
+
+			// Clear local errors on valid submission
+			setFieldErrors({});
+			const result = await loginAction(payload);
+			if (!result.ok) {
+				console.error(result.statusText || result.error || 'Login failed');
+				// Surface server-provided message as a global error if available
+				const message = (result.data as any)?.message || result.error || 'Login failed';
+				setFieldErrors((prev) => ({ ...prev, _: [message] }));
+				return;
+			}
+
+			// Redirect only if token was set by the server action
+			if ((result as any).tokenSet) {
+				return redirect('/');
+			}
 		},
 	});
 
@@ -178,14 +156,26 @@ export function LoginForm() {
 					form.handleSubmit();
 				}}
 			>
+				{/* Form-level (global) validation errors */}
+				{(fieldErrors['_']?.length ?? 0) > 0 && (
+					<div role='alert' className='mb-4 text-sm text-red-600'>
+						{fieldErrors['_'].map((m, i) => (
+							<div key={i}>{m}</div>
+						))}
+					</div>
+				)}
 				<FieldGroup>
 					<form.Field
 						name='UserName'
 						children={(field) => {
-							const hasErrors =
-								(field.state.meta.errors?.length ?? 0) > 0;
-							const isInvalid =
-								field.state.meta.isTouched && hasErrors;
+							const localMsgs = fieldErrors['UserName'] ?? [];
+							const mergedErrors = [
+								...(Array.isArray(field.state.meta.errors)
+									? field.state.meta.errors
+									: []),
+								...localMsgs.map((m) => ({ message: m })),
+							];
+							const isInvalid = mergedErrors.length > 0;
 
 							return (
 								<Field data-invalid={isInvalid}>
@@ -205,11 +195,11 @@ export function LoginForm() {
 												event.target.value
 											)
 										}
-										aria-invalid={isInvalid}
+									aria-invalid={isInvalid}
 									/>
 									{isInvalid && (
 										<FieldError
-											errors={field.state.meta.errors}
+											errors={mergedErrors}
 										/>
 									)}
 								</Field>
@@ -220,10 +210,14 @@ export function LoginForm() {
 					<form.Field
 						name='Password'
 						children={(field) => {
-							const hasErrors =
-								(field.state.meta.errors?.length ?? 0) > 0;
-							const isInvalid =
-								field.state.meta.isTouched && hasErrors;
+							const localMsgs = fieldErrors['Password'] ?? [];
+							const mergedErrors = [
+								...(Array.isArray(field.state.meta.errors)
+									? field.state.meta.errors
+									: []),
+								...localMsgs.map((m) => ({ message: m })),
+							];
+							const isInvalid = mergedErrors.length > 0;
 
 							return (
 								<Field data-invalid={isInvalid}>
@@ -251,11 +245,11 @@ export function LoginForm() {
 												event.target.value
 											)
 										}
-										aria-invalid={isInvalid}
+									aria-invalid={isInvalid}
 									/>
 									{isInvalid && (
 										<FieldError
-											errors={field.state.meta.errors}
+											errors={mergedErrors}
 										/>
 									)}
 								</Field>
