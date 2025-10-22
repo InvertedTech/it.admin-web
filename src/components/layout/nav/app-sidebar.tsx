@@ -38,13 +38,14 @@ import {
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import {
-	CalendarDays,
-	ChevronRight,
-	CreditCard,
-	FilesIcon,
-	GalleryVerticalEnd,
-	MessageSquare,
-	UserIcon,
+    CalendarDays,
+    ChevronRight,
+    CreditCard,
+    FilesIcon,
+    GalleryVerticalEnd,
+    MessageSquare,
+    Settings as SettingsIcon,
+    UserIcon,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { NavMain } from './nav-main';
@@ -55,7 +56,21 @@ const data = {
 		email: 'm@example.com',
 		avatar: '/avatars/shadcn.jpg',
 	},
-	navMain: [
+		navMain: [
+        {
+            title: 'Settings',
+            icon: SettingsIcon,
+            url: '/settings',
+            items: [
+                { title: 'Overview', url: '/settings' },
+                { title: 'General: Personalization', url: '/settings/general/personalization' },
+                { title: 'Subscriptions', url: '/settings/subscriptions' },
+                { title: 'Comments Settings', url: '/settings/comments' },
+                { title: 'Content Settings', url: '/settings/content' },
+                { title: 'Notifications (future)', url: '/settings/notifications' },
+                { title: 'Events (future)', url: '/settings/events' },
+            ],
+        },
 		{
 			title: 'Assets',
 			icon: FilesIcon,
@@ -73,7 +88,7 @@ const data = {
 				{ title: 'List', url: '/content' },
 				{ title: 'Create', url: '/content/create' },
 				// scoped settings
-				{ title: 'Settings', url: '/content/settings' },
+				{ title: 'Settings', url: '/settings/content' },
 			],
 		},
 		{
@@ -83,7 +98,7 @@ const data = {
 			items: [
 				{ title: 'List', url: '/comments' },
 				// add when you have config flags
-				{ title: 'Settings', url: '/comments/settings' },
+				{ title: 'Settings', url: '/settings/comments' },
 			],
 		},
 		{
@@ -105,11 +120,6 @@ const data = {
 			items: [
 				{ title: 'List', url: '/users/list' },
 				{ title: 'Staff (Admins)', url: '/users/list?role=admin' }, // Team merged here
-				// subscriptions settings scoped under users
-				{
-					title: 'Subscriptions',
-					url: '/users/settings/subscriptions',
-				},
 			],
 		},
 	],
@@ -123,12 +133,12 @@ const data = {
 		{ title: 'New Event', url: '/events/create', icon: IconCalendarPlus },
 		{
 			title: 'Create Category',
-			url: '/content/settings/categories?new=1',
+			url: '/settings/content',
 			icon: IconTags,
 		},
 		{
 			title: 'Create Channel',
-			url: '/content/settings/channels?new=1',
+			url: '/settings/content',
 			icon: IconFolders,
 		},
 	],

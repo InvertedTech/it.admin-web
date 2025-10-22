@@ -111,23 +111,17 @@ const categoryColumns: ColumnDef<CategoryRecord>[] = [
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem asChild>
-							<a
-								href={`/content/settings/categories/${cat.CategoryId}`}
-							>
+							<a href={'/settings/content'}>
 								View
 							</a>
 						</DropdownMenuItem>
 						<DropdownMenuItem asChild>
-							<a
-								href={`/content/settings/categories/${cat.CategoryId}/edit`}
-							>
+							<a href={'/settings/content'}>
 								Edit
 							</a>
 						</DropdownMenuItem>
 						<DropdownMenuItem className='text-destructive' asChild>
-							<a
-								href={`/content/settings/categories/${cat.CategoryId}/delete`}
-							>
+							<a href={'/settings/content'}>
 								Delete
 							</a>
 						</DropdownMenuItem>

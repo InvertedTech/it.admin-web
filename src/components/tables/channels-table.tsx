@@ -158,23 +158,17 @@ const channelColumns: ColumnDef<ChannelRecord>[] = [
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem asChild>
-							<a
-								href={`/content/settings/channels/${ch.ChannelId}`}
-							>
+							<a href={'/settings/content'}>
 								View
 							</a>
 						</DropdownMenuItem>
 						<DropdownMenuItem asChild>
-							<a
-								href={`/content/settings/channels/${ch.ChannelId}/edit`}
-							>
+							<a href={'/settings/content'}>
 								Edit
 							</a>
 						</DropdownMenuItem>
 						<DropdownMenuItem className='text-destructive' asChild>
-							<a
-								href={`/content/settings/channels/${ch.ChannelId}/delete`}
-							>
+							<a href={'/settings/content'}>
 								Delete
 							</a>
 						</DropdownMenuItem>
