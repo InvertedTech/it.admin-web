@@ -1,6 +1,7 @@
 "use server";
 
-import type { AuthenticateUserResponse } from "@inverted-tech/fragments/protos/Authentication/UserInterface_pb";
+import { create } from "@bufbuild/protobuf";
+import { AuthenticateUserRequest, AuthenticateUserResponseSchema, AuthErrorReason, AuthErrorSchema, type AuthenticateUserResponse } from "@inverted-tech/fragments/Authentication";
 import { cookies } from "next/headers";
 
 export type LoginPayload = {
@@ -22,7 +23,7 @@ export type LoginResult =
       data?: Partial<AuthenticateUserResponse> | unknown;
     };
 
-export async function loginAction(payload: LoginPayload): Promise<LoginResult> {
+export async function loginAction(payload: AuthenticateUserRequest): Promise<AuthenticateUserResponse> {
   const url = process.env.AUTH_LOGIN_URL || "http://localhost:8001/api/auth/login";
 
   try {
@@ -30,53 +31,29 @@ export async function loginAction(payload: LoginPayload): Promise<LoginResult> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-      // Avoid caching auth requests
       cache: "no-store",
-      // Send cookies to same-origin backends if applicable
       credentials: "include",
     });
-
-    let data: Partial<AuthenticateUserResponse> | unknown = null;
-    try {
-      data = await res.json();
-    } catch {
-      // ignore json parse errors
+    
+    if (!res) {
+      return create(AuthenticateUserResponseSchema, { ok: false, Error: create(AuthErrorSchema, {
+        Message: "Unknown Error",
+        Type: AuthErrorReason.AUTH_REASON_UNSPECIFIED
+      }) });
     }
 
-    if (!res.ok) {
-      return {
-        ok: false,
-        status: res.status,
-        statusText: res.statusText,
-        data,
-        error: typeof (data as any)?.message === "string" ? (data as any).message : undefined,
-      };
-    }
+    const body: AuthenticateUserResponse = await res.json();
 
-    // Handle app-level failure responses (HTTP 200 but ok: false)
-    if (typeof (data as any)?.ok === "boolean" && (data as any).ok === false) {
-      return {
-        ok: false,
-        status: res.status,
-        statusText: res.statusText,
-        data,
-        error: typeof (data as any)?.message === "string" ? (data as any).message : "Authentication failed",
-      };
-    }
+    if (body.ok && body.BearerToken && body.BearerToken !== '') {
+      const cookieStore = await cookies();
+      await cookieStore.set('token', body.BearerToken);
+    } 
 
-    // If backend returns a BearerToken, persist it as a cookie.
-    const bearer = (data as any)?.BearerToken as string | undefined;
-    if (bearer) {
-      await (await cookies()).set("token", bearer, {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      });
-    }
-
-    return { ok: true, data: (data ?? {}) as AuthenticateUserResponse, tokenSet: Boolean(bearer) };
+    return body;
   } catch (e: any) {
-    return { ok: false, error: e?.message || "Network error" };
+    return create(AuthenticateUserResponseSchema, { ok: false, Error: create(AuthErrorSchema, {
+        Message: "Unknown Error",
+        Type: AuthErrorReason.AUTH_REASON_UNSPECIFIED
+      }) });
   }
 }
