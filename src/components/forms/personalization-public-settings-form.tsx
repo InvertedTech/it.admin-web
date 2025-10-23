@@ -1,22 +1,19 @@
 'use client';
 
 import type { CSSProperties } from 'react';
- 
+
 import { Button } from '@/components/ui/button';
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldGroup } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { FormCard } from './form-card';
 import { FormSubmitErrors } from '@/components/ui/form-submit-errors';
-import { FormFieldItem } from './form-field-item';
 import { Spinner } from '@/components/ui/spinner';
 import { PersonalizationPublicRecordSchema } from '@inverted-tech/fragments/Settings/SettingsRecord_pb';
-import { useProtoForm } from '@/hooks/use-proto-form';
-
-
+import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 
 export function PersonalizationPublicForm() {
-	const form = useProtoForm({
+	const form = useProtoAppForm({
 		schema: PersonalizationPublicRecordSchema,
 		onValidSubmit: async ({ value }) => {
 			// TODO: Persist settings via an action/API
@@ -26,105 +23,64 @@ export function PersonalizationPublicForm() {
 
 	return (
 		<FormCard
-			cardTitle='Public Personalization'
-			cardDescription='Control what visitors see before they sign in.'
+			cardTitle="Public Personalization"
+			cardDescription="Control what visitors see before they sign in."
 		>
-			<form id='persosnalization-public' onSubmit={(e) => {
-				e.preventDefault();
-				form.handleSubmit();
-			}}>
+			<form
+				id="persosnalization-public"
+				onSubmit={(e) => {
+					e.preventDefault();
+					form.handleSubmit();
+				}}
+			>
 				{/* Form-level validation errors from TanStack submit result */}
-				{(
+				{
 					<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
 						{(errs: any) => <FormSubmitErrors errors={errs} />}
 					</form.Subscribe>
-				)}
+				}
 
 				<FieldGroup>
-					<form.Field
+					<form.AppField
 						name="Title"
-						children={(field) => (
-							<FormFieldItem field={field}>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									autoComplete="off"
-								/>
-							</FormFieldItem>
-						)}
+						children={(field) => <field.TextField label="Title" />}
 					/>
-					<form.Field
+					<form.AppField
 						name="DefaultToDarkMode"
 						children={(field) => (
-							<FormFieldItem field={field}>
-								<Switch
-									id={field.name}
-									name={field.name}
-									checked={!!field.state.value}
-									onCheckedChange={(v) => field.handleChange(!!v)}
-								/>
-							</FormFieldItem>
+							<field.SwitchField label="Default To Dark Mode" />
 						)}
 					/>
-					<form.Field
+					<form.AppField
 						name="MetaDescription"
-						children={(field) => (
-							<FormFieldItem field={field}>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									autoComplete="off"
-								/>
-							</FormFieldItem>
-						)}
+						children={(field) => <field.TextField label="Meta Description" />}
 					/>
 
-					<form.Field
+					<form.AppField
 						name="ProfileImageAssetId"
 						children={(field) => (
-							<FormFieldItem field={field}>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									autoComplete="off"
-								/>
-							</FormFieldItem>
+							<field.TextField label="Profile Image Asset ID" />
 						)}
 					/>
 
-					<form.Field
+					<form.AppField
 						name="HeaderImageAssetId"
 						children={(field) => (
-							<FormFieldItem field={field}>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									autoComplete="off"
-								/>
-							</FormFieldItem>
+							<field.TextField label="Header Image Asset ID" />
 						)}
 					/>
 					<Field>
-						<Button type='reset'>Cancel</Button>
-						{(
+						<Button type="reset">Cancel</Button>
+						{
 							<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
 								{(isSubmitting: boolean) => (
-									<Button type='submit' disabled={isSubmitting}>
+									<Button
+										type="submit"
+										disabled={isSubmitting}
+									>
 										{isSubmitting ? (
 											<>
-												<Spinner className='mr-2' />
+												<Spinner className="mr-2" />
 												Saving...
 											</>
 										) : (
@@ -133,7 +89,7 @@ export function PersonalizationPublicForm() {
 									</Button>
 								)}
 							</form.Subscribe>
-						)}
+						}
 					</Field>
 				</FieldGroup>
 			</form>
