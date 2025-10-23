@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { FormCard } from './form-card';
-import { PersonalizationPublicRecordSchema } from '@inverted-tech/fragments/schemas/IT/WebServices/Fragments/Settings/SettingsRecord';
+import { PersonalizationPublicRecordSchema } from '@inverted-tech/fragments/Settings/SettingsRecord_pb';
 
 export function PersonalizationPublicForm() {
 	const form = useForm({
@@ -28,9 +28,9 @@ export function PersonalizationPublicForm() {
 			ProfileImageAssetId: '',
 			HeaderImageAssetId: '',
 		},
-		validators: {
-			onSubmit: PersonalizationPublicRecordSchema,
-		},
+		// validators: {
+		// 	onSubmit: PersonalizationPublicRecordSchema,
+		// },
 		onSubmit: ({ value }) => {
 			console.log(value);
 			const payload = {

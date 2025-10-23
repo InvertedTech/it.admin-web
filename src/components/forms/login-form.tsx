@@ -21,7 +21,7 @@ import { loginAction } from '@/app/actions/auth';
 import { redirect, useRouter, useSearchParams } from 'next/navigation';
 // Use protovalidate with generated protobuf schemas
 import { getValidator } from '@inverted-tech/fragments/validation';
-import { AuthenticateUserRequest, AuthenticateUserRequestSchema } from '@inverted-tech/fragments/Authentication/index';
+import { AuthenticateUserRequestSchema } from '@inverted-tech/fragments/protos/Authentication/UserInterface_pb';
 
 function useProtoValidator() {
 	const ref = useRef<Awaited<ReturnType<typeof getValidator>> | null>(null);
@@ -84,14 +84,16 @@ function toFieldMessageMap(
 					?.map((e: any) => e?.name)
 					.filter(Boolean)
 					.join('.') || '';
-			if (path) key = path.split('.')[path.split('.').length - 1] || undefined;
+			if (path)
+				key = path.split('.')[path.split('.').length - 1] || undefined;
 		}
 
 		// Last‑resort inference from message text
 		if (!key && typeof v?.message === 'string') {
 			const msg = v.message as string;
 			if (/password\b/i.test(msg)) key = 'Password';
-			else if (/^username\b/i.test(msg) || /user\s*name/i.test(msg)) key = 'UserName';
+			else if (/^username\b/i.test(msg) || /user\s*name/i.test(msg))
+				key = 'UserName';
 		}
 
 		const finalKey = key ?? '_';
@@ -107,7 +109,9 @@ export function LoginForm() {
 	const validatorRef = useProtoValidator();
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+	const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>(
+		{}
+	);
 	const form = useForm({
 		defaultValues: {
 			UserName: '',
@@ -116,15 +120,21 @@ export function LoginForm() {
 		onSubmit: async ({ value }) => {
 			// Validate using protovalidate against the generated schema
 			const validator = validatorRef.current ?? (await getValidator());
-			const payload = create(AuthenticateUserRequestSchema, value)
-			const validateRes = await validator.validate(AuthenticateUserRequestSchema, payload);
+			const payload = create(AuthenticateUserRequestSchema, value);
+			const validateRes = await validator.validate(
+				AuthenticateUserRequestSchema,
+				payload
+			);
 
 			if (validateRes.kind === 'invalid') {
 				const byField = toFieldMessageMap(validateRes.error.violations);
 				setFieldErrors(Object.fromEntries(byField));
 				// mark fields touched so UI styles apply
 				for (const name of ['UserName', 'Password'] as const) {
-					form.setFieldMeta(name, (meta: any) => ({ ...meta, isTouched: true }));
+					form.setFieldMeta(name, (meta: any) => ({
+						...meta,
+						isTouched: true,
+					}));
 				}
 				return; // block submit on validation errors
 			}
@@ -133,9 +143,14 @@ export function LoginForm() {
 			setFieldErrors({});
 			const result = await loginAction(payload);
 			if (!result.ok) {
-				console.error(result.statusText || result.error || 'Login failed');
+				console.error(
+					result.statusText || result.error || 'Login failed'
+				);
 				// Surface server-provided message as a global error if available
-				const message = (result.data as any)?.message || result.error || 'Login failed';
+				const message =
+					(result.data as any)?.message ||
+					result.error ||
+					'Login failed';
 				setFieldErrors((prev) => ({ ...prev, _: [message] }));
 				return;
 			}
@@ -195,12 +210,10 @@ export function LoginForm() {
 												event.target.value
 											)
 										}
-									aria-invalid={isInvalid}
+										aria-invalid={isInvalid}
 									/>
 									{isInvalid && (
-										<FieldError
-											errors={mergedErrors}
-										/>
+										<FieldError errors={mergedErrors} />
 									)}
 								</Field>
 							);
@@ -245,12 +258,10 @@ export function LoginForm() {
 												event.target.value
 											)
 										}
-									aria-invalid={isInvalid}
+										aria-invalid={isInvalid}
 									/>
 									{isInvalid && (
-										<FieldError
-											errors={mergedErrors}
-										/>
+										<FieldError errors={mergedErrors} />
 									)}
 								</Field>
 							);
@@ -301,5 +312,3 @@ export function LoginForm() {
 		</FormCard>
 	);
 }
-
-
