@@ -123,25 +123,19 @@ const data = {
 			],
 		},
 	],
-	navQuick: [
-		{
-			title: 'New Content',
-			url: '/content/create',
-			icon: IconFileDescription,
-		},
-		{ title: 'Upload Asset', url: '/asset/upload', icon: IconUpload },
-		{ title: 'New Event', url: '/events/create', icon: IconCalendarPlus },
-		{
-			title: 'Create Category',
-			url: '/settings/content',
-			icon: IconTags,
-		},
-		{
-			title: 'Create Channel',
-			url: '/settings/content',
-			icon: IconFolders,
-		},
-	],
+    navQuick: [
+        { title: 'Upload Asset', url: '/asset/upload', icon: IconUpload },
+        {
+            title: 'Create Category',
+            url: '/settings/content',
+            icon: IconTags,
+        },
+        {
+            title: 'Create Channel',
+            url: '/settings/content',
+            icon: IconFolders,
+        },
+    ],
 	navSecondary: [
 		{
 			title: 'Get Help',

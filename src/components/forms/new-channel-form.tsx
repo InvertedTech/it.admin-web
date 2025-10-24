@@ -124,15 +124,28 @@ export function NewChannelForm({ channels = [] }: { channels?: ChannelOption[] }
     >
       <form
         id="new-channel-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          // Prevent early submit on step 1; advance instead
+        onSubmitCapture={(event) => {
+          // Block any submit while on step 1 (capture phase)
           if (step === 1) {
-            setStep(2);
+            event.preventDefault();
+            event.stopPropagation();
             return;
           }
-          form.handleSubmit();
         }}
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (step !== 1) {
+            form.handleSubmit();
+          }
+        }}
+        onKeyDownCapture={(e) => {
+          // Prevent Enter from submitting while on step 1 (capture phase)
+          if (step === 1 && e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
+        noValidate
       >
         {
           <form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
@@ -166,7 +179,15 @@ function Wizard({ channels, form, step, setStep }: { channels: ChannelOption[]; 
             {(values: any) => {
               const canNext = !!(values?.DisplayName && values?.UrlStub);
               return (
-                <Button type="button" onClick={() => setStep(2)} disabled={!canNext}>
+                <Button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setStep(2);
+                  }}
+                  disabled={!canNext}
+                >
                   Next
                 </Button>
               );
