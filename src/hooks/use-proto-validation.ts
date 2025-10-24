@@ -25,36 +25,50 @@ export function toFieldMessageMap(
   const byField = new Map<string, string[]>();
   if (!Array.isArray(violations)) return byField;
 
+  const getPart = (p: any): string | undefined =>
+    p?.name ?? p?.localName ?? p?.jsonName ?? undefined;
+
   for (const v of violations) {
-    let key: string | undefined;
+    let path: string | undefined;
 
-    // Common protovalidate shape (TS runtime): v.field is an array of FieldDescriptors
+    // Preferred: v.field is an array of descriptors → join all parts
     if (Array.isArray(v?.field) && v.field.length > 0) {
-      const last = v.field[v.field.length - 1];
-      key = last?.jsonName ?? last?.name ?? last?.localName;
+      const parts = v.field.map(getPart).filter(Boolean) as string[];
+      if (parts.length) path = parts.join(".");
     }
 
-    // Alternative shape: fieldPath/elements with { name }
-    if (!key) {
-      const path =
-        ((v as any)?.fieldPath?.elements ?? (v as any)?.field?.elements)
-          ?.map((e: any) => e?.name)
-          ?.filter(Boolean)
-          ?.join(".") || "";
-      if (path) key = path.split(".")[path.split(".").length - 1] || undefined;
+    // Alternative: fieldPath.elements with { name }
+    if (!path) {
+      const parts = ((v as any)?.fieldPath?.elements ?? (v as any)?.field?.elements)
+        ?.map((e: any) => e?.name)
+        ?.filter(Boolean);
+      if (Array.isArray(parts) && parts.length) path = parts.join(".");
     }
 
-    // Last-resort inference from message text
-    if (!key && typeof v?.message === "string") {
+    // Fallbacks for common terms when no structured path is present
+    if (!path && typeof v?.message === "string") {
       const msg = v.message as string;
-      if (/password\b/i.test(msg)) key = "Password";
-      else if (/^username\b/i.test(msg) || /user\s*name/i.test(msg)) key = "UserName";
+      if (/password\b/i.test(msg)) path = "Password";
+      else if (/^username\b/i.test(msg) || /user\s*name/i.test(msg)) path = "UserName";
     }
 
-    const finalKey = key ?? "_";
-    const list = byField.get(finalKey) || [];
-    list.push(v?.message ?? "Invalid");
-    byField.set(finalKey, list);
+    const key = path ?? "_";
+    const message = v?.message ?? "Invalid";
+
+    const add = (k: string) => {
+      const list = byField.get(k) || [];
+      list.push(message);
+      byField.set(k, list);
+    };
+
+    // Always add the full path
+    add(key);
+
+    // Also add convenient aliases so field components can match by name
+    const last = key.split('.').pop() || key;
+    if (last && last !== key) add(last);
+    const camel = last ? last.charAt(0).toLowerCase() + last.slice(1) : last;
+    if (camel && camel !== last) add(camel);
   }
 
   return byField;
