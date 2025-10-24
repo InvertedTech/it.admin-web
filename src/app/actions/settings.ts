@@ -2,7 +2,7 @@
 
 import { cache } from 'react';
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { create } from '@bufbuild/protobuf';
+import { create, toJsonString } from '@bufbuild/protobuf';
 import { cookies } from 'next/headers';
 import {
 	GetAdminDataResponse,
@@ -14,6 +14,9 @@ import {
 	ModifySubscriptionPublicDataResponse,
 	SettingsErrorSchema,
 	SettingsErrorReason,
+	ChannelRecordSchema,
+	CategoryRecordSchema,
+	ModifySubscriptionPublicDataRequestSchema,
 } from '@inverted-tech/fragments/Settings';
 
 async function getToken() {
@@ -63,6 +66,7 @@ export async function getAdminSettings() {
 export async function createChannel(req: ChannelRecord) {
 	const token = await getToken();
 	const url = 'http://localhost:8001/api/settings/channel/create';
+
 	try {
 		const res = await fetch(url, {
 			method: 'POST',
@@ -100,7 +104,7 @@ export async function createCategory(req: CategoryRecord) {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${token}`,
 			},
-			body: JSON.stringify(req),
+			body: toJsonString(CategoryRecordSchema, req),
 		});
 
 		if (!res) return false;
@@ -123,7 +127,7 @@ export async function modifyPublicSubscriptionSettings(
 ) {
 	const token = await getToken();
 	const url = 'http://localhost:8001/api/settings/subscription/public';
-
+	console.log(req);
 	try {
 		const res = await fetch(url, {
 			method: 'POST',
@@ -131,7 +135,7 @@ export async function modifyPublicSubscriptionSettings(
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${token}`,
 			},
-			body: JSON.stringify(req),
+			body: toJsonString(ModifySubscriptionPublicDataRequestSchema, req),
 		});
 
 		if (!res) {
