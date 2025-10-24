@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select'
 import { FieldError, FieldLabel } from '@/components/ui/field'
 import { normalizeFieldErrors } from '@/hooks/use-proto-validation'
+import { ImagePickerField } from './fields/image-picker-field'
 
 // TODO: Replace Zod with generated req/res schemas from @inverted-tech/fragments/schemas
 const CreateChannelRequestSchema = z.object({
@@ -71,6 +72,7 @@ function ParentChannelSelect({ options }: { options: ChannelOption[] }) {
 }
 
 export function NewChannelForm({ channels = [] }: { channels?: ChannelOption[] }) {
+  const [step, setStep] = useState<1 | 2>(1);
   const form = useAppForm({
     defaultValues: {
       DisplayName: '',
@@ -124,6 +126,11 @@ export function NewChannelForm({ channels = [] }: { channels?: ChannelOption[] }
         id="new-channel-form"
         onSubmit={(event) => {
           event.preventDefault();
+          // Prevent early submit on step 1; advance instead
+          if (step === 1) {
+            setStep(2);
+            return;
+          }
           form.handleSubmit();
         }}
       >
@@ -132,14 +139,13 @@ export function NewChannelForm({ channels = [] }: { channels?: ChannelOption[] }
             {(errs: any) => <FormSubmitErrors errors={errs} />}
           </form.Subscribe>
         }
-        <Wizard channels={channels} form={form} />
+        <Wizard channels={channels} form={form} step={step} setStep={setStep} />
       </form>
     </FormCard>
   )
 }
 
-function Wizard({ channels, form }: { channels: ChannelOption[]; form: any }) {
-  const [step, setStep] = useState<1 | 2>(1);
+function Wizard({ channels, form, step, setStep }: { channels: ChannelOption[]; form: any; step: 1 | 2; setStep: (s: 1 | 2) => void }) {
   return (
     <div className="space-y-4">
       <div className="text-sm text-muted-foreground">Step {step} of 2</div>
@@ -215,14 +221,9 @@ function StepOne({ channels, form }: { channels: ChannelOption[]; form: any }) {
 function StepTwo({ form }: { form: any }) {
   return (
     <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
-      <div className="md:col-span-2">
-        <form.AppField
-          name="ImageAssetId"
-          children={(field) => (
-            <field.TextField label="Image Asset ID" />
-          )}
-        />
-      </div>
+          <div className="md:col-span-2">
+            <form.AppField name="ImageAssetId" children={() => <ImagePickerField label="Channel Image" />} />
+          </div>
       <div className="md:col-span-1">
         <form.AppField
           name="YoutubeUrl"
