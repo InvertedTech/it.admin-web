@@ -24,78 +24,80 @@ export function PersonalizationPublicForm({
 		},
 	});
 
-	return (
-		<FormCard
-			cardTitle="Public Personalization"
-			cardDescription="Control what visitors see before they sign in."
-		>
-			<form
-				id="persosnalization-public"
-				onSubmit={(e) => {
-					e.preventDefault();
-					form.handleSubmit();
-				}}
-			>
-				{/* Form-level validation errors from TanStack submit result */}
-				{
-					<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
-						{(errs: any) => <FormSubmitErrors errors={errs} />}
-					</form.Subscribe>
-				}
+  return (
+    <FormCard
+      cardTitle="Public Personalization"
+      cardDescription="Control what visitors see before they sign in."
+    >
+      <form
+        id="persosnalization-public"
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+      >
+        <form.AppForm>
+          {/* Form-level validation errors from TanStack submit result */}
+          {
+            <form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+              {(errs: any) => <FormSubmitErrors errors={errs} />}
+            </form.Subscribe>
+          }
 
-				<FieldGroup>
-					<form.AppField
-						name="Title"
-						children={(field) => <field.TextField label="Title" />}
-					/>
-					<form.AppField
-						name="DefaultToDarkMode"
-						children={(field) => (
-							<field.SwitchField label="Default To Dark Mode" />
-						)}
-					/>
-					<form.AppField
-						name="MetaDescription"
-						children={(field) => <field.TextField label="Meta Description" />}
-					/>
+          <FieldGroup>
+            <form.AppField
+              name="Title"
+              children={(field) => <field.TextField label="Title" />}
+            />
+            <form.AppField
+              name="DefaultToDarkMode"
+              children={(field) => (
+                <field.SwitchField label="Default To Dark Mode" />
+              )}
+            />
+            <form.AppField
+              name="MetaDescription"
+              children={(field) => <field.TextField label="Meta Description" />}
+            />
 
-					<form.AppField
-						name="ProfileImageAssetId"
-						children={(field) => (
-							<field.TextField label="Profile Image Asset ID" />
-						)}
-					/>
+            <form.AppField
+              name="ProfileImageAssetId"
+              children={(field) => (
+                <field.TextField label="Profile Image Asset ID" />
+              )}
+            />
 
-					<form.AppField
-						name="HeaderImageAssetId"
-						children={(field) => (
-							<field.TextField label="Header Image Asset ID" />
-						)}
-					/>
-					<Field>
-						<Button type="reset">Cancel</Button>
-						{
-							<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
-								{(isSubmitting: boolean) => (
-									<Button
-										type="submit"
-										disabled={isSubmitting}
-									>
-										{isSubmitting ? (
-											<>
-												<Spinner className="mr-2" />
-												Saving...
-											</>
-										) : (
-											'Save'
-										)}
-									</Button>
-								)}
-							</form.Subscribe>
-						}
-					</Field>
-				</FieldGroup>
-			</form>
-		</FormCard>
-	);
+            <form.AppField
+              name="HeaderImageAssetId"
+              children={(field) => (
+                <field.TextField label="Header Image Asset ID" />
+              )}
+            />
+            <Field>
+              <Button type="reset">Cancel</Button>
+              {
+                <form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+                  {(isSubmitting: boolean) => (
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Spinner className="mr-2" />
+                          Saving...
+                        </>
+                      ) : (
+                        'Save'
+                      )}
+                    </Button>
+                  )}
+                </form.Subscribe>
+              }
+            </Field>
+          </FieldGroup>
+        </form.AppForm>
+      </form>
+    </FormCard>
+  );
 }

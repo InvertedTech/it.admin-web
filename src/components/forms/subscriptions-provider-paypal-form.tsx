@@ -29,25 +29,27 @@ export function PaypalProviderForm({ base }: Props) {
           form.handleSubmit();
         }}
       >
-        {<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
-          {(errs: any) => <FormSubmitErrors errors={errs} />}
-        </form.Subscribe>}
-        <FieldGroup>
-          <form.AppField name="Enabled" children={(field) => <field.BooleanField label="Enabled" />} />
-          <form.AppField name="Url" children={(field) => <field.TextField label="Checkout URL" />} />
-          <form.AppField name="ClientID" children={(field) => <field.TextField label="Client ID" />} />
-          <Field className="flex items-center justify-end">
-            {
-              <form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
-                {(isSubmitting: boolean) => (
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? (<><Spinner className="mr-2" /> Saving...</>) : 'Save'}
-                  </Button>
-                )}
-              </form.Subscribe>
-            }
-          </Field>
-        </FieldGroup>
+        <form.AppForm>
+          {<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+            {(errs: any) => <FormSubmitErrors errors={errs} />}
+          </form.Subscribe>}
+          <FieldGroup>
+            <form.AppField name="Enabled" children={(field) => <field.BooleanField label="Enabled" />} />
+            <form.AppField name="Url" children={(field) => <field.TextField label="Checkout URL" />} />
+            <form.AppField name="ClientID" children={(field) => <field.TextField label="Client ID" />} />
+            <Field className="flex items-center justify-end">
+              {
+                <form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+                  {(isSubmitting: boolean) => (
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? (<><Spinner className="mr-2" /> Saving...</>) : 'Save'}
+                    </Button>
+                  )}
+                </form.Subscribe>
+              }
+            </Field>
+          </FieldGroup>
+        </form.AppForm>
       </form>
     </FormCard>
   );

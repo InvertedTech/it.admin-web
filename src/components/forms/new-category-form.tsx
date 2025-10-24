@@ -115,50 +115,52 @@ export function NewCategoryForm({ categories = [] }: { categories?: CategoryOpti
           form.handleSubmit();
         }}
       >
-        {
-          <form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
-            {(errs: any) => <FormSubmitErrors errors={errs} />}
-          </form.Subscribe>
-        }
+        <form.AppForm>
+          {
+            <form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+              {(errs: any) => <FormSubmitErrors errors={errs} />}
+            </form.Subscribe>
+          }
 
-        <AutoSlugger form={form} />
+          <AutoSlugger form={form} />
 
-        <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="md:col-span-1">
-            <form.AppField
-              name="DisplayName"
-              children={(field: any) => (
-                <field.TextField label="Display Name" description="Shown anywhere this category appears in the UI." />
-              )}
-            />
-          </div>
-          <div className="md:col-span-1">
-            <form.AppField
-              name="UrlStub"
-              children={(field: any) => (
-                <field.TextField label="URL Stub" description="Auto-generated from Display Name." disabled />
-              )}
-            />
-          </div>
-          <div className="md:col-span-2">
-            <form.AppField
-              name="ParentCategoryId"
-              children={() => <ParentCategorySelect options={categories} />}
-            />
-          </div>
-          <Field className="md:col-span-2 flex items-center justify-between">
-            <Button type="reset" variant="outline">Cancel</Button>
-            {
-              <form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
-                {(isSubmitting: boolean) => (
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? (<><Spinner className="mr-2" /> Creating...</>) : 'Create Category'}
-                  </Button>
+          <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="md:col-span-1">
+              <form.AppField
+                name="DisplayName"
+                children={(field: any) => (
+                  <field.TextField label="Display Name" description="Shown anywhere this category appears in the UI." />
                 )}
-              </form.Subscribe>
-            }
-          </Field>
-        </FieldGroup>
+              />
+            </div>
+            <div className="md:col-span-1">
+              <form.AppField
+                name="UrlStub"
+                children={(field: any) => (
+                  <field.TextField label="URL Stub" description="Auto-generated from Display Name." disabled />
+                )}
+              />
+            </div>
+            <div className="md:col-span-2">
+              <form.AppField
+                name="ParentCategoryId"
+                children={() => <ParentCategorySelect options={categories} />}
+              />
+            </div>
+            <Field className="md:col-span-2 flex items-center justify-between">
+              <Button type="reset" variant="outline">Cancel</Button>
+              {
+                <form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+                  {(isSubmitting: boolean) => (
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? (<><Spinner className="mr-2" /> Creating...</>) : 'Create Category'}
+                    </Button>
+                  )}
+                </form.Subscribe>
+              }
+            </Field>
+          </FieldGroup>
+        </form.AppForm>
       </form>
     </FormCard>
   )

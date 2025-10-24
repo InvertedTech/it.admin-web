@@ -44,34 +44,36 @@ export function SubscriptionConstraintsForm({ base, initial }: Props) {
           form.handleSubmit();
         }}
       >
-        {<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
-          {(errs: any) => <FormSubmitErrors errors={errs} />}
-        </form.Subscribe>}
-        <FieldGroup>
-          <form.AppField
-            name="AllowOther"
-            children={(field) => <field.BooleanField label="Allow Other" />}
-          />
-          <form.AppField
-            name="MinimumAllowed"
-            children={(field) => <field.BooleanField label="Minimum Allowed" />}
-          />
-          <form.AppField
-            name="MaximumAllowed"
-            children={(field) => <field.BooleanField label="Maximum Allowed" />}
-          />
-          <Field className="flex items-center justify-end gap-2">
-            {
-              <form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
-                {(isSubmitting: boolean) => (
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? (<><Spinner className="mr-2" /> Saving...</>) : 'Save'}
-                  </Button>
-                )}
-              </form.Subscribe>
-            }
-          </Field>
-        </FieldGroup>
+        <form.AppForm>
+          {<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+            {(errs: any) => <FormSubmitErrors errors={errs} />}
+          </form.Subscribe>}
+          <FieldGroup>
+            <form.AppField
+              name="AllowOther"
+              children={(field) => <field.BooleanField label="Allow Other" />}
+            />
+            <form.AppField
+              name="MinimumAllowed"
+              children={(field) => <field.BooleanField label="Minimum Allowed" />}
+            />
+            <form.AppField
+              name="MaximumAllowed"
+              children={(field) => <field.BooleanField label="Maximum Allowed" />}
+            />
+            <Field className="flex items-center justify-end gap-2">
+              {
+                <form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+                  {(isSubmitting: boolean) => (
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? (<><Spinner className="mr-2" /> Saving...</>) : 'Save'}
+                    </Button>
+                  )}
+                </form.Subscribe>
+              }
+            </Field>
+          </FieldGroup>
+        </form.AppForm>
       </form>
     </FormCard>
   );

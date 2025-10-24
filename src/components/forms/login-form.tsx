@@ -47,62 +47,64 @@ export function LoginForm({ from }: Props) {
 					form.handleSubmit();
 				}}
 			>
-				{
-					<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
-						{(errs: any) => <FormSubmitErrors errors={errs} />}
-					</form.Subscribe>
-				}
-				<FieldGroup>
-					<form.AppField
-						name="UserName"
-						children={(field) => <field.TextField label="Email" />}
-					/>
+				<form.AppForm>
+					{
+						<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+							{(errs: any) => <FormSubmitErrors errors={errs} />}
+						</form.Subscribe>
+					}
+					<FieldGroup>
+						<form.AppField
+							name="UserName"
+							children={(field) => <field.TextField label="Email" />}
+						/>
 
-					<form.AppField
-						name="Password"
-						children={(field) => (
-							<div>
-								<div className="flex items-center justify-between">
-									<span />
-									<a
-										href="#"
-										className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-									>
-										Forgot your password?
-									</a>
+						<form.AppField
+							name="Password"
+							children={(field) => (
+								<div>
+									<div className="flex items-center justify-between">
+										<span />
+										<a
+											href="#"
+											className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+										>
+											Forgot your password?
+										</a>
+									</div>
+									<field.PasswordField label="Password" />
 								</div>
-								<field.PasswordField label="Password" />
-							</div>
-						)}
-					/>
-					<div className="flex items-center gap-2">
-						{
-							<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
-								{(isSubmitting: boolean) => (
-									<Button
-										type="submit"
-										disabled={isSubmitting}
-									>
-										{isSubmitting ? (
-											<>
-												<Spinner className="mr-2" />
-												Logging in...
-											</>
-										) : (
-											'Login'
-										)}
-									</Button>
-								)}
-							</form.Subscribe>
-						}
-						<Button
-							variant="outline"
-							type="button"
-						>
-							Login with Google
-						</Button>
-					</div>
-				</FieldGroup>
+							)}
+						/>
+						<div className="flex items-center gap-2">
+							{
+								<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+									{(isSubmitting: boolean) => (
+										<Button
+											type="submit"
+											disabled={isSubmitting}
+										>
+											{isSubmitting ? (
+												<>
+													<Spinner className="mr-2" />
+													Logging in...
+												</>
+											) : (
+												'Login'
+											)}
+										</Button>
+									)}
+								</form.Subscribe>
+							}
+							<Button
+								variant="outline"
+								type="button"
+							>
+								Login with Google
+							</Button>
+						</div>
+					</FieldGroup>
+				</form.AppForm>
 			</form>
 		</FormCard>
 	);

@@ -98,13 +98,15 @@ export async function createCategory(req: CategoryRecord) {
 	const token = await getToken();
 	const url = 'http://localhost:8001/api/settings/category/create';
 	try {
+		// Ensure we serialize using a proper message instance so field names map correctly
+		const msg = create(CategoryRecordSchema, req as any);
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${token}`,
 			},
-			body: toJsonString(CategoryRecordSchema, req),
+			body: toJsonString(CategoryRecordSchema, msg),
 		});
 
 		if (!res) return false;

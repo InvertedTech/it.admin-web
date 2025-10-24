@@ -21,49 +21,51 @@ export function CryptoProviderForm({ base, initial }: Props) {
 		},
 	});
 
-	return (
-		<FormCard
-			cardTitle="Crypto"
-			cardDescription="Enable crypto payments."
-		>
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					form.handleSubmit();
-				}}
-			>
-				{
-					<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
-						{(errs: any) => <FormSubmitErrors errors={errs} />}
-					</form.Subscribe>
-				}
-				<FieldGroup>
-					<form.AppField
-						name="Enabled"
-						children={(field) => <field.BooleanField label="Enabled" />}
-					/>
-					<Field className="flex items-center justify-end">
-						{
-							<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
-								{(isSubmitting: boolean) => (
-									<Button
-										type="submit"
-										disabled={isSubmitting}
-									>
-										{isSubmitting ? (
-											<>
-												<Spinner className="mr-2" /> Saving...
-											</>
-										) : (
-											'Save'
-										)}
-									</Button>
-								)}
-							</form.Subscribe>
-						}
-					</Field>
-				</FieldGroup>
-			</form>
-		</FormCard>
-	);
+  return (
+    <FormCard
+      cardTitle="Crypto"
+      cardDescription="Enable crypto payments."
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+      >
+        <form.AppForm>
+          {
+            <form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+              {(errs: any) => <FormSubmitErrors errors={errs} />}
+            </form.Subscribe>
+          }
+          <FieldGroup>
+            <form.AppField
+              name="Enabled"
+              children={(field) => <field.BooleanField label="Enabled" />}
+            />
+            <Field className="flex items-center justify-end">
+              {
+                <form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+                  {(isSubmitting: boolean) => (
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Spinner className="mr-2" /> Saving...
+                        </>
+                      ) : (
+                        'Save'
+                      )}
+                    </Button>
+                  )}
+                </form.Subscribe>
+              }
+            </Field>
+          </FieldGroup>
+        </form.AppForm>
+      </form>
+    </FormCard>
+  );
 }

@@ -240,24 +240,25 @@ export function NewImageAssetForm() {
 					form.handleSubmit();
 				}}
 			>
-				{
-					<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
-						{(errs: any) => <FormSubmitErrors errors={errs} />}
-					</form.Subscribe>
-				}
-				<AutoSlugger
-					form={form}
-					titlePath="Public.Title"
-					urlPath="Public.URL"
-				/>
+				<form.AppForm>
+					{
+						<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+							{(errs: any) => <FormSubmitErrors errors={errs} />}
+						</form.Subscribe>
+					}
+					<AutoSlugger
+						form={form}
+						titlePath="Public.Title"
+						urlPath="Public.URL"
+					/>
 
-				<FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
-					<div className="md:col-span-2">
-						<UploadArea
-							label="Upload Image"
-							help="PNG, JPEG, GIF supported. Drag and drop or choose file."
-							accept="image/*"
-							onFile={onFileSelected}
+					<FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
+						<div className="md:col-span-2">
+							<UploadArea
+								label="Upload Image"
+								help="PNG, JPEG, GIF supported. Drag and drop or choose file."
+								accept="image/*"
+								onFile={onFileSelected}
 							fileName={fileMeta?.name}
 							fileSize={fileMeta?.size ?? null}
 							onClear={() => {
@@ -305,27 +306,28 @@ export function NewImageAssetForm() {
 					</div>
 					{/* Hidden/auto fields: Public.MimeType, Public.Width, Public.Height, Private.OldAssetID */}
 
-					<Field className="md:col-span-2 flex items-center justify-end">
-						{
-							<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
-								{(isSubmitting: boolean) => (
-									<Button
-										type="submit"
-										disabled={isSubmitting}
-									>
-										{isSubmitting ? (
-											<>
-												<Spinner className="mr-2" /> Validating...
-											</>
-										) : (
-											'Validate'
-										)}
-									</Button>
-								)}
-							</form.Subscribe>
-						}
-					</Field>
-				</FieldGroup>
+						<Field className="md:col-span-2 flex items-center justify-end">
+							{
+								<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+									{(isSubmitting: boolean) => (
+										<Button
+											type="submit"
+											disabled={isSubmitting}
+										>
+											{isSubmitting ? (
+												<>
+													<Spinner className="mr-2" /> Validating...
+												</>
+											) : (
+												'Validate'
+											)}
+										</Button>
+									)}
+								</form.Subscribe>
+							}
+						</Field>
+					</FieldGroup>
+				</form.AppForm>
 			</form>
 		</FormCard>
 	);
@@ -395,24 +397,25 @@ export function NewAudioAssetForm() {
 					form.handleSubmit();
 				}}
 			>
-				{
-					<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
-						{(errs: any) => <FormSubmitErrors errors={errs} />}
-					</form.Subscribe>
-				}
-				<AutoSlugger
-					form={form}
-					titlePath="Public.Title"
-					urlPath="Public.URL"
-				/>
+				<form.AppForm>
+					{
+						<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+							{(errs: any) => <FormSubmitErrors errors={errs} />}
+						</form.Subscribe>
+					}
+					<AutoSlugger
+						form={form}
+						titlePath="Public.Title"
+						urlPath="Public.URL"
+					/>
 
-				<FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
-					<div className="md:col-span-2">
-						<UploadArea
-							label="Upload Audio"
-							help="MP3, WAV, AAC supported. Drag and drop or choose file."
-							accept="audio/*"
-							onFile={onFileSelected}
+					<FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
+						<div className="md:col-span-2">
+							<UploadArea
+								label="Upload Audio"
+								help="MP3, WAV, AAC supported. Drag and drop or choose file."
+								accept="audio/*"
+								onFile={onFileSelected}
 							fileName={fileMeta?.name}
 							fileSize={fileMeta?.size ?? null}
 							onClear={() => {
@@ -459,27 +462,28 @@ export function NewAudioAssetForm() {
 					</div>
 					{/* Hidden/auto fields: Public.MimeType, Public.LengthSeconds, Private.OldAssetID */}
 
-					<Field className="md:col-span-2 flex items-center justify-end">
-						{
-							<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
-								{(isSubmitting: boolean) => (
-									<Button
-										type="submit"
-										disabled={isSubmitting}
-									>
-										{isSubmitting ? (
-											<>
-												<Spinner className="mr-2" /> Validating...
-											</>
-										) : (
-											'Validate'
-										)}
-									</Button>
-								)}
-							</form.Subscribe>
-						}
-					</Field>
-				</FieldGroup>
+						<Field className="md:col-span-2 flex items-center justify-end">
+							{
+								<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+									{(isSubmitting: boolean) => (
+										<Button
+											type="submit"
+											disabled={isSubmitting}
+										>
+											{isSubmitting ? (
+												<>
+													<Spinner className="mr-2" /> Validating...
+												</>
+											) : (
+												'Validate'
+											)}
+										</Button>
+									)}
+								</form.Subscribe>
+							}
+						</Field>
+					</FieldGroup>
+				</form.AppForm>
 			</form>
 		</FormCard>
 	);

@@ -38,9 +38,7 @@ function matchFieldErrors(
 		const keys = Object.keys(fields);
 		const lower = last.toLowerCase();
 		const key = keys.find(
-			(k) =>
-				k.toLowerCase() === lower ||
-				k.toLowerCase().endsWith('.' + lower)
+			(k) => k.toLowerCase() === lower || k.toLowerCase().endsWith('.' + lower)
 		);
 		if (key) msgs = (fields as any)[key];
 	}
@@ -71,15 +69,9 @@ export function TextField({
 		>
 			{(errState: any) => {
 				const submitField =
-					matchFieldErrors(
-						errState?.submit?.fields as any,
-						field.name
-					) ?? [];
+					matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
 				const syncField =
-					matchFieldErrors(
-						errState?.sync?.fields as any,
-						field.name
-					) ?? [];
+					matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
 				const combined = [
 					...(Array.isArray(field.state.meta.errors)
 						? (field.state.meta.errors as any)
@@ -91,9 +83,7 @@ export function TextField({
 				const isInvalid = errors.length > 0;
 				return (
 					<UIField data-invalid={isInvalid}>
-						<FieldLabel htmlFor={field.name}>
-							{label ?? field.name}
-						</FieldLabel>
+						<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
 						<Input
 							id={field.name}
 							name={field.name}
@@ -101,12 +91,10 @@ export function TextField({
 							onBlur={field.handleBlur}
 							onChange={(e) => field.handleChange(e.target.value)}
 							aria-invalid={isInvalid}
-							autoComplete='off'
+							autoComplete="off"
 							disabled={disabled}
 						/>
-						{description && (
-							<FieldDescription>{description}</FieldDescription>
-						)}
+						{description && <FieldDescription>{description}</FieldDescription>}
 						{isInvalid && <FieldError errors={errors} />}
 					</UIField>
 				);
@@ -127,15 +115,9 @@ export function SwitchField({ label }: { label?: React.ReactNode }) {
 		>
 			{(errState: any) => {
 				const submitField =
-					matchFieldErrors(
-						errState?.submit?.fields as any,
-						field.name
-					) ?? [];
+					matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
 				const syncField =
-					matchFieldErrors(
-						errState?.sync?.fields as any,
-						field.name
-					) ?? [];
+					matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
 				const combined = [
 					...(Array.isArray(field.state.meta.errors)
 						? (field.state.meta.errors as any)
@@ -146,17 +128,18 @@ export function SwitchField({ label }: { label?: React.ReactNode }) {
 				const errors = normalizeFieldErrors(combined as any) ?? [];
 				const isInvalid = errors.length > 0;
 				return (
-					<UIField data-invalid={isInvalid} orientation='responsive'>
-						<FieldLabel htmlFor={field.name}>
-							{label ?? field.name}
-						</FieldLabel>
+					<UIField
+						data-invalid={isInvalid}
+						orientation="responsive"
+					>
+						<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
 						<Switch
 							id={field.name}
 							name={field.name}
 							checked={!!field.state.value}
 							onCheckedChange={(v) => field.handleChange(!!v)}
 							aria-invalid={isInvalid}
-							className='w-auto'
+							className="w-auto"
 						/>
 						{isInvalid && <FieldError errors={errors} />}
 					</UIField>
@@ -187,15 +170,9 @@ export function BooleanField({
 		>
 			{(errState: any) => {
 				const submitField =
-					matchFieldErrors(
-						errState?.submit?.fields as any,
-						field.name
-					) ?? [];
+					matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
 				const syncField =
-					matchFieldErrors(
-						errState?.sync?.fields as any,
-						field.name
-					) ?? [];
+					matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
 				const combined = [
 					...(Array.isArray(field.state.meta.errors)
 						? (field.state.meta.errors as any)
@@ -206,27 +183,24 @@ export function BooleanField({
 				const errors = normalizeFieldErrors(combined as any) ?? [];
 				const isInvalid = errors.length > 0;
 				return (
-					<UIField data-invalid={isInvalid} orientation='responsive'>
-						<FieldLabel htmlFor={field.name}>
-							{label ?? field.name}
-						</FieldLabel>
+					<UIField
+						data-invalid={isInvalid}
+						orientation="responsive"
+					>
+						<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
 						<ToggleGroup
-							type='single'
+							type="single"
 							value={value ? 'on' : 'off'}
 							onValueChange={(v) => {
 								if (!v) return;
 								field.handleChange(v === 'on');
 							}}
-							className='w-fit'
-							variant='outline'
-							size='lg'
+							className="w-fit"
+							variant="outline"
+							size="lg"
 						>
-							<ToggleGroupItem value='on'>
-								{onLabel}
-							</ToggleGroupItem>
-							<ToggleGroupItem value='off'>
-								{offLabel}
-							</ToggleGroupItem>
+							<ToggleGroupItem value="on">{onLabel}</ToggleGroupItem>
+							<ToggleGroupItem value="off">{offLabel}</ToggleGroupItem>
 						</ToggleGroup>
 						{isInvalid && <FieldError errors={errors} />}
 					</UIField>
@@ -305,15 +279,9 @@ export function PasswordField({ label }: { label?: React.ReactNode }) {
 		>
 			{(errState: any) => {
 				const submitField =
-					matchFieldErrors(
-						errState?.submit?.fields as any,
-						field.name
-					) ?? [];
+					matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
 				const syncField =
-					matchFieldErrors(
-						errState?.sync?.fields as any,
-						field.name
-					) ?? [];
+					matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
 				const combined = [
 					...(Array.isArray(field.state.meta.errors)
 						? (field.state.meta.errors as any)
@@ -325,10 +293,8 @@ export function PasswordField({ label }: { label?: React.ReactNode }) {
 				const isInvalid = errors.length > 0;
 				return (
 					<UIField data-invalid={isInvalid}>
-						<FieldLabel htmlFor={field.name}>
-							{label ?? field.name}
-						</FieldLabel>
-						<div className='relative'>
+						<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+						<div className="relative">
 							<Input
 								id={field.name}
 								name={field.name}
@@ -337,23 +303,19 @@ export function PasswordField({ label }: { label?: React.ReactNode }) {
 								placeholder={show ? '' : '••••••••'}
 								value={(field.state.value ?? '') as string}
 								onBlur={field.handleBlur}
-								onChange={(e) =>
-									field.handleChange(e.target.value)
-								}
+								onChange={(e) => field.handleChange(e.target.value)}
 								aria-invalid={isInvalid}
 							/>
 							<button
-								type='button'
-								aria-label={
-									show ? 'Hide password' : 'Show password'
-								}
-								className='text-muted-foreground hover:text-foreground absolute inset-y-0 right-2 my-auto inline-flex items-center justify-center rounded p-1'
+								type="button"
+								aria-label={show ? 'Hide password' : 'Show password'}
+								className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-2 my-auto inline-flex items-center justify-center rounded p-1"
 								onClick={() => setShow((v) => !v)}
 							>
 								{show ? (
-									<EyeOffIcon className='h-4 w-4' />
+									<EyeOffIcon className="h-4 w-4" />
 								) : (
-									<EyeIcon className='h-4 w-4' />
+									<EyeIcon className="h-4 w-4" />
 								)}
 							</button>
 						</div>
@@ -424,12 +386,18 @@ export function SubscriptionTierField({
 				value={value}
 				onValueChange={(v) => field.handleChange(Number(v))}
 			>
-				<SelectTrigger id={field.name} className='w-full'>
-					<SelectValue placeholder='Select tier' />
+				<SelectTrigger
+					id={field.name}
+					className="w-full"
+				>
+					<SelectValue placeholder="Select tier" />
 				</SelectTrigger>
 				<SelectContent>
 					{options.map((opt) => (
-						<SelectItem key={opt.value} value={opt.value}>
+						<SelectItem
+							key={opt.value}
+							value={opt.value}
+						>
 							{opt.label}
 						</SelectItem>
 					))}

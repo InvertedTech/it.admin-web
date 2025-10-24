@@ -147,12 +147,14 @@ export function NewChannelForm({ channels = [] }: { channels?: ChannelOption[] }
         }}
         noValidate
       >
-        {
-          <form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
-            {(errs: any) => <FormSubmitErrors errors={errs} />}
-          </form.Subscribe>
-        }
-        <Wizard channels={channels} form={form} step={step} setStep={setStep} />
+        <form.AppForm>
+          {
+            <form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+              {(errs: any) => <FormSubmitErrors errors={errs} />}
+            </form.Subscribe>
+          }
+          <Wizard channels={channels} form={form} step={step} setStep={setStep} />
+        </form.AppForm>
       </form>
     </FormCard>
   )
@@ -215,7 +217,7 @@ function StepOne({ channels, form }: { channels: ChannelOption[]; form: any }) {
         <div className="md:col-span-1">
           <form.AppField
             name="DisplayName"
-            children={(field) => (
+            children={(field: any) => (
               <field.TextField label="Display Name" description="The public name viewers will see for this channel." />
             )}
           />
@@ -223,7 +225,7 @@ function StepOne({ channels, form }: { channels: ChannelOption[]; form: any }) {
         <div className="md:col-span-1">
           <form.AppField
             name="UrlStub"
-            children={(field) => (
+            children={(field: any) => (
               <field.TextField label="URL Stub" description="Auto-generated from Display Name." disabled />
             )}
           />
@@ -248,7 +250,7 @@ function StepTwo({ form }: { form: any }) {
       <div className="md:col-span-1">
         <form.AppField
           name="YoutubeUrl"
-          children={(field) => (
+          children={(field: any) => (
             <field.TextField label="YouTube URL" />
           )}
         />
@@ -256,7 +258,7 @@ function StepTwo({ form }: { form: any }) {
       <div className="md:col-span-1">
         <form.AppField
           name="RumbleUrl"
-          children={(field) => (
+          children={(field: any) => (
             <field.TextField label="Rumble URL" />
           )}
         />
@@ -264,7 +266,7 @@ function StepTwo({ form }: { form: any }) {
       <div className="md:col-span-2">
         <form.AppField
           name="OldChannelId"
-          children={(field) => (
+          children={(field: any) => (
             <field.TextField label="Old Channel ID" />
           )}
         />
