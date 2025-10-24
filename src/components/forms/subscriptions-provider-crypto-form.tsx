@@ -40,7 +40,7 @@ export function CryptoProviderForm({ base, initial }: Props) {
 				<FieldGroup>
 					<form.AppField
 						name="Enabled"
-						children={(field) => <field.SwitchField label="Enabled" />}
+						children={(field) => <field.BooleanField label="Enabled" />}
 					/>
 					<Field className="flex items-center justify-end">
 						{

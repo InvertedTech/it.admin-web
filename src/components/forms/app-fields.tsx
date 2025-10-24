@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { normalizeFieldErrors } from '@/hooks/use-proto-validation';
 import { FormSubmitErrors } from '@/components/ui/form-submit-errors';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
@@ -52,28 +53,62 @@ export function TextField({
 }
 
 export function SwitchField({ label }: { label?: React.ReactNode }) {
-	const field = useFieldContext<boolean | undefined>();
-	const errors =
-		normalizeFieldErrors(
-			(Array.isArray(field.state.meta.errors)
-				? (field.state.meta.errors as any)
-				: []) as any
-		) ?? [];
-	const isInvalid = errors.length > 0;
+  const field = useFieldContext<boolean | undefined>()
+  const errors =
+    normalizeFieldErrors(
+      (Array.isArray(field.state.meta.errors)
+        ? (field.state.meta.errors as any)
+        : []) as any
+    ) ?? []
+  const isInvalid = errors.length > 0
 
-	return (
-		<UIField data-invalid={isInvalid}>
-			<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
-			<Switch
-				id={field.name}
-				name={field.name}
-				checked={!!field.state.value}
-				onCheckedChange={(v) => field.handleChange(!!v)}
-				aria-invalid={isInvalid}
-			/>
-			{isInvalid && <FieldError errors={errors} />}
-		</UIField>
-	);
+  return (
+    <UIField data-invalid={isInvalid} orientation='responsive'>
+      <FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+      <Switch
+        id={field.name}
+        name={field.name}
+        checked={!!field.state.value}
+        onCheckedChange={(v) => field.handleChange(!!v)}
+        aria-invalid={isInvalid}
+        className='w-auto'
+      />
+      {isInvalid && <FieldError errors={errors} />}
+    </UIField>
+  )
+}
+
+export function BooleanField({ label, onLabel = 'Enabled', offLabel = 'Disabled' }: { label?: React.ReactNode; onLabel?: React.ReactNode; offLabel?: React.ReactNode }) {
+  const field = useFieldContext<boolean | undefined>()
+  const errors =
+    normalizeFieldErrors(
+      (Array.isArray(field.state.meta.errors)
+        ? (field.state.meta.errors as any)
+        : []) as any
+    ) ?? []
+  const isInvalid = errors.length > 0
+  const value = !!field.state.value
+
+  return (
+    <UIField data-invalid={isInvalid} orientation='responsive'>
+      <FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+      <ToggleGroup
+        type='single'
+        value={value ? 'on' : 'off'}
+        onValueChange={(v) => {
+          if (!v) return
+          field.handleChange(v === 'on')
+        }}
+        className='w-fit'
+        variant='outline'
+        size='lg'
+      >
+        <ToggleGroupItem value='on'>{onLabel}</ToggleGroupItem>
+        <ToggleGroupItem value='off'>{offLabel}</ToggleGroupItem>
+      </ToggleGroup>
+      {isInvalid && <FieldError errors={errors} />}
+    </UIField>
+  )
 }
 
 export function SubmitErrors() {

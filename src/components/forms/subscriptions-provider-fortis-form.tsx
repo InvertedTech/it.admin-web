@@ -33,8 +33,8 @@ export function FortisProviderForm({ base }: Props) {
           {(errs: any) => <FormSubmitErrors errors={errs} />}
         </form.Subscribe>}
         <FieldGroup>
-          <form.AppField name="Enabled" children={(field) => <field.SwitchField label="Enabled" />} />
-          <form.AppField name="IsTest" children={(field) => <field.SwitchField label="Test Mode" />} />
+          <form.AppField name="Enabled" children={(field) => <field.BooleanField label="Enabled" />} />
+          <form.AppField name="IsTest" children={(field) => <field.BooleanField label="Test Mode" />} />
           <Field className="flex items-center justify-end">
             {
               <form.Subscribe selector={(s: any) => !!s?.isSubmitting}>

@@ -50,15 +50,15 @@ export function SubscriptionConstraintsForm({ base, initial }: Props) {
         <FieldGroup>
           <form.AppField
             name="AllowOther"
-            children={(field) => <field.SwitchField label="Allow Other" />}
+            children={(field) => <field.BooleanField label="Allow Other" />}
           />
           <form.AppField
             name="MinimumAllowed"
-            children={(field) => <field.SwitchField label="Minimum Allowed" />}
+            children={(field) => <field.BooleanField label="Minimum Allowed" />}
           />
           <form.AppField
             name="MaximumAllowed"
-            children={(field) => <field.SwitchField label="Maximum Allowed" />}
+            children={(field) => <field.BooleanField label="Maximum Allowed" />}
           />
           <Field className="flex items-center justify-end gap-2">
             {

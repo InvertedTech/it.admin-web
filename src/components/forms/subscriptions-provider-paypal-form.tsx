@@ -33,7 +33,7 @@ export function PaypalProviderForm({ base }: Props) {
           {(errs: any) => <FormSubmitErrors errors={errs} />}
         </form.Subscribe>}
         <FieldGroup>
-          <form.AppField name="Enabled" children={(field) => <field.SwitchField label="Enabled" />} />
+          <form.AppField name="Enabled" children={(field) => <field.BooleanField label="Enabled" />} />
           <form.AppField name="Url" children={(field) => <field.TextField label="Checkout URL" />} />
           <form.AppField name="ClientID" children={(field) => <field.TextField label="Client ID" />} />
           <Field className="flex items-center justify-end">
