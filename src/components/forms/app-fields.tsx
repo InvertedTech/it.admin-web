@@ -15,11 +15,13 @@ import { FormSubmitErrors } from '@/components/ui/form-submit-errors';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 
 export function TextField({
-	label,
-	description,
+    label,
+    description,
+    disabled,
 }: {
-	label?: React.ReactNode;
-	description?: React.ReactNode;
+    label?: React.ReactNode;
+    description?: React.ReactNode;
+    disabled?: boolean;
 }) {
 	const field = useFieldContext<string | undefined>();
 	const errors =
@@ -31,21 +33,22 @@ export function TextField({
 	const isInvalid = errors.length > 0;
 
 	return (
-		<UIField data-invalid={isInvalid}>
-			<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
-			<Input
-				id={field.name}
-				name={field.name}
-				value={(field.state.value ?? '') as string}
-				onBlur={field.handleBlur}
-				onChange={(e) => field.handleChange(e.target.value)}
-				aria-invalid={isInvalid}
-				autoComplete="off"
-			/>
-			{description && <FieldDescription>{description}</FieldDescription>}
-			{isInvalid && <FieldError errors={errors} />}
-		</UIField>
-	);
+        <UIField data-invalid={isInvalid}>
+            <FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+            <Input
+                id={field.name}
+                name={field.name}
+                value={(field.state.value ?? '') as string}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                aria-invalid={isInvalid}
+                autoComplete="off"
+                disabled={disabled}
+            />
+            {description && <FieldDescription>{description}</FieldDescription>}
+            {isInvalid && <FieldError errors={errors} />}
+        </UIField>
+    );
 }
 
 export function SwitchField({ label }: { label?: React.ReactNode }) {

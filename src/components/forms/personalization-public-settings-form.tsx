@@ -1,22 +1,25 @@
 'use client';
 
-import type { CSSProperties } from 'react';
-
 import { Button } from '@/components/ui/button';
 import { Field, FieldGroup } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { FormCard } from './form-card';
 import { FormSubmitErrors } from '@/components/ui/form-submit-errors';
 import { Spinner } from '@/components/ui/spinner';
-import { PersonalizationPublicRecordSchema } from '@inverted-tech/fragments/Settings/SettingsRecord_pb';
+import {
+	PersonalizationPublicRecord,
+	PersonalizationPublicRecordSchema,
+} from '@inverted-tech/fragments/Settings/SettingsRecord_pb';
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 
-export function PersonalizationPublicForm() {
+export function PersonalizationPublicForm({
+	data,
+}: {
+	data?: PersonalizationPublicRecord;
+}) {
 	const form = useProtoAppForm({
 		schema: PersonalizationPublicRecordSchema,
+		defaultValues: data,
 		onValidSubmit: async ({ value }) => {
-			// TODO: Persist settings via an action/API
 			console.log('Submitting personalization settings', value);
 		},
 	});

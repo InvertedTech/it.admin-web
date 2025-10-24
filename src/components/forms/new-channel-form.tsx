@@ -1,21 +1,28 @@
 'use client';
 
-import type { CSSProperties } from "react"
+import type { CSSProperties } from 'react'
+import { useState } from 'react'
 
-import { useForm } from "@tanstack/react-form"
-import { toast } from "sonner"
-import * as z from "zod"
+import { toast } from 'sonner'
+import * as z from 'zod'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
+import { Field, FieldGroup } from '@/components/ui/field'
+import { FormCard } from './form-card'
+import { createChannel } from '@/app/actions/settings'
+import { FormSubmitErrors } from '@/components/ui/form-submit-errors'
+import { Spinner } from '@/components/ui/spinner'
+import { useAppForm } from '@/hooks/app-form'
+import { useFieldContext } from '@/hooks/form-context'
 import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { FormCard } from "./form-card"
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { FieldError, FieldLabel } from '@/components/ui/field'
+import { normalizeFieldErrors } from '@/hooks/use-proto-validation'
 
 // TODO: Replace Zod with generated req/res schemas from @inverted-tech/fragments/schemas
 const CreateChannelRequestSchema = z.object({
@@ -25,35 +32,88 @@ const CreateChannelRequestSchema = z.object({
   YoutubeUrl: z.string().optional(),
   RumbleUrl: z.string().optional(),
   ParentChannelId: z.string().optional(),
+  OldChannelId: z.string().optional(),
 })
+type ChannelOption = { ChannelId?: string; DisplayName?: string };
 
-export function NewChannelForm() {
-  const form = useForm({
+function ParentChannelSelect({ options }: { options: ChannelOption[] }) {
+  const field = useFieldContext<string | undefined>();
+  const errors = normalizeFieldErrors(
+    (Array.isArray(field.state.meta.errors)
+      ? (field.state.meta.errors as any)
+      : []) as any
+  );
+  const isInvalid = (errors?.length ?? 0) > 0;
+  const current = (field.state.value ?? '').trim();
+  const selectValue = current === '' ? 'none' : current;
+  return (
+    <Field data-invalid={isInvalid}>
+      <FieldLabel htmlFor={field.name}>Parent Channel</FieldLabel>
+      <Select
+        value={selectValue}
+        onValueChange={(v) => field.handleChange(v === 'none' ? '' : v)}
+      >
+        <SelectTrigger aria-invalid={isInvalid}>
+          <SelectValue placeholder="None" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">None</SelectItem>
+          {options.map((o) => (
+            <SelectItem key={o.ChannelId ?? ''} value={o.ChannelId ?? ''}>
+              {o.DisplayName ?? o.ChannelId}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {isInvalid && <FieldError errors={errors} />}
+    </Field>
+  );
+}
+
+export function NewChannelForm({ channels = [] }: { channels?: ChannelOption[] }) {
+  const form = useAppForm({
     defaultValues: {
-      DisplayName: "",
-      UrlStub: ""
-    },
+      DisplayName: '',
+      UrlStub: '',
+      ImageAssetId: '',
+      YoutubeUrl: '',
+      RumbleUrl: '',
+      ParentChannelId: '',
+      OldChannelId: '',
+    } as Record<string, any>,
     validators: {
-      onSubmit: CreateChannelRequestSchema,
+      onSubmitAsync: async ({ value }) => {
+        const parsed = CreateChannelRequestSchema.safeParse(value);
+        if (!parsed.success) {
+          const fields: Record<string, string | string[]> = {};
+          for (const issue of parsed.error.issues) {
+            const key = (issue.path?.[0] as string) ?? '_';
+            const msg = issue.message;
+            if (!fields[key]) fields[key] = msg;
+            else fields[key] = Array.isArray(fields[key])
+              ? [...(fields[key] as string[]), msg]
+              : [fields[key] as string, msg];
+          }
+          return { form: 'Invalid data', fields } as const;
+        }
+        const ok = await createChannel(parsed.data as any);
+        if (!ok) {
+          return { form: 'Failed to create channel' } as const;
+        }
+        toast('Channel created', {
+          description: (
+            <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
+              <code>{JSON.stringify(parsed.data, null, 2)}</code>
+            </pre>
+          ),
+          position: 'bottom-right',
+          classNames: { content: 'flex flex-col gap-2' },
+          style: { '--border-radius': 'calc(var(--radius)  + 4px)' } as CSSProperties,
+        });
+        return;
+      },
     },
-    onSubmit: async ({ value }) => {
-
-      toast("Channel details submitted:", {
-        description: (
-          <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-            <code>{JSON.stringify(value, null, 2)}</code>
-          </pre>
-        ),
-        position: "bottom-right",
-        classNames: {
-          content: "flex flex-col gap-2",
-        },
-        style: {
-          "--border-radius": "calc(var(--radius)  + 4px)",
-        } as CSSProperties,
-      })
-    },
-  })
+  });
 
   return (
     <FormCard
@@ -63,171 +123,159 @@ export function NewChannelForm() {
       <form
         id="new-channel-form"
         onSubmit={(event) => {
-          event.preventDefault()
-          form.handleSubmit()
+          event.preventDefault();
+          form.handleSubmit();
         }}
       >
-        <FieldGroup>
-          <form.Field
-            name="DisplayName"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Display Name</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    placeholder="Acme Broadcast"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    aria-invalid={isInvalid}
-                  />
-                  <FieldDescription>
-                    The public name viewers will see for this channel.
-                  </FieldDescription>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-
-          <form.Field
-            name="UrlStub"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>URL Stub</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    placeholder="acme-broadcast"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    aria-invalid={isInvalid}
-                  />
-                  <FieldDescription>
-                    Used to build the channel URL, e.g. `/channels/acme-broadcast`.
-                  </FieldDescription>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-
-          {/* <form.Field
-            name="ImageAssetId"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Image Asset ID</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    placeholder="Optional asset identifier"
-                    value={field.state.value ?? ""}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    aria-invalid={isInvalid}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-
-          <form.Field
-            name="YoutubeUrl"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>YouTube URL</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="url"
-                    placeholder="https://youtube.com/..."
-                    value={field.state.value ?? ""}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    aria-invalid={isInvalid}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-
-          <form.Field
-            name="RumbleUrl"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Rumble URL</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="url"
-                    placeholder="https://rumble.com/..."
-                    value={field.state.value ?? ""}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    aria-invalid={isInvalid}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          />
-
-          <form.Field
-            name="ParentChannelId"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Parent Channel ID</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    placeholder="Optional parent channel"
-                    value={field.state.value ?? ""}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    aria-invalid={isInvalid}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          /> */}
-
-          <Field>
-            <Button type="submit">Create Channel</Button>
-            <Button variant="outline" type="button">
-              Cancel
-            </Button>
-          </Field>
-        </FieldGroup>
+        {
+          <form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+            {(errs: any) => <FormSubmitErrors errors={errs} />}
+          </form.Subscribe>
+        }
+        <Wizard channels={channels} form={form} />
       </form>
     </FormCard>
   )
+}
+
+function Wizard({ channels, form }: { channels: ChannelOption[]; form: any }) {
+  const [step, setStep] = useState<1 | 2>(1);
+  return (
+    <div className="space-y-4">
+      <div className="text-sm text-muted-foreground">Step {step} of 2</div>
+      {step === 1 ? (
+        <StepOne channels={channels} form={form} />
+      ) : (
+        <StepTwo form={form} />
+      )}
+
+      <Field className="flex items-center justify-between">
+        {step === 1 ? (
+          <Button type="reset" variant="outline">Cancel</Button>
+        ) : (
+          <Button type="button" variant="outline" onClick={() => setStep(1)}>Back</Button>
+        )}
+        {step === 1 ? (
+          <form.Subscribe selector={(s: any) => s?.values}>
+            {(values: any) => {
+              const canNext = !!(values?.DisplayName && values?.UrlStub);
+              return (
+                <Button type="button" onClick={() => setStep(2)} disabled={!canNext}>
+                  Next
+                </Button>
+              );
+            }}
+          </form.Subscribe>
+        ) : (
+          <form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+            {(isSubmitting: boolean) => (
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (<><Spinner className="mr-2" /> Creating...</>) : 'Create Channel'}
+              </Button>
+            )}
+          </form.Subscribe>
+        )}
+      </Field>
+    </div>
+  );
+}
+
+function StepOne({ channels, form }: { channels: ChannelOption[]; form: any }) {
+  return (
+    <>
+      <AutoSlugger form={form} />
+      <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="md:col-span-1">
+          <form.AppField
+            name="DisplayName"
+            children={(field) => (
+              <field.TextField label="Display Name" description="The public name viewers will see for this channel." />
+            )}
+          />
+        </div>
+        <div className="md:col-span-1">
+          <form.AppField
+            name="UrlStub"
+            children={(field) => (
+              <field.TextField label="URL Stub" description="Auto-generated from Display Name." disabled />
+            )}
+          />
+        </div>
+        <div className="md:col-span-2">
+          <form.AppField
+            name="ParentChannelId"
+            children={() => <ParentChannelSelect options={channels} />}
+          />
+        </div>
+      </FieldGroup>
+    </>
+  );
+}
+
+function StepTwo({ form }: { form: any }) {
+  return (
+    <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="md:col-span-2">
+        <form.AppField
+          name="ImageAssetId"
+          children={(field) => (
+            <field.TextField label="Image Asset ID" />
+          )}
+        />
+      </div>
+      <div className="md:col-span-1">
+        <form.AppField
+          name="YoutubeUrl"
+          children={(field) => (
+            <field.TextField label="YouTube URL" />
+          )}
+        />
+      </div>
+      <div className="md:col-span-1">
+        <form.AppField
+          name="RumbleUrl"
+          children={(field) => (
+            <field.TextField label="Rumble URL" />
+          )}
+        />
+      </div>
+      <div className="md:col-span-2">
+        <form.AppField
+          name="OldChannelId"
+          children={(field) => (
+            <field.TextField label="Old Channel ID" />
+          )}
+        />
+      </div>
+    </FieldGroup>
+  );
+}
+
+function AutoSlugger({ form }: { form: any }) {
+  // Subscribe to values and coerce UrlStub based on DisplayName and sanitation rules
+  return (
+    <form.Subscribe selector={(s: any) => s?.values}>
+      {(values: any) => {
+        const name = (values?.DisplayName ?? '') as string;
+        const stub = (values?.UrlStub ?? '') as string;
+        // Always sync stub to the slugified DisplayName for a locked field
+        if (typeof form?.setFieldValue === 'function') {
+          const desired = slugify(name);
+          if (desired !== stub) form.setFieldValue('UrlStub', desired);
+        }
+        return null;
+      }}
+    </form.Subscribe>
+  );
+}
+
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[']/g, '')
+    .replace(/\//g, '-')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
 }

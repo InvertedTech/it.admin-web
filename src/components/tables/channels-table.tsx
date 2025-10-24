@@ -34,7 +34,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { NewChannelForm } from '../forms/new-channel-form';
 
 export type ChannelRecord = {
@@ -243,11 +243,13 @@ export function ChannelsTable({ data }: { data: ChannelRecord[] }) {
 					</DropdownMenuContent>
 				</DropdownMenu> */}
 				<Dialog>
-					<DialogTrigger>
+					<DialogTrigger asChild>
 						<Button variant={'outline'}>Create</Button>
 					</DialogTrigger>
-					<DialogContent>
-						<NewChannelForm />
+					<DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+						<DialogTitle>Create Channel</DialogTitle>
+						<DialogDescription>Define and add a new channel.</DialogDescription>
+						<NewChannelForm channels={data} />
 					</DialogContent>
 				</Dialog>
 			</div>

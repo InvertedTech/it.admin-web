@@ -34,7 +34,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { NewCategoryForm } from '../forms/new-category-form';
 
 export type CategoryRecord = {
@@ -196,11 +196,13 @@ export function CategoriesTable({ data }: { data: CategoryRecord[] }) {
 					</DropdownMenuContent>
 				</DropdownMenu> */}
 				<Dialog>
-					<DialogTrigger>
+					<DialogTrigger asChild>
 						<Button variant={'outline'}>Create</Button>
 					</DialogTrigger>
-					<DialogContent>
-						<NewCategoryForm />
+					<DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto">
+						<DialogTitle>Create Category</DialogTitle>
+						<DialogDescription>Define and add a new category.</DialogDescription>
+						<NewCategoryForm categories={data} />
 					</DialogContent>
 				</Dialog>
 			</div>
