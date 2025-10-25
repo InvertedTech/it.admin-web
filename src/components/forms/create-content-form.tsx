@@ -16,6 +16,7 @@ import AudioContentPublicDataForm from './audio-content-public-data-fields';
 import PictureContentPublicDataForm from './picture-content-public-data-fields';
 import ContentDetailsFields from './content-details-fields';
 import { FormCard } from './form-card';
+import { createContent } from '@/app/actions/content';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 export function CreateContentForm() {
@@ -28,10 +29,16 @@ export function CreateContentForm() {
 					value: create(VideoContentPublicDataSchema) as any,
 				},
 			},
-			Private: {},
+			Private: {
+				ContentDataOneof: {
+					case: 'Video',
+					value: {},
+				},
+			},
 		} as any,
-		onSubmitAsync: async ({ value }) => {
-			console.log(value);
+		onValidSubmit: async ({ value }) => {
+			const req = create(CreateContentRequestSchema, value);
+			await createContent(req);
 		},
 	});
 
@@ -65,9 +72,9 @@ export function CreateContentForm() {
 	} as const;
 
 	return (
-		<FormCard cardTitle='Create Content'>
+		<FormCard cardTitle="Create Content">
 			<form
-				id='create-content'
+				id="create-content"
 				onSubmit={(e) => {
 					e.preventDefault();
 					form.handleSubmit();
@@ -94,96 +101,84 @@ export function CreateContentForm() {
 						{(current) => {
 							const selected = (current as any) ?? 'Video';
 							return (
-								<div className='space-y-4'>
+								<div className="space-y-4">
 									<ToggleGroup
-										type='single'
+										type="single"
 										value={selected}
 										onValueChange={(v) => {
 											if (!v) return;
 											if (v === 'Video') {
-												form.setFieldValue(
-													'Public.ContentDataOneof',
-													{
-														case: 'Video',
-														value: create(
-															VideoContentPublicDataSchema
-														) as any,
-													} as any
-												);
+												form.setFieldValue('Public.ContentDataOneof', {
+													case: 'Video',
+													value: create(VideoContentPublicDataSchema) as any,
+												} as any);
+												form.setFieldValue('Private.ContentDataOneof', {
+													case: 'Video',
+													value: {},
+												} as any);
 											} else if (v === 'Written') {
-												form.setFieldValue(
-													'Public.ContentDataOneof',
-													{
-														case: 'Written',
-														value: create(
-															WrittenContentPublicDataSchema
-														) as any,
-													} as any
-												);
+												form.setFieldValue('Public.ContentDataOneof', {
+													case: 'Written',
+													value: create(WrittenContentPublicDataSchema) as any,
+												} as any);
+												form.setFieldValue('Private.ContentDataOneof', {
+													case: 'Written',
+													value: {},
+												} as any);
 											} else if (v === 'Audio') {
-												form.setFieldValue(
-													'Public.ContentDataOneof',
-													{
-														case: 'Audio',
-														value: create(
-															AudioContentPublicDataSchema
-														) as any,
-													} as any
-												);
+												form.setFieldValue('Public.ContentDataOneof', {
+													case: 'Audio',
+													value: create(AudioContentPublicDataSchema) as any,
+												} as any);
+												form.setFieldValue('Private.ContentDataOneof', {
+													case: 'Audio',
+													value: {},
+												} as any);
 											} else if (v === 'Picture') {
-												form.setFieldValue(
-													'Public.ContentDataOneof',
-													{
-														case: 'Picture',
-														value: create(
-															PictureContentPublicDataSchema
-														) as any,
-													} as any
-												);
+												form.setFieldValue('Public.ContentDataOneof', {
+													case: 'Picture',
+													value: create(PictureContentPublicDataSchema) as any,
+												} as any);
+												form.setFieldValue('Private.ContentDataOneof', {
+													case: 'Picture',
+													value: {},
+												} as any);
 											}
 										}}
-										className='w-fit'
-										variant='outline'
-										size='lg'
+										className="w-fit"
+										variant="outline"
+										size="lg"
 									>
-										<ToggleGroupItem value='Video'>
-											Video
-										</ToggleGroupItem>
-										<ToggleGroupItem value='Written'>
-											Written
-										</ToggleGroupItem>
-										<ToggleGroupItem value='Audio'>
-											Audio
-										</ToggleGroupItem>
-										<ToggleGroupItem value='Picture'>
-											Picture
-										</ToggleGroupItem>
+										<ToggleGroupItem value="Video">Video</ToggleGroupItem>
+										<ToggleGroupItem value="Written">Written</ToggleGroupItem>
+										<ToggleGroupItem value="Audio">Audio</ToggleGroupItem>
+										<ToggleGroupItem value="Picture">Picture</ToggleGroupItem>
 									</ToggleGroup>
 
 									{selected === 'Video' && (
 										<VideoContentPublicDataForm
-											title='Video'
+											title="Video"
 											form={form}
 											fields={videoFields as any}
 										/>
 									)}
 									{selected === 'Written' && (
 										<WrittenContentPublicDataForm
-											title='Written'
+											title="Written"
 											form={form}
 											fields={writtenFields as any}
 										/>
 									)}
 									{selected === 'Audio' && (
 										<AudioContentPublicDataForm
-											title='Audio'
+											title="Audio"
 											form={form}
 											fields={audioFields as any}
 										/>
 									)}
 									{selected === 'Picture' && (
 										<PictureContentPublicDataForm
-											title='Picture'
+											title="Picture"
 											form={form}
 											fields={pictureFields as any}
 										/>
@@ -201,10 +196,7 @@ export function CreateContentForm() {
 						{(se: any) => {
 							try {
 								// eslint-disable-next-line no-console
-								console.log(
-									'[CreateContentForm] submitErrors',
-									se
-								);
+								console.log('[CreateContentForm] submitErrors', se);
 							} catch {}
 							return null;
 						}}
@@ -218,7 +210,7 @@ export function CreateContentForm() {
 							return null;
 						}}
 					</form.Subscribe>
-					<form.CreateButton label='Create' />
+					<form.CreateButton label="Create" />
 				</form.AppForm>
 			</form>
 		</FormCard>
@@ -226,28 +218,28 @@ export function CreateContentForm() {
 }
 
 function slugify(input: string): string {
-  return String(input)
-    .toLowerCase()
-    .trim()
-    .replace(/[']/g, '')
-    .replace(/\//g, '-')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
+	return String(input)
+		.toLowerCase()
+		.trim()
+		.replace(/[']/g, '')
+		.replace(/\//g, '-')
+		.replace(/[^a-z0-9\s-]/g, '')
+		.replace(/\s+/g, '-')
+		.replace(/-+/g, '-');
 }
 
 function AutoContentSlugger({ form }: { form: any }) {
-  return (
-    <form.Subscribe selector={(s: any) => s?.values?.Public}>
-      {(pub: any) => {
-        const title = pub?.Title ?? '';
-        const url = pub?.URL ?? '';
-        const desired = slugify(title);
-        if (desired !== url && typeof form?.setFieldValue === 'function') {
-          form.setFieldValue('Public.URL', desired);
-        }
-        return null;
-      }}
-    </form.Subscribe>
-  );
+	return (
+		<form.Subscribe selector={(s: any) => s?.values?.Public}>
+			{(pub: any) => {
+				const title = pub?.Title ?? '';
+				const url = pub?.URL ?? '';
+				const desired = slugify(title);
+				if (desired !== url && typeof form?.setFieldValue === 'function') {
+					form.setFieldValue('Public.URL', desired);
+				}
+				return null;
+			}}
+		</form.Subscribe>
+	);
 }
