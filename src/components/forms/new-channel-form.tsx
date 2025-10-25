@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/select'
 import { FieldError, FieldLabel } from '@/components/ui/field'
 import { normalizeFieldErrors } from '@/hooks/use-proto-validation'
-import { ImagePickerField } from './fields/image-picker-field'
 
 // TODO: Replace Zod with generated req/res schemas from @inverted-tech/fragments/schemas
 const CreateChannelRequestSchema = z.object({
@@ -245,7 +244,12 @@ function StepTwo({ form }: { form: any }) {
   return (
     <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="md:col-span-2">
-            <form.AppField name="ImageAssetId" children={() => <ImagePickerField label="Channel Image" />} />
+            <form.AppField
+              name="ImageAssetId"
+              children={(field: any) => (
+                <field.ImagePickerField label="Channel Image" />
+              )}
+            />
           </div>
       <div className="md:col-span-1">
         <form.AppField

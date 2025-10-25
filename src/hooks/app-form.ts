@@ -10,6 +10,7 @@ import {
 	SubmitErrors,
 	PasswordField,
 	SubscriptionTierField,
+    ImagePickerField,
 } from '@/components/forms/app-fields';
 import { CreateButton } from '@/components/forms/buttons/create-button';
 
@@ -23,6 +24,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
 		BooleanField,
 		PasswordField,
 		SubscriptionTierField,
+        ImagePickerField,
 	},
 	formComponents: {
 		SubmitErrors,

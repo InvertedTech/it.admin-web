@@ -2,7 +2,6 @@
 
 import { withFieldGroup } from '@/hooks/use-proto-app-form';
 import { useStore } from '@tanstack/react-form';
-import { ImagePickerField } from '../../fields/image-picker-field';
 
 // Group for basic content public details
 const ContentDetailsFields = withFieldGroup({
@@ -44,7 +43,7 @@ const ContentDetailsFields = withFieldGroup({
 				</group.AppField>
 				{/* URL field hidden; preview is shown under Title */}
 				<group.AppField name="FeaturedImageAssetID">
-					{() => <ImagePickerField label={'Featured Image'} />}
+					{(f) => <f.ImagePickerField label={'Featured Image'} />}
 				</group.AppField>
 				<group.AppField name="SubscriptionLevel">
 					{(f) => <f.SubscriptionTierField label={'Subscription Tier'} />}
