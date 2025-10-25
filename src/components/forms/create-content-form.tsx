@@ -10,11 +10,8 @@ import {
 	AudioContentPublicDataSchema,
 	PictureContentPublicDataSchema,
 } from '@inverted-tech/fragments/Content';
-import VideoContentPublicDataForm from './video-content-public-data-fields';
-import WrittenContentPublicDataForm from './written-content-public-data-fields';
-import AudioContentPublicDataForm from './audio-content-public-data-fields';
-import PictureContentPublicDataForm from './picture-content-public-data-fields';
-import ContentDetailsFields from './content-details-fields';
+import ContentPublicDataFieldGroups from './groups/content/content-public-data-field-groups';
+import ContentDetailsFields from './groups/content/content-details-fields';
 import { FormCard } from './form-card';
 import { createContent } from '@/app/actions/content';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -156,28 +153,28 @@ export function CreateContentForm() {
 									</ToggleGroup>
 
 									{selected === 'Video' && (
-										<VideoContentPublicDataForm
+										<ContentPublicDataFieldGroups.VideoContentPublicDataFields
 											title="Video"
 											form={form}
 											fields={videoFields as any}
 										/>
 									)}
 									{selected === 'Written' && (
-										<WrittenContentPublicDataForm
+										<ContentPublicDataFieldGroups.WrittenContentPublicDataFields
 											title="Written"
 											form={form}
 											fields={writtenFields as any}
 										/>
 									)}
 									{selected === 'Audio' && (
-										<AudioContentPublicDataForm
+										<ContentPublicDataFieldGroups.AudioContentPublicDataFields
 											title="Audio"
 											form={form}
 											fields={audioFields as any}
 										/>
 									)}
 									{selected === 'Picture' && (
-										<PictureContentPublicDataForm
+										<ContentPublicDataFieldGroups.PictureContentPublicDataFields
 											title="Picture"
 											form={form}
 											fields={pictureFields as any}
