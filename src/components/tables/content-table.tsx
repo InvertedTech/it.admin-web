@@ -35,26 +35,11 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-
-export type ContentListRecord = {
-	ContentID: string;
-	CreatedOnUTC: string;
-	PublishOnUTC: string;
-	PinnedOnUTC: string;
-	Title: string;
-	Description: string;
-	SubscriptionLevel: number;
-	URL: string;
-	Author: string;
-	AuthorID: string;
-	FeaturedImageAssetID: string;
-	CategoryIds: string[];
-	ChannelIds: string[];
-	IsLiveStream: boolean;
-	IsLive: boolean;
-	ContentType: 0 | 1 | 2 | 3 | 4;
-};
-
+import {
+	ContentListRecord,
+	ContentType,
+	GetAllContentAdminResponse,
+} from '@inverted-tech/fragments/Content';
 export const ContentTypeLabels: Record<
 	ContentListRecord['ContentType'],
 	string
@@ -66,11 +51,76 @@ export const ContentTypeLabels: Record<
 	4: 'Gallery',
 };
 
-export function fmtDate(iso?: string) {
-	if (!iso) return '—';
-	const d = new Date(iso);
-	if (Number.isNaN(d.getTime())) return '—';
-	return d.toLocaleString();
+// Accepts ISO strings or protobuf Timestamp-like values
+// and returns a localized datetime string or an em dash.
+type MaybeTimestamp = unknown;
+
+function toJsDate(value: MaybeTimestamp): Date | undefined {
+    if (!value) return undefined;
+
+    // If already a Date
+    if (value instanceof Date) return value;
+
+    // If a string, try parse as ISO
+    if (typeof value === 'string') {
+        const d = new Date(value);
+        return Number.isNaN(d.getTime()) ? undefined : d;
+    }
+
+    // If it looks like a protobuf Timestamp with toDate()
+    if (
+        typeof value === 'object' &&
+        value !== null &&
+        'toDate' in (value as any) &&
+        typeof (value as any).toDate === 'function'
+    ) {
+        try {
+            const d = (value as any).toDate();
+            if (d instanceof Date && !Number.isNaN(d.getTime())) return d;
+        } catch {}
+    }
+
+    // If it looks like { seconds, nanos } (common TS Timestamp shape)
+    if (
+        typeof value === 'object' &&
+        value !== null &&
+        'seconds' in (value as any)
+    ) {
+        const seconds = (value as any).seconds as unknown;
+        const nanos = (value as any).nanos as unknown;
+
+        const sNum =
+            typeof seconds === 'string'
+                ? Number(seconds)
+                : typeof seconds === 'number'
+                ? seconds
+                : typeof seconds === 'bigint'
+                ? Number(seconds)
+                : undefined;
+
+        const nNum =
+            typeof nanos === 'string'
+                ? Number(nanos)
+                : typeof nanos === 'number'
+                ? nanos
+                : typeof nanos === 'bigint'
+                ? Number(nanos)
+                : 0;
+
+        if (typeof sNum === 'number' && Number.isFinite(sNum)) {
+            const millis = sNum * 1000 + Math.floor(nNum / 1_000_000);
+            const d = new Date(millis);
+            return Number.isNaN(d.getTime()) ? undefined : d;
+        }
+    }
+
+    return undefined;
+}
+
+export function fmtDate(input?: MaybeTimestamp) {
+    const d = input ? toJsDate(input) : undefined;
+    if (!d) return '—';
+    return d.toLocaleString();
 }
 
 export function levelLabel(level: number) {
@@ -91,14 +141,14 @@ const columns: ColumnDef<ContentListRecord>[] = [
 					(table.getIsSomePageRowsSelected() && 'indeterminate')
 				}
 				onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-				aria-label='Select all'
+				aria-label="Select all"
 			/>
 		),
 		cell: ({ row }) => (
 			<Checkbox
 				checked={row.getIsSelected()}
 				onCheckedChange={(v) => row.toggleSelected(!!v)}
-				aria-label='Select row'
+				aria-label="Select row"
 			/>
 		),
 		enableSorting: false,
@@ -111,12 +161,10 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		accessorKey: 'Title',
 		header: ({ column }) => (
 			<Button
-				variant='ghost'
-				onClick={() =>
-					column.toggleSorting(column.getIsSorted() === 'asc')
-				}
+				variant="ghost"
+				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 			>
-				Title <ArrowUpDown className='ml-2 h-4 w-4' />
+				Title <ArrowUpDown className="ml-2 h-4 w-4" />
 			</Button>
 		),
 		cell: ({ row }) => {
@@ -125,14 +173,14 @@ const columns: ColumnDef<ContentListRecord>[] = [
 			return url ? (
 				<a
 					href={url}
-					className='underline underline-offset-2'
-					target='_blank'
-					rel='noreferrer'
+					className="underline underline-offset-2"
+					target="_blank"
+					rel="noreferrer"
 				>
 					{title}
 				</a>
 			) : (
-				<span className='font-medium'>{title}</span>
+				<span className="font-medium">{title}</span>
 			);
 		},
 	},
@@ -142,12 +190,10 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		accessorKey: 'Author',
 		header: ({ column }) => (
 			<Button
-				variant='ghost'
-				onClick={() =>
-					column.toggleSorting(column.getIsSorted() === 'asc')
-				}
+				variant="ghost"
+				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 			>
-				Author <ArrowUpDown className='ml-2 h-4 w-4' />
+				Author <ArrowUpDown className="ml-2 h-4 w-4" />
 			</Button>
 		),
 	},
@@ -158,7 +204,7 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		header: 'Type',
 		cell: ({ row }) => {
 			const t = row.original.ContentType;
-			return <Badge variant='secondary'>{ContentTypeLabels[t]}</Badge>;
+			return <Badge variant="secondary">{ContentTypeLabels[t]}</Badge>;
 		},
 	},
 
@@ -176,16 +222,14 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		accessorKey: 'CreatedOnUTC',
 		header: ({ column }) => (
 			<Button
-				variant='ghost'
-				onClick={() =>
-					column.toggleSorting(column.getIsSorted() === 'asc')
-				}
+				variant="ghost"
+				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 			>
-				Created <ArrowUpDown className='ml-2 h-4 w-4' />
+				Created <ArrowUpDown className="ml-2 h-4 w-4" />
 			</Button>
 		),
 		cell: ({ row }) => (
-			<span className='whitespace-nowrap'>
+			<span className="whitespace-nowrap">
 				{fmtDate(row.original.CreatedOnUTC)}
 			</span>
 		),
@@ -195,7 +239,7 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		accessorKey: 'PublishOnUTC',
 		header: 'Publish',
 		cell: ({ row }) => (
-			<span className='whitespace-nowrap'>
+			<span className="whitespace-nowrap">
 				{fmtDate(row.original.PublishOnUTC)}
 			</span>
 		),
@@ -205,7 +249,7 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		accessorKey: 'PinnedOnUTC',
 		header: 'Pinned',
 		cell: ({ row }) => (
-			<span className='whitespace-nowrap'>
+			<span className="whitespace-nowrap">
 				{fmtDate(row.original.PinnedOnUTC)}
 			</span>
 		),
@@ -226,15 +270,19 @@ const columns: ColumnDef<ContentListRecord>[] = [
 			].filter(Boolean) as string[];
 
 			return flags.length ? (
-				<div className='flex flex-wrap gap-1'>
+				<div className="flex flex-wrap gap-1">
 					{flags.map((f) => (
-						<Badge key={f} variant='outline' className='px-1.5'>
+						<Badge
+							key={f}
+							variant="outline"
+							className="px-1.5"
+						>
 							{f}
 						</Badge>
 					))}
 				</div>
 			) : (
-				<span className='text-muted-foreground'>—</span>
+				<span className="text-muted-foreground">—</span>
 			);
 		},
 	},
@@ -247,7 +295,7 @@ const columns: ColumnDef<ContentListRecord>[] = [
 			const cats = row.original.CategoryIds?.length || 0;
 			const chans = row.original.ChannelIds?.length || 0;
 			return (
-				<div className='text-sm text-muted-foreground'>
+				<div className="text-sm text-muted-foreground">
 					{cats} cat · {chans} ch
 				</div>
 			);
@@ -263,17 +311,21 @@ const columns: ColumnDef<ContentListRecord>[] = [
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant='ghost' className='h-8 w-8 p-0'>
-							<span className='sr-only'>Open menu</span>
-							<MoreHorizontal className='h-4 w-4' />
+						<Button
+							variant="ghost"
+							className="h-8 w-8 p-0"
+						>
+							<span className="sr-only">Open menu</span>
+							<MoreHorizontal className="h-4 w-4" />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align='end' className='w-40'>
+					<DropdownMenuContent
+						align="end"
+						className="w-40"
+					>
 						<DropdownMenuLabel>Actions</DropdownMenuLabel>
 						<DropdownMenuItem
-							onClick={() =>
-								navigator.clipboard.writeText(r.ContentID)
-							}
+							onClick={() => navigator.clipboard.writeText(r.ContentID)}
 						>
 							Copy ID
 						</DropdownMenuItem>
@@ -284,10 +336,11 @@ const columns: ColumnDef<ContentListRecord>[] = [
 						<DropdownMenuItem asChild>
 							<a href={`/content/${r.ContentID}/edit`}>Edit</a>
 						</DropdownMenuItem>
-						<DropdownMenuItem className='text-destructive' asChild>
-							<a href={`/content/${r.ContentID}/delete`}>
-								Delete
-							</a>
+						<DropdownMenuItem
+							className="text-destructive"
+							asChild
+						>
+							<a href={`/content/${r.ContentID}/delete`}>Delete</a>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -298,8 +351,9 @@ const columns: ColumnDef<ContentListRecord>[] = [
 
 export function ContentTable({ data }: { data: ContentListRecord[] }) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] =
-		React.useState<ColumnFiltersState>([]);
+	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+		[]
+	);
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = React.useState({});
@@ -322,40 +376,33 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 	return (
 		<div>
 			{/* Filters + column toggle */}
-			<div className='flex flex-col gap-2 py-4 sm:flex-row sm:items-center'>
+			<div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center">
 				<Input
-					placeholder='Filter by title…'
-					className='max-w-xs'
-					value={
-						(table
-							.getColumn('Title')
-							?.getFilterValue() as string) ?? ''
-					}
+					placeholder="Filter by title…"
+					className="max-w-xs"
+					value={(table.getColumn('Title')?.getFilterValue() as string) ?? ''}
 					onChange={(e) =>
 						table.getColumn('Title')?.setFilterValue(e.target.value)
 					}
 				/>
 				<Input
-					placeholder='Filter by author…'
-					className='max-w-xs sm:ml-2'
-					value={
-						(table
-							.getColumn('Author')
-							?.getFilterValue() as string) ?? ''
-					}
+					placeholder="Filter by author…"
+					className="max-w-xs sm:ml-2"
+					value={(table.getColumn('Author')?.getFilterValue() as string) ?? ''}
 					onChange={(e) =>
-						table
-							.getColumn('Author')
-							?.setFilterValue(e.target.value)
+						table.getColumn('Author')?.setFilterValue(e.target.value)
 					}
 				/>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant='outline' className='ml-auto'>
+						<Button
+							variant="outline"
+							className="ml-auto"
+						>
 							Columns
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align='end'>
+					<DropdownMenuContent align="end">
 						{table
 							.getAllColumns()
 							.filter((c) => c.getCanHide())
@@ -363,10 +410,8 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 								<DropdownMenuCheckboxItem
 									key={c.id}
 									checked={c.getIsVisible()}
-									onCheckedChange={(v) =>
-										c.toggleVisibility(!!v)
-									}
-									className='capitalize'
+									onCheckedChange={(v) => c.toggleVisibility(!!v)}
+									className="capitalize"
 								>
 									{c.id}
 								</DropdownMenuCheckboxItem>
@@ -376,7 +421,7 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 			</div>
 
 			{/* Table */}
-			<div className='overflow-hidden rounded-md border'>
+			<div className="overflow-hidden rounded-md border">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((hg) => (
@@ -386,8 +431,7 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 										{header.isPlaceholder
 											? null
 											: flexRender(
-													header.column.columnDef
-														.header,
+													header.column.columnDef.header,
 													header.getContext()
 											  )}
 									</TableHead>
@@ -400,9 +444,7 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
-									data-state={
-										row.getIsSelected() && 'selected'
-									}
+									data-state={row.getIsSelected() && 'selected'}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
@@ -418,7 +460,7 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 							<TableRow>
 								<TableCell
 									colSpan={columns.length}
-									className='h-24 text-center'
+									className="h-24 text-center"
 								>
 									No results.
 								</TableCell>
@@ -429,23 +471,23 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 			</div>
 
 			{/* Footer */}
-			<div className='mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center'>
-				<div className='text-muted-foreground text-sm'>
+			<div className="mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+				<div className="text-muted-foreground text-sm">
 					{table.getFilteredSelectedRowModel().rows.length} of{' '}
 					{table.getFilteredRowModel().rows.length} selected.
 				</div>
-				<div className='flex gap-2'>
+				<div className="flex gap-2">
 					<Button
-						variant='outline'
-						size='sm'
+						variant="outline"
+						size="sm"
 						onClick={() => table.previousPage()}
 						disabled={!table.getCanPreviousPage()}
 					>
 						Previous
 					</Button>
 					<Button
-						variant='outline'
-						size='sm'
+						variant="outline"
+						size="sm"
 						onClick={() => table.nextPage()}
 						disabled={!table.getCanNextPage()}
 					>
