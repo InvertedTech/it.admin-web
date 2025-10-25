@@ -14,6 +14,18 @@ import { Switch } from '@/components/ui/switch';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { ChevronsUpDownIcon, CheckIcon, XIcon } from 'lucide-react';
+import type { ChannelRecord, CategoryRecord } from '@inverted-tech/fragments/Settings';
+import { cn } from '@/lib/utils';
 import {
 	Select,
 	SelectContent,
@@ -622,5 +634,503 @@ function ImageTile({
         {img.Title ?? img.AssetID}
       </div>
     </button>
+  );
+}
+
+// Channel selector using Combobox (Popover + Command)
+export function ChannelSelectField({
+  label,
+  options = [],
+  placeholder = 'Select channel...',
+  noneLabel = 'None',
+}: {
+  label?: React.ReactNode;
+  options?: Array<{ ChannelId?: string; DisplayName?: string }>;
+  placeholder?: string;
+  noneLabel?: string;
+}) {
+  const field = useFieldContext<string | undefined>();
+  const form = useFormContext();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <form.Subscribe selector={(s: any) => ({ submit: s?.submitErrors, sync: s?.errors })}>
+      {(errState: any) => {
+        const submitField =
+          matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
+        const syncField =
+          matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
+        const combined = [
+          ...(Array.isArray(field.state.meta.errors)
+            ? (field.state.meta.errors as any)
+            : []),
+          ...submitField,
+          ...syncField,
+        ];
+        const errors = normalizeFieldErrors(combined as any) ?? [];
+        const isInvalid = errors.length > 0;
+
+        const value = (field.state.value ?? '').trim();
+        const selected = options.find((o) => (o.ChannelId ?? '') === value);
+
+        return (
+          <UIField data-invalid={isInvalid}>
+            <FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className="w-full justify-between"
+                >
+                  {value
+                    ? selected?.DisplayName ?? selected?.ChannelId ?? value
+                    : placeholder}
+                  <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                <Command>
+                  <CommandInput placeholder="Search channel..." />
+                  <CommandList>
+                    <CommandEmpty>No channel found.</CommandEmpty>
+                    <CommandGroup>
+                      <CommandItem
+                        value="__none__"
+                        onSelect={() => {
+                          field.handleChange('');
+                          setOpen(false);
+                        }}
+                      >
+                        <CheckIcon
+                          className={cn(
+                            'mr-2 h-4 w-4',
+                            value === '' ? 'opacity-100' : 'opacity-0'
+                          )}
+                        />
+                        {noneLabel}
+                      </CommandItem>
+                      {options.map((opt) => (
+                        <CommandItem
+                          key={opt.ChannelId ?? ''}
+                          value={opt.ChannelId ?? ''}
+                          onSelect={(currentValue) => {
+                            field.handleChange(
+                              currentValue === value ? '' : currentValue
+                            );
+                            setOpen(false);
+                          }}
+                        >
+                          <CheckIcon
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              value === (opt.ChannelId ?? '')
+                                ? 'opacity-100'
+                                : 'opacity-0'
+                            )}
+                          />
+                          {opt.DisplayName ?? opt.ChannelId}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            {isInvalid && <FieldError errors={errors} />}
+          </UIField>
+        );
+      }}
+    </form.Subscribe>
+  );
+}
+
+// Multi-select field for array of strings (e.g., tags)
+export function MultiSelectField({
+  label,
+  options = [],
+  placeholder = 'Add or select...',
+}: {
+  label?: React.ReactNode;
+  options?: string[];
+  placeholder?: string;
+}) {
+  const field = useFieldContext<string[] | undefined>();
+  const form = useFormContext();
+  const [input, setInput] = useState('');
+
+  const value = Array.isArray(field.state.value)
+    ? (field.state.value as string[])
+    : [];
+
+  function addItem(tag: string) {
+    const t = tag.trim();
+    if (!t) return;
+    if (value.includes(t)) return;
+    field.handleChange([...(value as string[]), t]);
+    setInput('');
+  }
+  function removeItem(tag: string) {
+    const next = value.filter((v) => v !== tag);
+    field.handleChange(next);
+  }
+
+  // Suggested options not already selected
+  const available = (options || []).filter((o) => !value.includes(o));
+
+  return (
+    <form.Subscribe selector={(s: any) => ({ submit: s?.submitErrors, sync: s?.errors })}>
+      {(errState: any) => {
+        const submitField =
+          matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
+        const syncField =
+          matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
+        const combined = [
+          ...(Array.isArray(field.state.meta.errors)
+            ? (field.state.meta.errors as any)
+            : []),
+          ...submitField,
+          ...syncField,
+        ];
+        const errors = normalizeFieldErrors(combined as any) ?? [];
+        const isInvalid = errors.length > 0;
+
+        return (
+          <UIField data-invalid={isInvalid}>
+            <FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+            <div className="flex flex-wrap items-center gap-2">
+              {value.length === 0 && (
+                <div className="text-muted-foreground text-sm">No items selected</div>
+              )}
+              {value.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  className="border-input text-foreground hover:bg-accent/50 inline-flex items-center gap-1 rounded border px-2 py-0.5 text-xs"
+                  onClick={() => removeItem(tag)}
+                  aria-label={`Remove ${tag}`}
+                >
+                  <span>{tag}</span>
+                  <XIcon className="h-3 w-3 opacity-60" />
+                </button>
+              ))}
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                className="border-input bg-background text-foreground placeholder:text-muted-foreground flex h-9 w-full rounded-md border px-3 text-sm outline-hidden"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={placeholder}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addItem(input);
+                  }
+                }}
+              />
+              <Button type="button" variant="outline" onClick={() => addItem(input)}>
+                Add
+              </Button>
+            </div>
+            {available.length > 0 && (
+              <div className="text-muted-foreground mt-2 flex flex-wrap items-center gap-2 text-xs">
+                <span>Suggestions:</span>
+                {available.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => addItem(opt)}
+                    className="hover:bg-accent/50 border-input text-foreground rounded border px-2 py-0.5"
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            )}
+            {isInvalid && <FieldError errors={errors} />}
+          </UIField>
+        );
+      }}
+    </form.Subscribe>
+  );
+}
+
+// Multi-select of channels: stores array of ChannelId strings, displays DisplayName chips
+export function ChannelMultiSelectField({
+  label,
+  options = [],
+  placeholder = 'Select channels...',
+  loading = false,
+}: {
+  label?: React.ReactNode;
+  options?: Array<Pick<ChannelRecord, 'ChannelId' | 'DisplayName'>>;
+  placeholder?: string;
+  loading?: boolean;
+}) {
+  const field = useFieldContext<string[] | undefined>();
+  const form = useFormContext();
+  const [open, setOpen] = useState(false);
+
+  const value = Array.isArray(field.state.value)
+    ? (field.state.value as string[])
+    : [];
+
+  const nameById = React.useMemo(() => {
+    const m = new Map<string, string>();
+    (options || []).forEach((o) => {
+      const id = (o?.ChannelId ?? '').trim();
+      if (id) m.set(id, o?.DisplayName ?? id);
+    });
+    return m;
+  }, [options]);
+
+  function add(id: string) {
+    const key = (id ?? '').trim();
+    if (!key) return;
+    if (value.includes(key)) return;
+    field.handleChange([...(value as string[]), key]);
+  }
+  function remove(id: string) {
+    const next = value.filter((v) => v !== id);
+    field.handleChange(next);
+  }
+
+  return (
+    <form.Subscribe selector={(s: any) => ({ submit: s?.submitErrors, sync: s?.errors })}>
+      {(errState: any) => {
+        const submitField =
+          matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
+        const syncField =
+          matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
+        const combined = [
+          ...(Array.isArray(field.state.meta.errors)
+            ? (field.state.meta.errors as any)
+            : []),
+          ...submitField,
+          ...syncField,
+        ];
+        const errors = normalizeFieldErrors(combined as any) ?? [];
+        const isInvalid = errors.length > 0;
+
+        return (
+          <UIField data-invalid={isInvalid}>
+            <FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+            <div className="flex flex-wrap items-center gap-2">
+              {value.length === 0 && (
+                <div className="text-muted-foreground text-sm">No channels selected</div>
+              )}
+              {value.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  className="border-input text-foreground hover:bg-accent/50 inline-flex items-center gap-1 rounded border px-2 py-0.5 text-xs"
+                  onClick={() => remove(id)}
+                  aria-label={`Remove ${nameById.get(id) ?? id}`}
+                >
+                  <span>{nameById.get(id) ?? id}</span>
+                  <XIcon className="h-3 w-3 opacity-60" />
+                </button>
+              ))}
+            </div>
+            <div className="mt-2">
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-full justify-between"
+                    disabled={loading}
+                  >
+                    {loading ? 'Loading…' : placeholder}
+                    <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                  {loading ? (
+                    <div className="text-muted-foreground p-3 text-sm">Loading…</div>
+                  ) : (
+                  <Command>
+                    <CommandInput placeholder="Search channels..." />
+                    <CommandList>
+                      <CommandEmpty>No channels found.</CommandEmpty>
+                      <CommandGroup>
+                        {options.map((opt) => {
+                          const id = opt?.ChannelId ?? '';
+                          const selected = value.includes(id);
+                          return (
+                            <CommandItem
+                              key={id}
+                              value={id}
+                              onSelect={(current) => {
+                                const nextId = current;
+                                if (value.includes(nextId)) remove(nextId);
+                                else add(nextId);
+                              }}
+                            >
+                              <CheckIcon
+                                className={cn(
+                                  'mr-2 h-4 w-4',
+                                  selected ? 'opacity-100' : 'opacity-0'
+                                )}
+                              />
+                              {opt?.DisplayName ?? id}
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                  )}
+                </PopoverContent>
+              </Popover>
+            </div>
+            {isInvalid && <FieldError errors={errors} />}
+          </UIField>
+        );
+      }}
+    </form.Subscribe>
+  );
+}
+
+// Multi-select of categories: stores array of CategoryId strings, displays DisplayName chips
+export function CategoryMultiSelectField({
+  label,
+  options = [],
+  placeholder = 'Select categories...',
+  loading = false,
+}: {
+  label?: React.ReactNode;
+  options?: Array<Pick<CategoryRecord, 'CategoryId' | 'DisplayName'>>;
+  placeholder?: string;
+  loading?: boolean;
+}) {
+  const field = useFieldContext<string[] | undefined>();
+  const form = useFormContext();
+  const [open, setOpen] = useState(false);
+
+  const value = Array.isArray(field.state.value)
+    ? (field.state.value as string[])
+    : [];
+
+  const nameById = React.useMemo(() => {
+    const m = new Map<string, string>();
+    (options || []).forEach((o) => {
+      const id = (o?.CategoryId ?? '').trim();
+      if (id) m.set(id, o?.DisplayName ?? id);
+    });
+    return m;
+  }, [options]);
+
+  function add(id: string) {
+    const key = (id ?? '').trim();
+    if (!key) return;
+    if (value.includes(key)) return;
+    field.handleChange([...(value as string[]), key]);
+  }
+  function remove(id: string) {
+    const next = value.filter((v) => v !== id);
+    field.handleChange(next);
+  }
+
+  return (
+    <form.Subscribe selector={(s: any) => ({ submit: s?.submitErrors, sync: s?.errors })}>
+      {(errState: any) => {
+        const submitField =
+          matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
+        const syncField =
+          matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
+        const combined = [
+          ...(Array.isArray(field.state.meta.errors)
+            ? (field.state.meta.errors as any)
+            : []),
+          ...submitField,
+          ...syncField,
+        ];
+        const errors = normalizeFieldErrors(combined as any) ?? [];
+        const isInvalid = errors.length > 0;
+
+        return (
+          <UIField data-invalid={isInvalid}>
+            <FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+            <div className="flex flex-wrap items-center gap-2">
+              {value.length === 0 && (
+                <div className="text-muted-foreground text-sm">No categories selected</div>
+              )}
+              {value.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  className="border-input text-foreground hover:bg-accent/50 inline-flex items-center gap-1 rounded border px-2 py-0.5 text-xs"
+                  onClick={() => remove(id)}
+                  aria-label={`Remove ${nameById.get(id) ?? id}`}
+                >
+                  <span>{nameById.get(id) ?? id}</span>
+                  <XIcon className="h-3 w-3 opacity-60" />
+                </button>
+              ))}
+            </div>
+            <div className="mt-2">
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-full justify-between"
+                    disabled={loading}
+                  >
+                    {loading ? 'Loading…' : placeholder}
+                    <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                  {loading ? (
+                    <div className="text-muted-foreground p-3 text-sm">Loading…</div>
+                  ) : (
+                  <Command>
+                    <CommandInput placeholder="Search categories..." />
+                    <CommandList>
+                      <CommandEmpty>No categories found.</CommandEmpty>
+                      <CommandGroup>
+                        {options.map((opt) => {
+                          const id = opt?.CategoryId ?? '';
+                          const selected = value.includes(id);
+                          return (
+                            <CommandItem
+                              key={id}
+                              value={id}
+                              onSelect={(current) => {
+                                const nextId = current;
+                                if (value.includes(nextId)) remove(nextId);
+                                else add(nextId);
+                              }}
+                            >
+                              <CheckIcon
+                                className={cn(
+                                  'mr-2 h-4 w-4',
+                                  selected ? 'opacity-100' : 'opacity-0'
+                                )}
+                              />
+                              {opt?.DisplayName ?? id}
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                  )}
+                </PopoverContent>
+              </Popover>
+            </div>
+            {isInvalid && <FieldError errors={errors} />}
+          </UIField>
+        );
+      }}
+    </form.Subscribe>
   );
 }

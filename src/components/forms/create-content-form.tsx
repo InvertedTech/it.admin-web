@@ -47,6 +47,9 @@ export function CreateContentForm() {
 		URL: 'Public.URL',
 		FeaturedImageAssetID: 'Public.FeaturedImageAssetID',
 		SubscriptionLevel: 'Public.SubscriptionLevel',
+		Tags: 'Public.Tags',
+		ChannelIds: 'Public.ChannelIds',
+		CategoryIds: 'Public.CategoryIds',
 	} as const;
 	const videoFields = {
 		HtmlBody: 'Public.ContentDataOneof.value.HtmlBody',
