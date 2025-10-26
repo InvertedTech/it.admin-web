@@ -14,6 +14,10 @@ import {
 	useReactTable,
 } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { AnnounceContentForm } from '@/components/forms/announce-content-form';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -56,71 +60,71 @@ export const ContentTypeLabels: Record<
 type MaybeTimestamp = unknown;
 
 function toJsDate(value: MaybeTimestamp): Date | undefined {
-    if (!value) return undefined;
+	if (!value) return undefined;
 
-    // If already a Date
-    if (value instanceof Date) return value;
+	// If already a Date
+	if (value instanceof Date) return value;
 
-    // If a string, try parse as ISO
-    if (typeof value === 'string') {
-        const d = new Date(value);
-        return Number.isNaN(d.getTime()) ? undefined : d;
-    }
+	// If a string, try parse as ISO
+	if (typeof value === 'string') {
+		const d = new Date(value);
+		return Number.isNaN(d.getTime()) ? undefined : d;
+	}
 
-    // If it looks like a protobuf Timestamp with toDate()
-    if (
-        typeof value === 'object' &&
-        value !== null &&
-        'toDate' in (value as any) &&
-        typeof (value as any).toDate === 'function'
-    ) {
-        try {
-            const d = (value as any).toDate();
-            if (d instanceof Date && !Number.isNaN(d.getTime())) return d;
-        } catch {}
-    }
+	// If it looks like a protobuf Timestamp with toDate()
+	if (
+		typeof value === 'object' &&
+		value !== null &&
+		'toDate' in (value as any) &&
+		typeof (value as any).toDate === 'function'
+	) {
+		try {
+			const d = (value as any).toDate();
+			if (d instanceof Date && !Number.isNaN(d.getTime())) return d;
+		} catch {}
+	}
 
-    // If it looks like { seconds, nanos } (common TS Timestamp shape)
-    if (
-        typeof value === 'object' &&
-        value !== null &&
-        'seconds' in (value as any)
-    ) {
-        const seconds = (value as any).seconds as unknown;
-        const nanos = (value as any).nanos as unknown;
+	// If it looks like { seconds, nanos } (common TS Timestamp shape)
+	if (
+		typeof value === 'object' &&
+		value !== null &&
+		'seconds' in (value as any)
+	) {
+		const seconds = (value as any).seconds as unknown;
+		const nanos = (value as any).nanos as unknown;
 
-        const sNum =
-            typeof seconds === 'string'
-                ? Number(seconds)
-                : typeof seconds === 'number'
-                ? seconds
-                : typeof seconds === 'bigint'
-                ? Number(seconds)
-                : undefined;
+		const sNum =
+			typeof seconds === 'string'
+				? Number(seconds)
+				: typeof seconds === 'number'
+				? seconds
+				: typeof seconds === 'bigint'
+				? Number(seconds)
+				: undefined;
 
-        const nNum =
-            typeof nanos === 'string'
-                ? Number(nanos)
-                : typeof nanos === 'number'
-                ? nanos
-                : typeof nanos === 'bigint'
-                ? Number(nanos)
-                : 0;
+		const nNum =
+			typeof nanos === 'string'
+				? Number(nanos)
+				: typeof nanos === 'number'
+				? nanos
+				: typeof nanos === 'bigint'
+				? Number(nanos)
+				: 0;
 
-        if (typeof sNum === 'number' && Number.isFinite(sNum)) {
-            const millis = sNum * 1000 + Math.floor(nNum / 1_000_000);
-            const d = new Date(millis);
-            return Number.isNaN(d.getTime()) ? undefined : d;
-        }
-    }
+		if (typeof sNum === 'number' && Number.isFinite(sNum)) {
+			const millis = sNum * 1000 + Math.floor(nNum / 1_000_000);
+			const d = new Date(millis);
+			return Number.isNaN(d.getTime()) ? undefined : d;
+		}
+	}
 
-    return undefined;
+	return undefined;
 }
 
 export function fmtDate(input?: MaybeTimestamp) {
-    const d = input ? toJsDate(input) : undefined;
-    if (!d) return '—';
-    return d.toLocaleString();
+	const d = input ? toJsDate(input) : undefined;
+	if (!d) return '—';
+	return d.toLocaleString();
 }
 
 export function levelLabel(level: number) {
@@ -168,19 +172,23 @@ const columns: ColumnDef<ContentListRecord>[] = [
 			</Button>
 		),
 		cell: ({ row }) => {
-			const title = row.original.Title;
-			const url = row.original.URL;
-			return url ? (
-				<a
-					href={url}
-					className="underline underline-offset-2"
-					target="_blank"
-					rel="noreferrer"
-				>
-					{title}
-				</a>
-			) : (
-				<span className="font-medium">{title}</span>
+			const r = row.original;
+			const title = r.Title;
+			return (
+				<div className="flex items-center gap-2">
+					<a
+						href={`/content/${r.ContentID}`}
+						className="underline underline-offset-2"
+					>
+						{title}
+					</a>
+					<a
+						href={`/content/${r.ContentID}/edit`}
+						className="text-muted-foreground hover:text-foreground text-xs underline underline-offset-2"
+					>
+						Edit
+					</a>
+				</div>
 			);
 		},
 	},
@@ -308,6 +316,50 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		id: 'actions',
 		cell: ({ row }) => {
 			const r = row.original;
+			const router = useRouter();
+			const [announceOpen, setAnnounceOpen] = React.useState(false);
+
+			async function doPublish() {
+				try {
+					const res = await fetch(`/api/admin/content/${r.ContentID}/publish`, {
+						method: 'POST',
+					});
+					if (!res.ok) throw new Error('Request failed');
+					toast.success('Publish requested');
+					router.refresh();
+				} catch {
+					toast.error('Failed to publish');
+				}
+			}
+
+			async function doUnpublish() {
+				try {
+					const res = await fetch(
+						`/api/admin/content/${r.ContentID}/unpublish`,
+						{ method: 'POST' }
+					);
+					if (!res.ok) throw new Error('Request failed');
+					toast.success('Unpublish requested');
+					router.refresh();
+				} catch {
+					toast.error('Failed to unpublish');
+				}
+			}
+
+			async function doDelete() {
+				try {
+					if (!window.confirm('Delete this content?')) return;
+					const res = await fetch(`/api/admin/content/${r.ContentID}/delete`, {
+						method: 'POST',
+					});
+					if (!res.ok) throw new Error('Request failed');
+					toast.success('Delete requested');
+					router.refresh();
+				} catch {
+					toast.error('Failed to delete');
+				}
+			}
+
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
@@ -336,13 +388,58 @@ const columns: ColumnDef<ContentListRecord>[] = [
 						<DropdownMenuItem asChild>
 							<a href={`/content/${r.ContentID}/edit`}>Edit</a>
 						</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    {Boolean((r as any)?.AnnounceOnUTC) ? (
+                        <DropdownMenuItem
+                            onClick={async () => {
+                                try {
+                                    const res = await fetch(
+                                        `/api/admin/content/${r.ContentID}/unannounce`,
+                                        { method: 'POST' }
+                                    );
+                                    if (!res.ok) throw new Error('Request failed');
+                                    toast.success('Unannounce requested');
+                                    router.refresh();
+                                } catch {
+                                    toast.error('Failed to unannounce');
+                                }
+                            }}
+                        >
+                            Unannounce
+                        </DropdownMenuItem>
+                    ) : (
+                        <DropdownMenuItem onClick={() => setAnnounceOpen(true)}>
+                            Announce…
+                        </DropdownMenuItem>
+                    )}
+						<DropdownMenuSeparator />
+						{r.PublishOnUTC ? (
+							<DropdownMenuItem onClick={doUnpublish}>
+								Unpublish
+							</DropdownMenuItem>
+						) : (
+							<DropdownMenuItem onClick={doPublish}>Publish</DropdownMenuItem>
+						)}
+						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							className="text-destructive"
-							asChild
+							onClick={doDelete}
 						>
-							<a href={`/content/${r.ContentID}/delete`}>Delete</a>
+							Delete
 						</DropdownMenuItem>
 					</DropdownMenuContent>
+						<Dialog
+							open={announceOpen}
+							onOpenChange={setAnnounceOpen}
+						>
+							<DialogContent className="sm:max-w-xl" aria-describedby="announce-desc">
+								<DialogTitle>Announce Content</DialogTitle>
+								<p id="announce-desc" className="text-muted-foreground text-sm">
+									Choose a date and time to announce this content.
+								</p>
+								<AnnounceContentForm contentId={r.ContentID} />
+							</DialogContent>
+						</Dialog>
 				</DropdownMenu>
 			);
 		},
