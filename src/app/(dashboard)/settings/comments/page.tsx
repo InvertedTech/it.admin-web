@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { CommentsPublicSettingsForm } from '@/components/forms/comments-settings-forms';
 
 /* ===========================
    Schemas & Types
@@ -145,13 +146,13 @@ function CommentsSettingsPublic() {
 						: 'Default behavior visible to site visitors and members.'}
 				</CardDescription>
 			</CardHeader>
-			<CardContent className='space-y-6'>
-				<form.Field name='AllowLinks'>
+			<CardContent className="space-y-6">
+				<form.Field name="AllowLinks">
 					{(field) => (
-						<div className='flex items-center justify-between opacity-100'>
-							<div className='space-y-1'>
+						<div className="flex items-center justify-between opacity-100">
+							<div className="space-y-1">
 								<Label>Allow Links</Label>
-								<p className='text-muted-foreground text-sm'>
+								<p className="text-muted-foreground text-sm">
 									Users can include URLs in comments.
 								</p>
 							</div>
@@ -164,46 +165,45 @@ function CommentsSettingsPublic() {
 					)}
 				</form.Field>
 
-				<form.Field name='DefaultOrder'>
+				<form.Field name="DefaultOrder">
 					{(field) => (
-						<div className='grid gap-2'>
-							<Label htmlFor='default-order'>Default Order</Label>
+						<div className="grid gap-2">
+							<Label htmlFor="default-order">Default Order</Label>
 							<Select
 								disabled={loading}
 								value={field.state.value}
-								onValueChange={(v) =>
-									field.handleChange(v as CommentOrder)
-								}
+								onValueChange={(v) => field.handleChange(v as CommentOrder)}
 							>
 								<SelectTrigger
-									id='default-order'
-									className='w-[240px]'
+									id="default-order"
+									className="w-[240px]"
 								>
-									<SelectValue placeholder='Choose order' />
+									<SelectValue placeholder="Choose order" />
 								</SelectTrigger>
 								<SelectContent>
 									{orderOptions.map((o) => (
-										<SelectItem key={o} value={o}>
-											{o === 'NewestFirst' &&
-												'Newest first'}
-											{o === 'OldestFirst' &&
-												'Oldest first'}
+										<SelectItem
+											key={o}
+											value={o}
+										>
+											{o === 'NewestFirst' && 'Newest first'}
+											{o === 'OldestFirst' && 'Oldest first'}
 											{o === 'Top' && 'Top (ranked)'}
 										</SelectItem>
 									))}
 								</SelectContent>
 							</Select>
-							<p className='text-muted-foreground text-sm'>
+							<p className="text-muted-foreground text-sm">
 								Initial sort for comment threads.
 							</p>
 						</div>
 					)}
 				</form.Field>
 
-				<form.Field name='DefaultRestriction.Minimum'>
+				<form.Field name="DefaultRestriction.Minimum">
 					{(field) => (
-						<div className='grid gap-2'>
-							<Label htmlFor='restriction-min'>
+						<div className="grid gap-2">
+							<Label htmlFor="restriction-min">
 								Minimum Participation Level
 							</Label>
 							<Select
@@ -211,37 +211,35 @@ function CommentsSettingsPublic() {
 								value={field.state.value}
 								onValueChange={(v) =>
 									field.handleChange(
-										v as z.infer<
-											typeof CommentRestrictionMinimumEnum
-										>
+										v as z.infer<typeof CommentRestrictionMinimumEnum>
 									)
 								}
 							>
 								<SelectTrigger
-									id='restriction-min'
-									className='w-[260px]'
+									id="restriction-min"
+									className="w-[260px]"
 								>
-									<SelectValue placeholder='Choose minimum role' />
+									<SelectValue placeholder="Choose minimum role" />
 								</SelectTrigger>
 								<SelectContent>
-									{CommentRestrictionMinimumEnum.options.map(
-										(v) => (
-											<SelectItem key={v} value={v}>
-												{v}
-											</SelectItem>
-										)
-									)}
+									{CommentRestrictionMinimumEnum.options.map((v) => (
+										<SelectItem
+											key={v}
+											value={v}
+										>
+											{v}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
-							<p className='text-muted-foreground text-sm'>
-								Minimum role required to post or interact in
-								comments.
+							<p className="text-muted-foreground text-sm">
+								Minimum role required to post or interact in comments.
 							</p>
 						</div>
 					)}
 				</form.Field>
 
-				<form.Field name='DefaultRestriction.Level'>
+				<form.Field name="DefaultRestriction.Level">
 					{(field) => {
 						const val = Number(field.state.value);
 						const err = Number.isNaN(val)
@@ -252,29 +250,22 @@ function CommentsSettingsPublic() {
 							? 'Max 5'
 							: '';
 						return (
-							<div className='grid max-w-[260px] gap-2'>
-								<Label htmlFor='restriction-level'>Level</Label>
+							<div className="grid max-w-[260px] gap-2">
+								<Label htmlFor="restriction-level">Level</Label>
 								<Input
-									id='restriction-level'
-									type='number'
-									inputMode='decimal'
-									step='0.1'
+									id="restriction-level"
+									type="number"
+									inputMode="decimal"
+									step="0.1"
 									disabled={loading}
 									value={String(field.state.value)}
-									onChange={(e) =>
-										field.handleChange(
-											Number(e.target.value)
-										)
-									}
+									onChange={(e) => field.handleChange(Number(e.target.value))}
 								/>
 								{err ? (
-									<p className='text-destructive text-sm'>
-										{err}
-									</p>
+									<p className="text-destructive text-sm">{err}</p>
 								) : (
-									<p className='text-muted-foreground text-sm'>
-										Optional 0–5 threshold. Use 0 to
-										disable.
+									<p className="text-muted-foreground text-sm">
+										Optional 0–5 threshold. Use 0 to disable.
 									</p>
 								)}
 							</div>
@@ -282,12 +273,12 @@ function CommentsSettingsPublic() {
 					}}
 				</form.Field>
 
-				<form.Field name='ExplicitModeEnabled'>
+				<form.Field name="ExplicitModeEnabled">
 					{(field) => (
-						<div className='flex items-center justify-between'>
-							<div className='space-y-1'>
+						<div className="flex items-center justify-between">
+							<div className="space-y-1">
 								<Label>Explicit Mode</Label>
-								<p className='text-muted-foreground text-sm'>
+								<p className="text-muted-foreground text-sm">
 									Gate mature content behind user controls.
 								</p>
 							</div>
@@ -300,7 +291,7 @@ function CommentsSettingsPublic() {
 					)}
 				</form.Field>
 
-				<div className='pt-2'>
+				<div className="pt-2">
 					<Button
 						onClick={() => form.handleSubmit()}
 						disabled={loading}
@@ -370,18 +361,16 @@ function CommentsSettingsPrivate() {
 			<CardHeader>
 				<CardTitle>Comments — Private Settings</CardTitle>
 				<CardDescription>
-					{loading
-						? 'Loading…'
-						: 'Moderation blacklist terms (server-only).'}
+					{loading ? 'Loading…' : 'Moderation blacklist terms (server-only).'}
 				</CardDescription>
 			</CardHeader>
-			<CardContent className='space-y-6'>
-				<div className='grid gap-2'>
-					<Label htmlFor='blacklist'>Add to blacklist</Label>
-					<div className='flex items-center gap-2'>
+			<CardContent className="space-y-6">
+				<div className="grid gap-2">
+					<Label htmlFor="blacklist">Add to blacklist</Label>
+					<div className="flex items-center gap-2">
 						<Input
-							id='blacklist'
-							placeholder='word or phrase'
+							id="blacklist"
+							placeholder="word or phrase"
 							value={token}
 							onChange={(e) => setToken(e.target.value)}
 							onKeyDown={(e) => {
@@ -390,41 +379,40 @@ function CommentsSettingsPrivate() {
 									addToken();
 								}
 							}}
-							className='max-w-md'
+							className="max-w-md"
 							disabled={loading}
 						/>
 						<Button
-							type='button'
+							type="button"
 							onClick={addToken}
 							disabled={loading}
 						>
 							Add
 						</Button>
 					</div>
-					<p className='text-muted-foreground text-sm'>
-						These terms will be blocked or flagged by the moderation
-						layer.
+					<p className="text-muted-foreground text-sm">
+						These terms will be blocked or flagged by the moderation layer.
 					</p>
 				</div>
 
-				<form.Field name='BlackList'>
+				<form.Field name="BlackList">
 					{(field) => (
-						<div className='flex flex-wrap gap-2'>
+						<div className="flex flex-wrap gap-2">
 							{field.state.value?.length ? null : (
-								<span className='text-muted-foreground text-sm'>
+								<span className="text-muted-foreground text-sm">
 									No blacklist terms yet.
 								</span>
 							)}
 							{field.state.value?.map((t) => (
 								<Badge
 									key={t}
-									variant='secondary'
-									className='gap-2'
+									variant="secondary"
+									className="gap-2"
 								>
 									{t}
 									<button
-										type='button'
-										className='text-muted-foreground/70 hover:text-foreground'
+										type="button"
+										className="text-muted-foreground/70 hover:text-foreground"
 										onClick={() => removeToken(t)}
 										aria-label={`Remove ${t}`}
 									>
@@ -436,7 +424,7 @@ function CommentsSettingsPrivate() {
 					)}
 				</form.Field>
 
-				<div className='pt-2'>
+				<div className="pt-2">
 					<Button
 						onClick={() => form.handleSubmit()}
 						disabled={loading}
@@ -455,18 +443,18 @@ function CommentsSettingsPrivate() {
 
 export default function CommentsSettingsPage() {
 	return (
-		<div className='container mx-auto space-y-6 py-8'>
-			<div className='space-y-1'>
-				<h1 className='text-2xl font-semibold tracking-tight'>
+		<div className="container mx-auto space-y-6 py-8">
+			<div className="space-y-1">
+				<h1 className="text-2xl font-semibold tracking-tight">
 					Comment Settings
 				</h1>
-				<p className='text-muted-foreground'>
+				<p className="text-muted-foreground">
 					Control ordering, restrictions, and moderation rules.
 				</p>
 			</div>
 
-			<div className='grid grid-cols-1 gap-6 xl:grid-cols-2'>
-				<CommentsSettingsPublic />
+			<div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+				<CommentsPublicSettingsForm />
 				<CommentsSettingsPrivate />
 			</div>
 		</div>

@@ -3,7 +3,10 @@
 import React from 'react';
 import { withFieldGroup } from '@/hooks/use-proto-app-form';
 import { FieldGroup } from '@/components/ui/field';
-import { AnnounceContentRequestSchema } from '@inverted-tech/fragments/protos/Content/Content_pb';
+import {
+	AnnounceContentRequestSchema,
+	PublishContentRequestSchema,
+} from '@inverted-tech/fragments/Content';
 import { create } from '@bufbuild/protobuf';
 
 export const AnnounceContentFieldGroup = withFieldGroup({
@@ -21,6 +24,22 @@ export const AnnounceContentFieldGroup = withFieldGroup({
 	},
 });
 
+export const PublishContentFieldGroup = withFieldGroup({
+	props: { title: '' },
+	defaultValues: create(PublishContentRequestSchema),
+	render: function Render({ group, title }) {
+		return (
+			<FieldGroup>
+				<group.AppField
+					name="PublishOnUTC"
+					children={(f) => <f.DateTimeField label="Publish On" />}
+				/>
+			</FieldGroup>
+		);
+	},
+});
+
 export default {
 	AnnounceContentFieldGroup,
+	PublishContentFieldGroup,
 };

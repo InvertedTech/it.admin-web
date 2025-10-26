@@ -1,100 +1,148 @@
+'use client';
+
+import * as React from 'react';
+import { usePathname } from 'next/navigation';
+import { ChevronRight, type LucideIcon } from 'lucide-react';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import {
 	SidebarGroup,
-	SidebarGroupContent,
 	SidebarGroupLabel,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarMenuSub,
+	SidebarMenuSubButton,
+	SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import { ChevronRight } from 'lucide-react';
-import { type LucideIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-export type NavItem = {
+type Item = {
 	title: string;
 	url: string;
-	icon?: LucideIcon; // component type, e.g. FilesIcon
+	icon?: LucideIcon;
 	isActive?: boolean;
-	items?: Array<{
-		title: string;
-		url: string;
-		isActive?: boolean;
-	}>;
+	items?: { title: string; url: string; isActive?: boolean }[];
 };
 
-export function NavMain({ items }: { items: NavItem[] }) {
+export function NavMain({ items }: { items: Item[] }) {
 	return (
-		<>
-			{items.map((section) => {
-				const hasChildren = !!section.items?.length;
+		<SidebarGroup>
+			<SidebarGroupLabel>Platform</SidebarGroupLabel>
+			<SidebarMenu>
+				{items.map((item) => (
+					<NavRow
+						key={item.title}
+						item={item}
+					/>
+				))}
+			</SidebarMenu>
+		</SidebarGroup>
+	);
+}
 
-				return (
-					<Collapsible
-						key={section.title}
-						defaultOpen={hasChildren && !!section.isActive}
-						className='group/collapsible'
+function NavRow({ item }: { item: Item }) {
+	const pathname = usePathname();
+	const Icon = item.icon;
+	const hasChildren = !!item.items?.length;
+
+	// normalize paths (remove trailing slash except for "/")
+	const norm = (p: string) =>
+		p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p;
+	const here = norm(pathname);
+	const me = norm(item.url);
+
+	const childMatches = !!item.items?.some((s) => {
+		const c = norm(s.url);
+		return here === c || here.startsWith(c + '/');
+	});
+
+	// open when at parent or inside any child segment
+	const segmentOpen = here === me || here.startsWith(me + '/') || childMatches;
+
+	// highlight parent ONLY on exact parent url (or explicit isActive)
+	const parentActive = here === me || !!item.isActive;
+
+	const [open, setOpen] = React.useState<boolean>(segmentOpen);
+	React.useEffect(() => setOpen(segmentOpen), [segmentOpen]);
+
+	if (!hasChildren) {
+		return (
+			<SidebarMenuItem>
+				<SidebarMenuButton
+					asChild
+					isActive={parentActive}
+				>
+					<a href={item.url}>
+						{Icon && <Icon className="size-4" />}
+						<span>{item.title}</span>
+					</a>
+				</SidebarMenuButton>
+			</SidebarMenuItem>
+		);
+	}
+
+	return (
+		<Collapsible
+			asChild
+			open={open}
+			onOpenChange={setOpen}
+		>
+			<SidebarMenuItem>
+				<div className="flex w-full items-center">
+					<SidebarMenuButton
+						asChild
+						isActive={parentActive}
+						className="flex-1"
 					>
-						<SidebarGroup>
-							<SidebarGroupLabel asChild>
-								{hasChildren ? (
-									<CollapsibleTrigger className='flex items-center gap-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'>
-										{section.icon ? (
-											<section.icon className='size-4' />
-										) : null}
-										<span>{section.title}</span>
-										<ChevronRight className='ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90' />
-									</CollapsibleTrigger>
-								) : (
-									<SidebarMenuButton
-										asChild
-										isActive={section.isActive}
-										className='text-sm'
-									>
-										<a
-											href={section.url}
-											className='flex items-center gap-2'
-										>
-											{section.icon ? (
-												<section.icon className='size-4' />
-											) : null}
-											<span>{section.title}</span>
-										</a>
-									</SidebarMenuButton>
-								)}
-							</SidebarGroupLabel>
+						<a
+							href={item.url}
+							className="flex items-center gap-2"
+						>
+							{Icon && <Icon className="size-4" />}
+							<span>{item.title}</span>
+						</a>
+					</SidebarMenuButton>
 
-							{hasChildren && (
-								<CollapsibleContent>
-									<SidebarGroupContent>
-										<SidebarMenu>
-											{section.items!.map((child) => (
-												<SidebarMenuItem
-													key={`${section.title}-${child.title}`}
-												>
-													<SidebarMenuButton
-														asChild
-														isActive={
-															child.isActive
-														}
-													>
-														<a href={child.url}>
-															{child.title}
-														</a>
-													</SidebarMenuButton>
-												</SidebarMenuItem>
-											))}
-										</SidebarMenu>
-									</SidebarGroupContent>
-								</CollapsibleContent>
-							)}
-						</SidebarGroup>
-					</Collapsible>
-				);
-			})}
-		</>
+					<Button
+						type="button"
+						size="icon"
+						variant="ghost"
+						onClick={() => setOpen((v) => !v)}
+						className={cn(
+							'ml-auto h-7 w-7 p-0 text-muted-foreground hover:text-foreground',
+							open && 'text-foreground'
+						)}
+						aria-label={open ? 'Collapse section' : 'Expand section'}
+					>
+						<ChevronRight
+							className={cn('size-4 transition-transform', open && 'rotate-90')}
+						/>
+					</Button>
+				</div>
+
+				<CollapsibleContent>
+					<SidebarMenuSub>
+						{item.items!.map((sub) => {
+							const subPath = norm(sub.url);
+							const subActive =
+								here === subPath || here.startsWith(subPath + '/');
+							return (
+								<SidebarMenuSubItem key={sub.title}>
+									<SidebarMenuSubButton
+										asChild
+										isActive={subActive}
+									>
+										<a href={sub.url}>
+											<span>{sub.title}</span>
+										</a>
+									</SidebarMenuSubButton>
+								</SidebarMenuSubItem>
+							);
+						})}
+					</SidebarMenuSub>
+				</CollapsibleContent>
+			</SidebarMenuItem>
+		</Collapsible>
 	);
 }

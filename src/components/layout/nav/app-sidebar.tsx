@@ -38,14 +38,14 @@ import {
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import {
-    CalendarDays,
-    ChevronRight,
-    CreditCard,
-    FilesIcon,
-    GalleryVerticalEnd,
-    MessageSquare,
-    Settings as SettingsIcon,
-    UserIcon,
+	CalendarDays,
+	ChevronRight,
+	CreditCard,
+	FilesIcon,
+	GalleryVerticalEnd,
+	MessageSquare,
+	Settings as SettingsIcon,
+	UserIcon,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { NavMain } from './nav-main';
@@ -56,36 +56,34 @@ const data = {
 		email: 'm@example.com',
 		avatar: '/avatars/shadcn.jpg',
 	},
-		navMain: [
-        {
-            title: 'Settings',
-            icon: SettingsIcon,
-            url: '/settings',
-            items: [
-                { title: 'Overview', url: '/settings' },
-                { title: 'General: Personalization', url: '/settings/general/personalization' },
-                { title: 'Subscriptions', url: '/settings/subscriptions' },
-                { title: 'Comments Settings', url: '/settings/comments' },
-                { title: 'Content Settings', url: '/settings/content' },
-                { title: 'Notifications (future)', url: '/settings/notifications' },
-                { title: 'Events (future)', url: '/settings/events' },
-            ],
-        },
+	navMain: [
+		{
+			title: 'Settings',
+			icon: SettingsIcon,
+			url: '/settings',
+			items: [
+				{
+					title: 'General: Personalization',
+					url: '/settings/general/personalization',
+				},
+				{ title: 'Subscriptions', url: '/settings/subscriptions' },
+				{ title: 'Comments Settings', url: '/settings/comments' },
+				{ title: 'Content Settings', url: '/settings/content' },
+				{ title: 'Notifications (future)', url: '/settings/notifications' },
+				{ title: 'Events (future)', url: '/settings/events' },
+			],
+		},
 		{
 			title: 'Assets',
 			icon: FilesIcon,
 			url: '/asset',
-			items: [
-				{ title: 'List', url: '/asset' },
-				{ title: 'Upload', url: '/asset/upload' },
-			],
+			items: [{ title: 'Upload', url: '/asset/upload' }],
 		},
 		{
 			title: 'Content',
 			icon: GalleryVerticalEnd,
 			url: '/content',
 			items: [
-				{ title: 'List', url: '/content' },
 				{ title: 'Create', url: '/content/create' },
 				// scoped settings
 				{ title: 'Settings', url: '/settings/content' },
@@ -96,7 +94,6 @@ const data = {
 			icon: MessageSquare,
 			url: '/comments',
 			items: [
-				{ title: 'List', url: '/comments' },
 				// add when you have config flags
 				{ title: 'Settings', url: '/settings/comments' },
 			],
@@ -106,7 +103,6 @@ const data = {
 			icon: CalendarDays,
 			url: '/events',
 			items: [
-				{ title: 'List', url: '/events' },
 				{ title: 'Create', url: '/events/create' },
 				{ title: 'Create Recurring', url: '/events/create/recurring' },
 				// placeholder settings (fill when you add defaults)
@@ -118,24 +114,23 @@ const data = {
 			icon: UserIcon,
 			url: '/users',
 			items: [
-				{ title: 'List', url: '/users/list' },
 				{ title: 'Staff (Admins)', url: '/users/list?role=admin' }, // Team merged here
 			],
 		},
 	],
-    navQuick: [
-        { title: 'Upload Asset', url: '/asset/upload', icon: IconUpload },
-        {
-            title: 'Create Category',
-            url: '/settings/content',
-            icon: IconTags,
-        },
-        {
-            title: 'Create Channel',
-            url: '/settings/content',
-            icon: IconFolders,
-        },
-    ],
+	navQuick: [
+		{ title: 'Upload Asset', url: '/asset/upload', icon: IconUpload },
+		{
+			title: 'Create Category',
+			url: '/settings/content',
+			icon: IconTags,
+		},
+		{
+			title: 'Create Channel',
+			url: '/settings/content',
+			icon: IconFolders,
+		},
+	],
 	navSecondary: [
 		{
 			title: 'Get Help',
@@ -157,19 +152,20 @@ export function AppSidebar({
 	headerTitle?: string;
 }) {
 	return (
-		<Sidebar collapsible='offcanvas' {...props}>
+		<Sidebar
+			collapsible="offcanvas"
+			{...props}
+		>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							asChild
-							className='data-[slot=sidebar-menu-button]:!p-1.5'
+							className="data-[slot=sidebar-menu-button]:!p-1.5"
 						>
-							<a href='/'>
-								<IconInnerShadowTop className='!size-5' />
-								<span className='text-base font-semibold'>
-									{headerTitle}
-								</span>
+							<a href="/">
+								<IconInnerShadowTop className="!size-5" />
+								<span className="text-base font-semibold">{headerTitle}</span>
 							</a>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
@@ -179,7 +175,10 @@ export function AppSidebar({
 				<NavQuick items={data.navQuick} />
 				<Separator />
 				<NavMain items={data.navMain} />
-				<NavSecondary items={data.navSecondary} className='mt-auto' />
+				<NavSecondary
+					items={data.navSecondary}
+					className="mt-auto"
+				/>
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser user={data.user} />

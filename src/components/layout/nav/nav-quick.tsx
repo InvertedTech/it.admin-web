@@ -1,11 +1,12 @@
 'use client';
 
+import * as React from 'react';
 import {
 	IconCirclePlusFilled,
 	IconChevronRight,
+	IconFilePlus, // optional icon for the entry
 	type Icon,
 } from '@tabler/icons-react';
-
 import {
 	SidebarGroup,
 	SidebarGroupContent,
@@ -30,25 +31,21 @@ import {
 import { NewAssetForm } from '@/components/forms/new-asset-form';
 import { NewCategoryForm } from '@/components/forms/new-category-form';
 import { NewChannelForm } from '@/components/forms/new-channel-form';
-import * as React from 'react';
+import {
+	CreateContentWizard,
+	CreateContentWizardDialog,
+} from '@/components/forms/create-content-wizard';
 
-// TODO: Add Quick Actions For CMS Here
 export function NavQuick({
 	items,
 }: {
-	items: {
-		title: string;
-		url: string;
-		icon?: Icon;
-	}[];
+	items: { title: string; url: string; icon?: Icon }[];
 }) {
 	const [open, setOpen] = React.useState<
-		null | 'asset' | 'category' | 'channel'
+		null | 'asset' | 'category' | 'channel' | 'content'
 	>(null);
 
-	const clickFromTitle = (
-		title: string
-	): null | 'asset' | 'category' | 'channel' => {
+	const clickFromTitle = (title: string): typeof open => {
 		switch (title) {
 			case 'Upload Asset':
 				return 'asset';
@@ -56,6 +53,8 @@ export function NavQuick({
 				return 'category';
 			case 'Create Channel':
 				return 'channel';
+			case 'Create Content':
+				return 'content';
 			default:
 				return null;
 		}
@@ -65,7 +64,6 @@ export function NavQuick({
 		<>
 			<SidebarGroup>
 				<SidebarGroupContent className="flex flex-col gap-2">
-					{/* Header action with dropdown menu */}
 					<SidebarMenu>
 						<SidebarMenuItem>
 							<DropdownMenu>
@@ -85,7 +83,21 @@ export function NavQuick({
 									className="w-56"
 								>
 									<DropdownMenuLabel>Quick Create</DropdownMenuLabel>
+
+									{/* Always show Create Content… */}
+									<DropdownMenuItem
+										onSelect={(e) => {
+											e.preventDefault();
+											setOpen('content');
+										}}
+										className="cursor-pointer"
+									>
+										<IconFilePlus className="mr-2" />
+										<span>Create Content…</span>
+									</DropdownMenuItem>
+
 									<DropdownMenuSeparator />
+
 									{items.map((item) => {
 										const key = clickFromTitle(item.title);
 										if (!key) return null;
@@ -108,7 +120,6 @@ export function NavQuick({
 						</SidebarMenuItem>
 					</SidebarMenu>
 
-					{/* Quick links */}
 					<SidebarMenu>
 						{items.map((item) => (
 							<SidebarMenuItem key={item.title}>
@@ -129,7 +140,7 @@ export function NavQuick({
 				</SidebarGroupContent>
 			</SidebarGroup>
 
-			{/* Modals */}
+			{/* Upload Asset */}
 			<Dialog
 				open={open === 'asset'}
 				onOpenChange={(o) => !o && setOpen(null)}
@@ -140,6 +151,8 @@ export function NavQuick({
 					<NewAssetForm />
 				</DialogContent>
 			</Dialog>
+
+			{/* Create Category */}
 			<Dialog
 				open={open === 'category'}
 				onOpenChange={(o) => !o && setOpen(null)}
@@ -150,6 +163,8 @@ export function NavQuick({
 					<NewCategoryForm />
 				</DialogContent>
 			</Dialog>
+
+			{/* Create Channel */}
 			<Dialog
 				open={open === 'channel'}
 				onOpenChange={(o) => !o && setOpen(null)}
@@ -158,6 +173,16 @@ export function NavQuick({
 					<DialogTitle>Create Channel</DialogTitle>
 					<DialogDescription>Define and add a new channel.</DialogDescription>
 					<NewChannelForm />
+				</DialogContent>
+			</Dialog>
+
+			{/* Create Content – wizard */}
+			<Dialog
+				open={open === 'content'}
+				onOpenChange={(o) => !o && setOpen(null)}
+			>
+				<DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
+					<CreateContentWizard />
 				</DialogContent>
 			</Dialog>
 		</>

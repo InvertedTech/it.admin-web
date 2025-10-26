@@ -1,7 +1,14 @@
-export default function AllUsersPage() {
+'use server';
+
+import { listUsers } from '@/app/actions/auth';
+import { UsersTable } from '@/components/tables/users-table';
+
+export default async function AllUsersPage() {
+	const users = await listUsers();
+
 	return (
 		<>
-			<h1>/Users</h1>
+			<UsersTable data={users.Records} />
 		</>
 	);
 }

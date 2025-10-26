@@ -151,12 +151,13 @@ export async function unpublishContent(req: UnpublishContentRequest) {
 			method: 'POST',
 			body: toJsonString(UnpublishContentRequestSchema, req),
 		});
-
+		console.log(res);
 		if (!res) {
 			return create(UnpublishContentResponseSchema);
 		}
 
 		const body: UnpublishContentResponse = await res.json();
+		console.log(body);
 		return body;
 	} catch (error) {
 		console.error(error);
@@ -165,17 +166,17 @@ export async function unpublishContent(req: UnpublishContentRequest) {
 }
 
 export async function announceContent(req: AnnounceContentRequest) {
-    try {
-        const token = await getToken();
-        const url = API_BASE.concat(`/${req.ContentID}/announce`);
-        const res = await fetch(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-            method: 'POST',
-            body: toJsonString(AnnounceContentRequestSchema, req),
-        });
+	try {
+		const token = await getToken();
+		const url = API_BASE.concat(`/${req.ContentID}/announce`);
+		const res = await fetch(url, {
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			method: 'POST',
+			body: toJsonString(AnnounceContentRequestSchema, req),
+		});
 
 		if (!res) {
 			return create(AnnounceContentResponseSchema);
@@ -190,17 +191,17 @@ export async function announceContent(req: AnnounceContentRequest) {
 }
 
 export async function unannounceContent(req: UnannounceContentRequest) {
-    try {
-        const token = await getToken();
-        const url = API_BASE.concat(`/${req.ContentID}/unannounce`);
-        const res = await fetch(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-            method: 'POST',
-            body: toJsonString(UnannounceContentRequestSchema, req),
-        });
+	try {
+		const token = await getToken();
+		const url = API_BASE.concat(`/${req.ContentID}/unannounce`);
+		const res = await fetch(url, {
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			method: 'POST',
+			body: toJsonString(UnannounceContentRequestSchema, req),
+		});
 
 		if (!res) {
 			return create(UnannounceContentResponseSchema);
