@@ -56,6 +56,11 @@ const data = {
 					icon: GalleryVerticalEnd,
 					url: '/content/assets/upload',
 				},
+				{
+					title: 'All Content',
+					icon: FilesIcon,
+					url: '/content/all',
+				},
 				{ title: 'Create', icon: GalleryVerticalEnd, url: '/content/create' },
 				{
 					title: 'Comments Settings',
