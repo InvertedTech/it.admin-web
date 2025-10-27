@@ -85,7 +85,7 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 				if (step < 4) setStep((s) => (s + 1) as any);
 				else form.handleSubmit();
 			}}
-			className="space-y-6"
+			className='space-y-6'
 		>
 			<form.AppForm>
 				<AutoContentSlugger form={form} />
@@ -106,61 +106,101 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 						{(current) => {
 							const selected = (current as any) ?? 'Video';
 							return (
-								<div className="space-y-4">
-									<p className="text-sm text-muted-foreground">
+								<div className='space-y-4'>
+									<p className='text-sm text-muted-foreground'>
 										Select content type.
 									</p>
 									<ToggleGroup
-										type="single"
+										type='single'
 										value={selected}
 										onValueChange={(v) => {
 											if (!v) return;
 											if (v === 'Video') {
-												form.setFieldValue('Public.ContentDataOneof', {
-													case: 'Video',
-													value: create(VideoContentPublicDataSchema) as any,
-												} as any);
-												form.setFieldValue('Private.ContentDataOneof', {
-													case: 'Video',
-													value: {},
-												} as any);
+												form.setFieldValue(
+													'Public.ContentDataOneof',
+													{
+														case: 'Video',
+														value: create(
+															VideoContentPublicDataSchema
+														) as any,
+													} as any
+												);
+												form.setFieldValue(
+													'Private.ContentDataOneof',
+													{
+														case: 'Video',
+														value: {},
+													} as any
+												);
 											} else if (v === 'Written') {
-												form.setFieldValue('Public.ContentDataOneof', {
-													case: 'Written',
-													value: create(WrittenContentPublicDataSchema) as any,
-												} as any);
-												form.setFieldValue('Private.ContentDataOneof', {
-													case: 'Written',
-													value: {},
-												} as any);
+												form.setFieldValue(
+													'Public.ContentDataOneof',
+													{
+														case: 'Written',
+														value: create(
+															WrittenContentPublicDataSchema
+														) as any,
+													} as any
+												);
+												form.setFieldValue(
+													'Private.ContentDataOneof',
+													{
+														case: 'Written',
+														value: {},
+													} as any
+												);
 											} else if (v === 'Audio') {
-												form.setFieldValue('Public.ContentDataOneof', {
-													case: 'Audio',
-													value: create(AudioContentPublicDataSchema) as any,
-												} as any);
-												form.setFieldValue('Private.ContentDataOneof', {
-													case: 'Audio',
-													value: {},
-												} as any);
+												form.setFieldValue(
+													'Public.ContentDataOneof',
+													{
+														case: 'Audio',
+														value: create(
+															AudioContentPublicDataSchema
+														) as any,
+													} as any
+												);
+												form.setFieldValue(
+													'Private.ContentDataOneof',
+													{
+														case: 'Audio',
+														value: {},
+													} as any
+												);
 											} else if (v === 'Picture') {
-												form.setFieldValue('Public.ContentDataOneof', {
-													case: 'Picture',
-													value: create(PictureContentPublicDataSchema) as any,
-												} as any);
-												form.setFieldValue('Private.ContentDataOneof', {
-													case: 'Picture',
-													value: {},
-												} as any);
+												form.setFieldValue(
+													'Public.ContentDataOneof',
+													{
+														case: 'Picture',
+														value: create(
+															PictureContentPublicDataSchema
+														) as any,
+													} as any
+												);
+												form.setFieldValue(
+													'Private.ContentDataOneof',
+													{
+														case: 'Picture',
+														value: {},
+													} as any
+												);
 											}
 										}}
-										className="w-fit"
-										variant="outline"
-										size="lg"
+										className='w-fit'
+										variant='outline'
+										size='lg'
 									>
-										<ToggleGroupItem value="Video">Video</ToggleGroupItem>
-										<ToggleGroupItem value="Written">Written</ToggleGroupItem>
-										<ToggleGroupItem value="Audio">Audio</ToggleGroupItem>
-										<ToggleGroupItem value="Picture">Picture</ToggleGroupItem>
+										<ToggleGroupItem value='Video'>
+											Video
+										</ToggleGroupItem>
+										<ToggleGroupItem value='Written'>
+											Written
+										</ToggleGroupItem>
+										<ToggleGroupItem value='Audio'>
+											Audio
+										</ToggleGroupItem>
+										<ToggleGroupItem value='Picture'>
+											Picture
+										</ToggleGroupItem>
 									</ToggleGroup>
 								</div>
 							);
@@ -177,34 +217,38 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 
 				{step === 3 && (
 					<form.Subscribe
-						selector={(s: any) => s.values?.Public?.ContentDataOneof?.case}
+						selector={(s: any) =>
+							s.values?.Public?.ContentDataOneof?.case
+						}
 					>
-						{(selected: 'Video' | 'Written' | 'Audio' | 'Picture') => (
-							<div className="space-y-4">
+						{(
+							selected: 'Video' | 'Written' | 'Audio' | 'Picture'
+						) => (
+							<div className='space-y-4'>
 								{selected === 'Video' && (
 									<ContentPublicDataFieldGroups.VideoContentPublicDataFields
-										title="Video"
+										title='Video'
 										form={form}
 										fields={videoFields as any}
 									/>
 								)}
 								{selected === 'Written' && (
 									<ContentPublicDataFieldGroups.WrittenContentPublicDataFields
-										title="Written"
+										title='Written'
 										form={form}
 										fields={writtenFields as any}
 									/>
 								)}
 								{selected === 'Audio' && (
 									<ContentPublicDataFieldGroups.AudioContentPublicDataFields
-										title="Audio"
+										title='Audio'
 										form={form}
 										fields={audioFields as any}
 									/>
 								)}
 								{selected === 'Picture' && (
 									<ContentPublicDataFieldGroups.PictureContentPublicDataFields
-										title="Picture"
+										title='Picture'
 										form={form}
 										fields={pictureFields as any}
 									/>
@@ -215,30 +259,36 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 				)}
 
 				{step === 4 && (
-					<div className="space-y-3">
-						<p className="text-sm text-muted-foreground">Review and submit.</p>
-						<pre className="bg-muted/50 rounded-md p-3 text-xs overflow-auto">
+					<div className='space-y-3'>
+						<p className='text-sm text-muted-foreground'>
+							Review and submit.
+						</p>
+						<pre className='bg-muted/50 rounded-md p-3 text-xs overflow-auto'>
 							{JSON.stringify(form?.state?.values ?? {}, null, 2)}
 						</pre>
 						<form.SubmitErrors />
 					</div>
 				)}
 
-				<div className="mt-2 flex items-center justify-between">
-					<div className="text-muted-foreground text-sm">Step {step} of 4</div>
-					<div className="flex gap-2">
+				<div className='mt-2 flex items-center justify-between'>
+					<div className='text-muted-foreground text-sm'>
+						Step {step} of 4
+					</div>
+					<div className='flex gap-2'>
 						<Button
-							type="button"
-							variant="outline"
-							onClick={() => setStep((s) => (s > 1 ? ((s - 1) as any) : s))}
+							type='button'
+							variant='outline'
+							onClick={() =>
+								setStep((s) => (s > 1 ? ((s - 1) as any) : s))
+							}
 							disabled={step === 1}
 						>
 							Back
 						</Button>
 						{step < 4 ? (
-							<Button type="submit">Next</Button>
+							<Button type='submit'>Next</Button>
 						) : (
-							<form.CreateButton label="Create" />
+							<form.CreateButton label='Create' />
 						)}
 					</div>
 				</div>
@@ -261,14 +311,11 @@ export function CreateContentWizardDialog({
 
 	const [open, setOpen] = React.useState(false);
 	return (
-		<Dialog
-			open={open}
-			onOpenChange={setOpen}
-		>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				{trigger ?? <Button>Create Content…</Button>}
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-3xl">
+			<DialogContent className='sm:max-w-3xl'>
 				<DialogHeader>
 					<DialogTitle>Create Content</DialogTitle>
 				</DialogHeader>
@@ -286,7 +333,7 @@ export function CreateContentWizardDialog({
 /** ——————— helpers ——————— */
 function Stepper({ step }: { step: number }) {
 	return (
-		<div className="grid grid-cols-4 gap-2 text-sm">
+		<div className='grid grid-cols-4 gap-2 text-sm'>
 			{['Type', 'Details', 'Content', 'Review'].map((label, i) => {
 				const active = step === i + 1;
 				const done = step > i + 1;
@@ -328,7 +375,10 @@ function AutoContentSlugger({ form }: { form: any }) {
 				const title = pub?.Title ?? '';
 				const url = pub?.URL ?? '';
 				const desired = slugify(title);
-				if (desired !== url && typeof form?.setFieldValue === 'function') {
+				if (
+					desired !== url &&
+					typeof form?.setFieldValue === 'function'
+				) {
 					form.setFieldValue('Public.URL', desired);
 				}
 				return null;

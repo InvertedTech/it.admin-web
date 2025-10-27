@@ -17,6 +17,10 @@ import {
 	ChannelRecordSchema,
 	CategoryRecordSchema,
 	ModifySubscriptionPublicDataRequestSchema,
+	ModifyCMSPublicDataRequestSchema,
+	ModifyCMSPublicDataRequest,
+	ModifyCMSPublicDataResponse,
+	ModifyCMSPublicDataResponseSchema,
 } from '@inverted-tech/fragments/Settings';
 
 async function getToken() {
@@ -157,6 +161,41 @@ export async function modifyPublicSubscriptionSettings(
 	} catch (error) {
 		console.error(error);
 		return create(ModifySubscriptionPublicDataResponseSchema, {
+			Error2: create(SettingsErrorSchema, {
+				Message: 'Unknown Error',
+				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+			}),
+		});
+	}
+}
+
+export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
+	try {
+		const token = await getToken();
+		const url = 'http://localhost:8001/api/settings/cms/public';
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: toJsonString(ModifyCMSPublicDataRequestSchema, req),
+		});
+
+		if (!res) {
+			return create(ModifyCMSPublicDataResponseSchema, {
+				Error2: create(SettingsErrorSchema, {
+					Message: 'Unknown Error',
+					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				}),
+			});
+		}
+
+		const body: ModifyCMSPublicDataResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(ModifyCMSPublicDataResponseSchema, {
 			Error2: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
