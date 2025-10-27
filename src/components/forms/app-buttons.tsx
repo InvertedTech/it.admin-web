@@ -34,3 +34,29 @@ export function ResetButton({ label = 'Reset' }: { label?: string }) {
 		</Button>
 	);
 }
+
+export function SaveChangesBar({ label = 'Save Changes' }: { label?: string }) {
+	const form = useFormContext();
+	return (
+		<div className="sticky bottom-4 z-10">
+			<div className="rounded-xl border bg-background/80 backdrop-blur p-3 flex justify-end">
+				<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+					{(isSubmitting: boolean) => (
+						<Button
+							type="submit"
+							disabled={isSubmitting}
+						>
+							{isSubmitting ? (
+								<>
+									<Spinner className="mr-2" /> Saving...
+								</>
+							) : (
+								'Save changes'
+							)}
+						</Button>
+					)}
+				</form.Subscribe>
+			</div>
+		</div>
+	);
+}

@@ -26,7 +26,11 @@ import {
 	YoutubeLinkField,
 	RumbleLinkField,
 } from '@/components/forms/fields';
-import { CreateButton, ResetButton } from '@/components/forms/app-buttons';
+import {
+	CreateButton,
+	ResetButton,
+	SaveChangesBar,
+} from '@/components/forms/app-buttons';
 
 export const { useAppForm, withForm, withFieldGroup } = createFormHook({
 	fieldContext,
@@ -58,5 +62,6 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
 		SubmitErrors,
 		CreateButton,
 		ResetButton,
+		SaveChangesBar,
 	},
 });

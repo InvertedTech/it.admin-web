@@ -5,7 +5,7 @@ import {
 	CategoryRecordSchema,
 	ChannelRecordSchema,
 	CMSPublicMenuRecordSchema,
-} from '@inverted-tech/fragments/protos/Settings/SettingsRecord_pb';
+} from '@inverted-tech/fragments/Settings';
 import { useStore } from '@tanstack/react-form';
 import { v4 as uuidv4 } from 'uuid';
 import React from 'react';

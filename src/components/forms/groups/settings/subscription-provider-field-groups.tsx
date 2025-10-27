@@ -6,19 +6,19 @@ import { create } from '@bufbuild/protobuf';
 import {
 	StripeOwnerSettingsSchema,
 	StripePublicSettingsSchema,
-} from '@inverted-tech/fragments/Authorization/Payment/Stripe/StripeSettings_pb';
-import { ManualPaymentPublicSettingsSchema } from '@inverted-tech/fragments/protos/Authorization/Payment/Manual/ManualPaymentSettings_pb';
+} from '@inverted-tech/fragments/Authorization/Payment/Stripe/index';
+import { ManualPaymentPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Manual/index';
 import {
 	PaypalOwnerSettingsSchema,
 	PaypalPublicSettingsSchema,
-} from '@inverted-tech/fragments/Authorization/Payment/Paypal/PaypalSettings_pb';
+} from '@inverted-tech/fragments/Authorization/Payment/Paypal/index';
 import {
 	FortisOwnerSettingsSchema,
 	FortisPublicSettingsSchema,
-} from '@inverted-tech/fragments/Authorization/Payment/Fortis/FortisSettings_pb';
-import { CryptoPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Crypto/CryptoSettings_pb';
+} from '@inverted-tech/fragments/Authorization/Payment/Fortis/index';
+import { CryptoPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Crypto/index';
 
-const SubscriptionProviderPublicStripeFieldGroup = withFieldGroup({
+export const SubscriptionProviderPublicStripeFieldGroup = withFieldGroup({
 	props: { title: 'Stripe' },
 	defaultValues: create(StripePublicSettingsSchema),
 	render: function Render({ group, title }) {
@@ -38,7 +38,7 @@ const SubscriptionProviderPublicStripeFieldGroup = withFieldGroup({
 	},
 });
 
-const SubscriptionProviderStripOwnerFieldGroup = withFieldGroup({
+export const SubscriptionProviderStripOwnerFieldGroup = withFieldGroup({
 	defaultValues: create(StripeOwnerSettingsSchema),
 	render: function Render({ group }) {
 		return (
@@ -59,8 +59,7 @@ const SubscriptionProviderStripOwnerFieldGroup = withFieldGroup({
 		);
 	},
 });
-
-const SubscriptionProviderPublicManualFieldGroup = withFieldGroup({
+export const SubscriptionProviderPublicManualFieldGroup = withFieldGroup({
 	props: { title: 'Manual' },
 	defaultValues: create(ManualPaymentPublicSettingsSchema),
 	render: function Render({ group, title }) {
@@ -75,8 +74,7 @@ const SubscriptionProviderPublicManualFieldGroup = withFieldGroup({
 		);
 	},
 });
-
-const SubscriptionProviderPublicPaypalFieldGroup = withFieldGroup({
+export const SubscriptionProviderPublicPaypalFieldGroup = withFieldGroup({
 	props: { title: 'Paypal' },
 	defaultValues: create(PaypalPublicSettingsSchema),
 	render: function Render({ group, title }) {
@@ -99,8 +97,7 @@ const SubscriptionProviderPublicPaypalFieldGroup = withFieldGroup({
 		);
 	},
 });
-
-const SubscriptionProviderPaypalOwnerFieldGroup = withFieldGroup({
+export const SubscriptionProviderPaypalOwnerFieldGroup = withFieldGroup({
 	defaultValues: create(PaypalOwnerSettingsSchema),
 	render: function Render({ group }) {
 		return (
@@ -113,8 +110,7 @@ const SubscriptionProviderPaypalOwnerFieldGroup = withFieldGroup({
 		);
 	},
 });
-
-const SubscriptionProviderPublicFortisFieldGroup = withFieldGroup({
+export const SubscriptionProviderPublicFortisFieldGroup = withFieldGroup({
 	props: { title: 'Fortis' },
 	defaultValues: create(FortisPublicSettingsSchema),
 	render: function Render({ group, title }) {
@@ -133,8 +129,7 @@ const SubscriptionProviderPublicFortisFieldGroup = withFieldGroup({
 		);
 	},
 });
-
-const SubscriptionProviderFortisOwnerFieldGroup = withFieldGroup({
+export const SubscriptionProviderFortisOwnerFieldGroup = withFieldGroup({
 	defaultValues: create(FortisOwnerSettingsSchema),
 	render: function Render({ group }) {
 		return (
@@ -160,8 +155,7 @@ const SubscriptionProviderFortisOwnerFieldGroup = withFieldGroup({
 		);
 	},
 });
-
-const SubscriptionProviderPublicCryptoFieldGroup = withFieldGroup({
+export const SubscriptionProviderPublicCryptoFieldGroup = withFieldGroup({
 	props: { title: 'Crypto' },
 	defaultValues: create(CryptoPublicSettingsSchema),
 	render: function Render({ group, title }) {
