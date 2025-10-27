@@ -8,6 +8,8 @@ import {
 	AuthErrorSchema,
 	GetOtherUserResponse,
 	GetOtherUserResponseSchema,
+	RenewTokenResponse,
+	RenewTokenResponseSchema,
 	SearchUsersAdminResponse,
 	SearchUsersAdminResponseSchema,
 	type AuthenticateUserResponse,
@@ -108,5 +110,35 @@ export async function adminGetUser(userId: string) {
 		return body;
 	} catch (error) {
 		return create(GetOtherUserResponseSchema);
+	}
+}
+
+export async function renewToken() {
+	try {
+		const token = await getToken();
+		const url = API_BASE.concat('/renewtoken');
+		const res = await fetch(url, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+			},
+			method: 'GET',
+		});
+
+		if (!res) {
+			return create(RenewTokenResponseSchema);
+		}
+
+		const body: RenewTokenResponse = await res.json();
+		if (!body || body.BearerToken === '') {
+			return create(RenewTokenResponseSchema);
+		}
+
+		const cookieStore = await cookies();
+		await cookieStore.set('token', body.BearerToken);
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(RenewTokenResponseSchema);
 	}
 }
