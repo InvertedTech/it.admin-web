@@ -1,3 +1,4 @@
+// components/layout/nav/nav-main.tsx
 'use client';
 
 import * as React from 'react';
@@ -17,21 +18,21 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type Item = {
+export type NavNode = {
 	title: string;
 	url: string;
-	icon?: LucideIcon;
+	icon?: React.ComponentType<{ className?: string }>;
 	isActive?: boolean;
-	items?: { title: string; url: string; isActive?: boolean }[];
+	items?: NavNode[];
 };
 
-export function NavMain({ items }: { items: Item[] }) {
+export function NavMain({ items }: { items: NavNode[] }) {
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>Platform</SidebarGroupLabel>
 			<SidebarMenu>
 				{items.map((item) => (
-					<NavRow
+					<TopRow
 						key={item.title}
 						item={item}
 					/>
@@ -41,26 +42,22 @@ export function NavMain({ items }: { items: Item[] }) {
 	);
 }
 
-function NavRow({ item }: { item: Item }) {
+function TopRow({ item }: { item: NavNode }) {
 	const pathname = usePathname();
 	const Icon = item.icon;
 	const hasChildren = !!item.items?.length;
 
-	// normalize paths (remove trailing slash except for "/")
 	const norm = (p: string) =>
 		p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p;
 	const here = norm(pathname);
 	const me = norm(item.url);
 
-	const childMatches = !!item.items?.some((s) => {
+	const anyChildMatch = !!item.items?.some((s) => {
 		const c = norm(s.url);
 		return here === c || here.startsWith(c + '/');
 	});
 
-	// open when at parent or inside any child segment
-	const segmentOpen = here === me || here.startsWith(me + '/') || childMatches;
-
-	// highlight parent ONLY on exact parent url (or explicit isActive)
+	const segmentOpen = here === me || here.startsWith(me + '/') || anyChildMatch;
 	const parentActive = here === me || !!item.isActive;
 
 	const [open, setOpen] = React.useState<boolean>(segmentOpen);
@@ -123,26 +120,103 @@ function NavRow({ item }: { item: Item }) {
 
 				<CollapsibleContent>
 					<SidebarMenuSub>
-						{item.items!.map((sub) => {
-							const subPath = norm(sub.url);
-							const subActive =
-								here === subPath || here.startsWith(subPath + '/');
-							return (
-								<SidebarMenuSubItem key={sub.title}>
-									<SidebarMenuSubButton
-										asChild
-										isActive={subActive}
-									>
-										<a href={sub.url}>
-											<span>{sub.title}</span>
-										</a>
-									</SidebarMenuSubButton>
-								</SidebarMenuSubItem>
-							);
-						})}
+						{item.items!.map((sub) => (
+							<SubRow
+								key={sub.title}
+								node={sub}
+								here={here}
+							/>
+						))}
 					</SidebarMenuSub>
 				</CollapsibleContent>
 			</SidebarMenuItem>
 		</Collapsible>
+	);
+}
+
+function SubRow({ node, here }: { node: NavNode; here: string }) {
+	const Icon = node.icon;
+	const norm = (p: string) =>
+		p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p;
+	const me = norm(node.url);
+	const hasChildren = !!node.items?.length;
+
+	const anyChildMatch = !!node.items?.some((s) => {
+		const c = norm(s.url);
+		return here === c || here.startsWith(c + '/');
+	});
+
+	const openByPath = here === me || here.startsWith(me + '/') || anyChildMatch;
+	const active = here === me || !!node.isActive;
+
+	const [open, setOpen] = React.useState<boolean>(openByPath);
+	React.useEffect(() => setOpen(openByPath), [openByPath]);
+
+	// leaf
+	if (!hasChildren) {
+		return (
+			<SidebarMenuSubItem>
+				<SidebarMenuSubButton
+					asChild
+					isActive={active}
+				>
+					<a
+						href={node.url}
+						className="flex items-center gap-2"
+					>
+						{Icon && <Icon className="size-3.5" />}
+						<span>{node.title}</span>
+					</a>
+				</SidebarMenuSubButton>
+			</SidebarMenuSubItem>
+		);
+	}
+
+	// nested group
+	return (
+		<SidebarMenuSubItem>
+			<div className="flex w-full items-center">
+				<SidebarMenuSubButton
+					asChild
+					isActive={active}
+					className="flex-1"
+				>
+					<a
+						href={node.url}
+						className="flex items-center gap-2"
+					>
+						{Icon && <Icon className="size-3.5" />}
+						<span>{node.title}</span>
+					</a>
+				</SidebarMenuSubButton>
+				<Button
+					type="button"
+					size="icon"
+					variant="ghost"
+					onClick={() => setOpen((v) => !v)}
+					className={cn(
+						'ml-1 h-6 w-6 p-0 text-muted-foreground hover:text-foreground',
+						open && 'text-foreground'
+					)}
+					aria-label={open ? 'Collapse subsection' : 'Expand subsection'}
+				>
+					<ChevronRight
+						className={cn('size-3.5 transition-transform', open && 'rotate-90')}
+					/>
+				</Button>
+			</div>
+
+			{open && (
+				<SidebarMenuSub className="pl-4">
+					{node.items!.map((child) => (
+						<SubRow
+							key={child.title}
+							node={child}
+							here={here}
+						/>
+					))}
+				</SidebarMenuSub>
+			)}
+		</SidebarMenuSubItem>
 	);
 }

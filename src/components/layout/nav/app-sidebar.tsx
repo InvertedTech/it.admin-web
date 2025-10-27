@@ -2,24 +2,13 @@
 
 import * as React from 'react';
 import {
-	IconCalendarPlus,
-	IconChartBar,
-	IconDashboard,
-	IconDatabase,
-	IconFileAi,
-	IconFileDescription,
-	IconFileWord,
-	IconFolder,
 	IconFolders,
 	IconHelp,
 	IconInnerShadowTop,
-	IconListDetails,
-	IconReport,
+	IconMoneybag,
 	IconSearch,
-	IconSettings,
 	IconTags,
 	IconUpload,
-	IconUsers,
 } from '@tabler/icons-react';
 
 import { NavQuick } from '@/components/layout/nav/nav-quick';
@@ -29,21 +18,20 @@ import {
 	Sidebar,
 	SidebarContent,
 	SidebarFooter,
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import {
+	Bell,
 	CalendarDays,
-	ChevronRight,
 	CreditCard,
 	FilesIcon,
+	FolderCog,
 	GalleryVerticalEnd,
 	MessageSquare,
+	Palette,
 	Settings as SettingsIcon,
 	UserIcon,
 } from 'lucide-react';
@@ -58,44 +46,18 @@ const data = {
 	},
 	navMain: [
 		{
-			title: 'Settings',
-			icon: SettingsIcon,
-			url: '/settings',
-			items: [
-				{
-					title: 'General: Personalization',
-					url: '/settings/general/personalization',
-				},
-				{ title: 'Subscriptions', url: '/settings/subscriptions' },
-				{ title: 'Comments Settings', url: '/settings/comments' },
-				{ title: 'Content Settings', url: '/settings/content' },
-				{ title: 'Notifications (future)', url: '/settings/notifications' },
-				{ title: 'Events (future)', url: '/settings/events' },
-			],
-		},
-		{
-			title: 'Assets',
-			icon: FilesIcon,
-			url: '/asset',
-			items: [{ title: 'Upload', url: '/asset/upload' }],
-		},
-		{
 			title: 'Content',
 			icon: GalleryVerticalEnd,
 			url: '/content',
 			items: [
-				{ title: 'Create', url: '/content/create' },
-				// scoped settings
-				{ title: 'Settings', url: '/settings/content' },
-			],
-		},
-		{
-			title: 'Comments',
-			icon: MessageSquare,
-			url: '/comments',
-			items: [
-				// add when you have config flags
-				{ title: 'Settings', url: '/settings/comments' },
+				{ title: 'Assets', icon: GalleryVerticalEnd, url: '/content/assets' },
+				{
+					title: 'Upload Asset',
+					icon: GalleryVerticalEnd,
+					url: '/content/assets/upload',
+				},
+				{ title: 'Create', icon: GalleryVerticalEnd, url: '/content/create' },
+				{ title: 'Settings', icon: FilesIcon, url: '/settings/content' },
 			],
 		},
 		{
@@ -103,33 +65,79 @@ const data = {
 			icon: CalendarDays,
 			url: '/events',
 			items: [
-				{ title: 'Create', url: '/events/create' },
-				{ title: 'Create Recurring', url: '/events/create/recurring' },
-				// placeholder settings (fill when you add defaults)
-				{ title: 'Settings', url: '/events/settings' },
+				{ title: 'Create', icon: CalendarDays, url: '/events/create' },
+				{
+					title: 'Create Recurring',
+					icon: CalendarDays,
+					url: '/events/create/recurring',
+				},
+				{ title: 'Settings', icon: CalendarDays, url: '/events/settings' },
 			],
 		},
 		{
-			title: 'Users',
+			title: 'Members',
 			icon: UserIcon,
 			url: '/users',
 			items: [
-				{ title: 'Staff (Admins)', url: '/users/list?role=admin' }, // Team merged here
+				{
+					title: 'Staff (Admins)',
+					icon: UserIcon,
+					url: '/users/list?role=admin',
+				},
+				{
+					title: 'Subscriptions',
+					icon: IconMoneybag,
+					url: '/users/subscriptions',
+				},
+			],
+		},
+		{
+			title: 'Settings',
+			icon: SettingsIcon,
+			url: '/settings',
+			items: [
+				{
+					title: 'General',
+					icon: FolderCog,
+					url: '/settings/general',
+					items: [
+						{
+							title: 'Personalization',
+							icon: Palette,
+							url: '/settings/general/personalization',
+						},
+						{
+							title: 'Notifications',
+							icon: Bell,
+							url: '/settings/notifications',
+						},
+					],
+				},
+				{
+					title: 'Subscriptions',
+					icon: CreditCard,
+					url: '/settings/subscriptions',
+				},
+				{
+					title: 'Comments Settings',
+					icon: MessageSquare,
+					url: '/settings/comments',
+				},
+				{
+					title: 'Content Settings',
+					icon: FilesIcon,
+					url: '/settings/content',
+				},
+				{
+					title: 'Events (future)',
+					icon: CalendarDays,
+					url: '/settings/events',
+				},
 			],
 		},
 	],
 	navQuick: [
-		{ title: 'Upload Asset', url: '/asset/upload', icon: IconUpload },
-		{
-			title: 'Create Category',
-			url: '/settings/content',
-			icon: IconTags,
-		},
-		{
-			title: 'Create Channel',
-			url: '/settings/content',
-			icon: IconFolders,
-		},
+		// { title: 'Upload Asset', url: '/asset/upload', icon: IconUpload }
 	],
 	navSecondary: [
 		{
