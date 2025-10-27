@@ -25,6 +25,8 @@ import {
 	RichBodyFieldMenubar,
 	YoutubeLinkField,
 	RumbleLinkField,
+	HiddenField,
+	NumberField,
 } from '@/components/forms/fields';
 import {
 	CreateButton,
@@ -57,6 +59,8 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
 		RichBodyFieldMenubar,
 		YoutubeLinkField,
 		RumbleLinkField,
+		HiddenField,
+		NumberField,
 	},
 	formComponents: {
 		SubmitErrors,

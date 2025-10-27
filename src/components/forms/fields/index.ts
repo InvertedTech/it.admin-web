@@ -21,3 +21,5 @@ export * from './RichBodyField';
 export * from './RichBodyFieldMenubar';
 export * from './YoutubeLinkField';
 export * from './RumbleLinkField';
+export * from './NumberField';
+export * from './HiddenField';

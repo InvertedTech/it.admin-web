@@ -3,13 +3,9 @@
 import * as React from 'react';
 import {
 	ColumnDef,
-	ColumnFiltersState,
 	SortingState,
-	VisibilityState,
 	flexRender,
 	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
@@ -17,7 +13,6 @@ import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -40,6 +35,7 @@ import type {
 	UserSearchRecord,
 } from '@inverted-tech/fragments/Authentication';
 
+// ---------- helpers ----------
 const g = (obj: any, paths: string[], fb?: any) => {
 	for (const p of paths) {
 		const v = p.split('.').reduce<any>((o, k) => (o ? o[k] : undefined), obj);
@@ -48,7 +44,6 @@ const g = (obj: any, paths: string[], fb?: any) => {
 	return fb;
 };
 
-// dates
 type MaybeTimestamp = unknown;
 const toJsDate = (v: MaybeTimestamp) => {
 	if (!v) return;
@@ -69,9 +64,10 @@ const fmtDate = (v?: MaybeTimestamp) => {
 	return d ? d.toLocaleString() : '—';
 };
 
+// ---------- columns ----------
 export const userColumns: ColumnDef<any>[] = [
 	{
-		/* select col unchanged */ id: 'select',
+		id: 'select',
 		header: ({ table }) => (
 			<Checkbox
 				checked={
@@ -276,81 +272,74 @@ export const userColumns: ColumnDef<any>[] = [
 	},
 ];
 
-// --- table ---
-export function UsersTable({ data }: { data: UserSearchRecord[] }) {
+// ---------- table ----------
+export function UsersTable({
+	data,
+	onPrevPage,
+	onNextPage,
+	hasPrev,
+	hasNext,
+	clientSort = true, // set false if server-sorting
+	showColumnPicker = true,
+}: {
+	data: UserSearchRecord[];
+	onPrevPage?: () => void;
+	onNextPage?: () => void;
+	hasPrev?: boolean;
+	hasNext?: boolean;
+	clientSort?: boolean;
+	showColumnPicker?: boolean;
+}) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-		[]
-	);
-	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({});
+	const [columnVisibility, setColumnVisibility] = React.useState<
+		Record<string, boolean>
+	>({});
 	const [rowSelection, setRowSelection] = React.useState({});
 
 	const table = useReactTable({
 		data,
 		columns: userColumns,
 		getRowId: (row) => g(row, ['UserID', 'Public.UserID'], crypto.randomUUID()),
-		state: { sorting, columnFilters, columnVisibility, rowSelection },
-		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
+		state: {
+			...(clientSort ? { sorting } : {}),
+			columnVisibility,
+			rowSelection,
+		},
+		onSortingChange: clientSort ? setSorting : undefined,
 		onColumnVisibilityChange: setColumnVisibility,
 		onRowSelectionChange: setRowSelection,
 		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
+		...(clientSort ? { getSortedRowModel: getSortedRowModel() } : {}),
 	});
 
 	return (
 		<div>
-			{/* filters */}
-			<div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center">
-				<Input
-					placeholder="Filter by name…"
-					className="max-w-xs"
-					value={
-						(table.getColumn('DisplayName')?.getFilterValue() as string) ?? ''
-					}
-					onChange={(e) =>
-						table.getColumn('DisplayName')?.setFilterValue(e.target.value)
-					}
-				/>
-				<Input
-					placeholder="Filter by email…"
-					className="max-w-xs sm:ml-2"
-					value={(table.getColumn('Email')?.getFilterValue() as string) ?? ''}
-					onChange={(e) =>
-						table.getColumn('Email')?.setFilterValue(e.target.value)
-					}
-				/>
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							variant="outline"
-							className="ml-auto"
-						>
-							Columns
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						{table
-							.getAllColumns()
-							.filter((c) => c.getCanHide())
-							.map((c) => (
-								<DropdownMenuCheckboxItem
-									key={c.id}
-									checked={c.getIsVisible()}
-									onCheckedChange={(v) => c.toggleVisibility(!!v)}
-									className="capitalize"
-								>
-									{c.id}
-								</DropdownMenuCheckboxItem>
-							))}
-					</DropdownMenuContent>
-				</DropdownMenu>
-			</div>
+			{/* optional column picker, no filters or local pagination */}
+			{showColumnPicker ? (
+				<div className="flex justify-end py-2">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="outline">Columns</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							{table
+								.getAllColumns()
+								.filter((c) => c.getCanHide())
+								.map((c) => (
+									<DropdownMenuCheckboxItem
+										key={c.id}
+										checked={c.getIsVisible()}
+										onCheckedChange={(v) => c.toggleVisibility(!!v)}
+										className="capitalize"
+									>
+										{c.id}
+									</DropdownMenuCheckboxItem>
+								))}
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
+			) : null}
 
-			{/* table */}
 			<div className="overflow-hidden rounded-md border">
 				<Table>
 					<TableHeader>
@@ -400,26 +389,24 @@ export function UsersTable({ data }: { data: UserSearchRecord[] }) {
 				</Table>
 			</div>
 
-			{/* footer */}
 			<div className="mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
 				<div className="text-muted-foreground text-sm">
-					{table.getFilteredSelectedRowModel().rows.length} of{' '}
-					{table.getFilteredRowModel().rows.length} selected.
+					{data.length} shown.
 				</div>
 				<div className="flex gap-2">
 					<Button
 						variant="outline"
 						size="sm"
-						onClick={() => table.previousPage()}
-						disabled={!table.getCanPreviousPage()}
+						onClick={onPrevPage}
+						disabled={!hasPrev}
 					>
 						Previous
 					</Button>
 					<Button
 						variant="outline"
 						size="sm"
-						onClick={() => table.nextPage()}
-						disabled={!table.getCanNextPage()}
+						onClick={onNextPage}
+						disabled={!hasNext}
 					>
 						Next
 					</Button>
@@ -429,11 +416,18 @@ export function UsersTable({ data }: { data: UserSearchRecord[] }) {
 	);
 }
 
-// helper to consume the API response directly
+// convenience if you already have API response
 export function UsersTableFromResponse({
 	resp,
-}: {
-	resp: SearchUsersAdminResponse;
-}) {
-	return <UsersTable data={resp?.Records ?? []} />;
+	...p
+}: { resp: SearchUsersAdminResponse } & Omit<
+	React.ComponentProps<typeof UsersTable>,
+	'data'
+>) {
+	return (
+		<UsersTable
+			data={resp?.Records ?? []}
+			{...p}
+		/>
+	);
 }

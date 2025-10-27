@@ -103,6 +103,11 @@ const data = {
 					url: '/users/list?role=admin',
 				},
 				{
+					title: 'Search',
+					icon: UserIcon,
+					url: '/users/search',
+				},
+				{
 					title: 'Subscriptions',
 					icon: IconMoneybag,
 					url: '/users/subscriptions',
