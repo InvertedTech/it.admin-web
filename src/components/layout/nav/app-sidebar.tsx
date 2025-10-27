@@ -57,7 +57,16 @@ const data = {
 					url: '/content/assets/upload',
 				},
 				{ title: 'Create', icon: GalleryVerticalEnd, url: '/content/create' },
-				{ title: 'Settings', icon: FilesIcon, url: '/settings/content' },
+				{
+					title: 'Comments Settings',
+					icon: MessageSquare,
+					url: '/settings/comments',
+				},
+				{
+					title: 'Content Settings',
+					icon: FilesIcon,
+					url: '/settings/content',
+				},
 			],
 		},
 		{
@@ -71,7 +80,11 @@ const data = {
 					icon: CalendarDays,
 					url: '/events/create/recurring',
 				},
-				{ title: 'Settings', icon: CalendarDays, url: '/events/settings' },
+				{
+					title: 'Events (future)',
+					icon: CalendarDays,
+					url: '/settings/events',
+				},
 			],
 		},
 		{
@@ -89,6 +102,11 @@ const data = {
 					icon: IconMoneybag,
 					url: '/users/subscriptions',
 				},
+				{
+					title: 'Subscriptions Settings',
+					icon: CreditCard,
+					url: '/settings/subscriptions',
+				},
 			],
 		},
 		{
@@ -96,42 +114,35 @@ const data = {
 			icon: SettingsIcon,
 			url: '/settings',
 			items: [
+				// {
+				// 	title: 'Subscriptions',
+				// 	icon: CreditCard,
+				// 	url: '/settings/subscriptions',
+				// },
+				// {
+				// 	title: 'Comments Settings',
+				// 	icon: MessageSquare,
+				// 	url: '/settings/comments',
+				// },
+				// {
+				// 	title: 'Content Settings',
+				// 	icon: FilesIcon,
+				// 	url: '/settings/content',
+				// },
+				// {
+				// 	title: 'Events (future)',
+				// 	icon: CalendarDays,
+				// 	url: '/settings/events',
+				// },
 				{
-					title: 'General',
-					icon: FolderCog,
-					url: '/settings/general',
-					items: [
-						{
-							title: 'Personalization',
-							icon: Palette,
-							url: '/settings/general/personalization',
-						},
-						{
-							title: 'Notifications',
-							icon: Bell,
-							url: '/settings/notifications',
-						},
-					],
+					title: 'Personalization',
+					icon: Palette,
+					url: '/settings/personalization',
 				},
 				{
-					title: 'Subscriptions',
-					icon: CreditCard,
-					url: '/settings/subscriptions',
-				},
-				{
-					title: 'Comments Settings',
-					icon: MessageSquare,
-					url: '/settings/comments',
-				},
-				{
-					title: 'Content Settings',
-					icon: FilesIcon,
-					url: '/settings/content',
-				},
-				{
-					title: 'Events (future)',
-					icon: CalendarDays,
-					url: '/settings/events',
+					title: 'Notifications',
+					icon: Bell,
+					url: '/settings/notifications',
 				},
 			],
 		},

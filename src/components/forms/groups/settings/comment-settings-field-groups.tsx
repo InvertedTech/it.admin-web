@@ -41,8 +41,6 @@ export const CommentPublicSettingsFieldGroup = withFieldGroup({
 
 		return (
 			<FieldGroup>
-				{hasTitle && <FieldLegend>{title}</FieldLegend>}
-
 				{/* AllowLinks */}
 				<group.AppField name="AllowLinks">
 					{(f) => <f.SwitchField label="Allow Links" />}

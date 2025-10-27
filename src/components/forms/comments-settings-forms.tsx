@@ -1,10 +1,13 @@
-import { useProtoAppForm } from '@/hooks/use-proto-app-form';
+'use client';
+
 import { create } from '@bufbuild/protobuf';
+import { useProtoAppForm } from '@/hooks/use-proto-app-form';
+import { SettingsForm, SettingsSection } from '@/components/settings';
 import {
 	CommentsPrivateRecordSchema,
 	CommentsPublicRecordSchema,
 } from '@inverted-tech/fragments/Settings';
-import { FormCard } from './form-card';
+
 import commentsGroups, {
 	CommentPrivateSettingsFieldGroup,
 } from './groups/settings/comment-settings-field-groups';
@@ -30,28 +33,20 @@ export function CommentsPublicSettingsForm() {
 	});
 
 	return (
-		<FormCard
-			cardTitle="Public"
-			cardDescription="Public Settings For Comments"
-		>
-			<form
-				id="comments-settings-public"
-				onSubmit={(e) => {
-					e.preventDefault();
-					form.handleSubmit();
-				}}
+		<SettingsForm form={form}>
+			<SettingsSection
+				title="Comments — Public"
+				description="Controls visible to all visitors."
 			>
-				<form.AppForm>
+				<div className="grid gap-4 md:grid-cols-2">
 					<commentsGroups.CommentPublicSettingsFieldGroup
-						title="Public Settings"
+						title=""
 						form={form}
 						fields={PUBLIC_FIELDS_MAP as any}
 					/>
-					<form.CreateButton label="Save" />
-					<form.ResetButton />
-				</form.AppForm>
-			</form>
-		</FormCard>
+				</div>
+			</SettingsSection>
+		</SettingsForm>
 	);
 }
 
@@ -63,27 +58,20 @@ export function CommentsPrivateSettingsForm() {
 	});
 
 	return (
-		<FormCard
-			cardTitle="Private"
-			cardDescription="Server-only moderation settings"
-		>
-			<form
-				id="comments-settings-private"
-				onSubmit={(e) => {
-					e.preventDefault();
-					form.handleSubmit();
-				}}
+		<SettingsForm form={form}>
+			<SettingsSection
+				title="Comments — Private"
+				description="Server-only moderation settings."
 			>
-				<form.AppForm>
+				<div className="grid gap-4">
 					<CommentPrivateSettingsFieldGroup
 						form={form}
-						title="Private Settings"
+						title=""
 						fields={PRIVATE_FIELDS_MAP as any}
 						suggestions={['spam', 'scam', 'self-promo']}
 					/>
-					<form.CreateButton label="Save" />
-				</form.AppForm>
-			</form>
-		</FormCard>
+				</div>
+			</SettingsSection>
+		</SettingsForm>
 	);
 }

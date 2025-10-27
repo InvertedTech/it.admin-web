@@ -1,31 +1,28 @@
-import {
-	CommentsPrivateSettingsForm,
-	CommentsPublicSettingsForm,
-} from '@/components/forms/comments-settings-forms';
+'use server';
+
+import { getAdminSettings } from '@/app/actions/settings';
+import { PersonalizationPublicForm } from '@/components/forms/personalization-public-settings-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-export default function SettingsCommentsPage() {
+
+export default async function SettingsGeneralPersonalizationPage() {
+	const { Public } = await getAdminSettings();
+
 	return (
 		<div className="container mx-auto py-8 space-y-6 w-9/10">
 			<div className="space-y-1">
 				<h1 className="text-2xl font-semibold tracking-tight">
-					Comments Settings
+					Subscription Settings
 				</h1>
 				<p className="text-muted-foreground">
-					Manage Comment Restrictions and Blacklists
+					Manage tiers and payment providers.
 				</p>
 			</div>
-
 			<Tabs defaultValue="public">
 				<TabsList>
 					<TabsTrigger value="public">Public</TabsTrigger>
-					<TabsTrigger value="private">Private</TabsTrigger>
 				</TabsList>
 				<TabsContent value="public">
-					<CommentsPublicSettingsForm />
-				</TabsContent>
-
-				<TabsContent value="private">
-					<CommentsPrivateSettingsForm />
+					<PersonalizationPublicForm data={Public?.Personalization} />
 				</TabsContent>
 			</Tabs>
 		</div>
