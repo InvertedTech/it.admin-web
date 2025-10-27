@@ -3,10 +3,19 @@
 import { FieldGroup, FieldLegend } from '@/components/ui/field';
 import { withFieldGroup } from '@/hooks/use-proto-app-form';
 import { create } from '@bufbuild/protobuf';
-import { StripePublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Stripe/StripeSettings_pb';
+import {
+	StripeOwnerSettingsSchema,
+	StripePublicSettingsSchema,
+} from '@inverted-tech/fragments/Authorization/Payment/Stripe/StripeSettings_pb';
 import { ManualPaymentPublicSettingsSchema } from '@inverted-tech/fragments/protos/Authorization/Payment/Manual/ManualPaymentSettings_pb';
-import { PaypalPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Paypal/PaypalSettings_pb';
-import { FortisPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Fortis/FortisSettings_pb';
+import {
+	PaypalOwnerSettingsSchema,
+	PaypalPublicSettingsSchema,
+} from '@inverted-tech/fragments/Authorization/Payment/Paypal/PaypalSettings_pb';
+import {
+	FortisOwnerSettingsSchema,
+	FortisPublicSettingsSchema,
+} from '@inverted-tech/fragments/Authorization/Payment/Fortis/FortisSettings_pb';
 import { CryptoPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Crypto/CryptoSettings_pb';
 
 const SubscriptionProviderPublicStripeFieldGroup = withFieldGroup({
@@ -23,6 +32,28 @@ const SubscriptionProviderPublicStripeFieldGroup = withFieldGroup({
 				<group.AppField
 					name="Url"
 					children={(field) => <field.TextField label="Checkout URL" />}
+				/>
+			</FieldGroup>
+		);
+	},
+});
+
+const SubscriptionProviderStripOwnerFieldGroup = withFieldGroup({
+	defaultValues: create(StripeOwnerSettingsSchema),
+	render: function Render({ group }) {
+		return (
+			<FieldGroup>
+				<group.AppField
+					name="Account"
+					children={(field) => <field.TextField label="Account" />}
+				/>
+				<group.AppField
+					name="ClientID"
+					children={(field) => <field.TextField label="Client Id" />}
+				/>
+				<group.AppField
+					name="ClientSecret"
+					children={(field) => <field.PasswordField label="Client Secret" />}
 				/>
 			</FieldGroup>
 		);
@@ -69,6 +100,20 @@ const SubscriptionProviderPublicPaypalFieldGroup = withFieldGroup({
 	},
 });
 
+const SubscriptionProviderPaypalOwnerFieldGroup = withFieldGroup({
+	defaultValues: create(PaypalOwnerSettingsSchema),
+	render: function Render({ group }) {
+		return (
+			<FieldGroup>
+				<group.AppField
+					name="ClientSecret"
+					children={(field) => <field.PasswordField label="Client Secret" />}
+				/>
+			</FieldGroup>
+		);
+	},
+});
+
 const SubscriptionProviderPublicFortisFieldGroup = withFieldGroup({
 	props: { title: 'Fortis' },
 	defaultValues: create(FortisPublicSettingsSchema),
@@ -83,6 +128,33 @@ const SubscriptionProviderPublicFortisFieldGroup = withFieldGroup({
 				<group.AppField
 					name="IsTest"
 					children={(field) => <field.BooleanField label="Test Mode" />}
+				/>
+			</FieldGroup>
+		);
+	},
+});
+
+const SubscriptionProviderFortisOwnerFieldGroup = withFieldGroup({
+	defaultValues: create(FortisOwnerSettingsSchema),
+	render: function Render({ group }) {
+		return (
+			<FieldGroup>
+				<group.AppField
+					name="UserID"
+					children={(field) => <field.TextField label="User Id" />}
+				/>
+				<group.AppField
+					name="UserApiKey"
+					children={(field) => <field.PasswordField label="User API Key" />}
+				/>
+				<group.AppField
+					name="LocationID"
+					children={(field) => <field.TextField label="Location Id" />}
+				/>
+
+				<group.AppField
+					name="ProductID"
+					children={(field) => <field.TextField label="Product Id" />}
 				/>
 			</FieldGroup>
 		);
@@ -111,4 +183,7 @@ export default {
 	SubscriptionProviderPublicPaypalFieldGroup,
 	SubscriptionProviderPublicFortisFieldGroup,
 	SubscriptionProviderPublicCryptoFieldGroup,
+	SubscriptionProviderFortisOwnerFieldGroup,
+	SubscriptionProviderPaypalOwnerFieldGroup,
+	SubscriptionProviderStripOwnerFieldGroup,
 };

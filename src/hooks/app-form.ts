@@ -19,6 +19,12 @@ import {
 	TierListField,
 	MoneyCentsField,
 	ColorField,
+	CmsBodyField,
+	HtmlBodyField,
+	RichBodyField,
+	RichBodyFieldMenubar,
+	YoutubeLinkField,
+	RumbleLinkField,
 } from '@/components/forms/app-fields';
 import { CreateButton, ResetButton } from '@/components/forms/app-buttons';
 
@@ -41,6 +47,12 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
 		TierListField,
 		MoneyCentsField,
 		ColorField,
+		CmsBodyField,
+		HtmlBodyField,
+		RichBodyField,
+		RichBodyFieldMenubar,
+		YoutubeLinkField,
+		RumbleLinkField,
 	},
 	formComponents: {
 		SubmitErrors,

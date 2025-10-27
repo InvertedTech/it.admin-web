@@ -1,5 +1,9 @@
+// page.tsx
 'use server';
-import { getAdminSettings, modifyPublicSubscriptionSettings } from '@/app/actions/settings';
+import {
+	getAdminSettings,
+	modifyPublicSubscriptionSettings,
+} from '@/app/actions/settings';
 import { TierConfig, TiersForm } from '@/components/forms/tiers-form';
 import { SubscriptionConstraintsForm } from '@/components/forms/subscriptions-constraints-form';
 import { ManualProviderForm } from '@/components/forms/subscriptions-provider-manual-form';
@@ -7,87 +11,169 @@ import { FortisProviderForm } from '@/components/forms/subscriptions-provider-fo
 import { CryptoProviderForm } from '@/components/forms/subscriptions-provider-crypto-form';
 import { StripeProviderForm } from '@/components/forms/subscriptions-provider-stripe-form';
 import { PaypalProviderForm } from '@/components/forms/subscriptions-provider-paypal-form';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Button } from '@/components/ui/button';
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+
+// --- add: minimal runtime-safe types
+type Provider = { Enabled?: boolean } & Record<string, unknown>;
+type SubscriptionSettings = {
+	Tiers?: TierConfig['Tiers'];
+	Manual?: Provider;
+	Fortis?: Provider;
+	Crypto?: Provider;
+	Stripe?: Provider;
+	Paypal?: Provider;
+};
 
 export default async function SubscriptionSettingsPage() {
-    const { Public } = await getAdminSettings();
-    const sub = Public?.Subscription;
+	const { Public } = await getAdminSettings();
+
+	// --- fix: don't leave this as {}
+	const sub = (Public?.Subscription ?? {}) as SubscriptionSettings;
 
 	const tiersInitial: TierConfig = {
-		Tiers: sub?.Tiers && sub.Tiers.length ? sub.Tiers : [],
+		Tiers: Array.isArray(sub.Tiers) ? sub.Tiers : [],
 	};
+
+	const openValues = [
+		sub.Manual?.Enabled ? 'manual' : null,
+		sub.Fortis?.Enabled ? 'fortis' : null,
+		sub.Crypto?.Enabled ? 'crypto' : null,
+		sub.Stripe?.Enabled ? 'stripe' : null,
+		sub.Paypal?.Enabled ? 'paypal' : null,
+	].filter(Boolean) as string[];
 
 	return (
 		<div className="container mx-auto space-y-8 py-8">
 			<div className="space-y-1">
 				<h1 className="text-2xl font-semibold tracking-tight">Subscriptions</h1>
-				<p className="text-muted-foreground">Configure membership tiers, constraints, and providers.</p>
+				<p className="text-muted-foreground">
+					Configure membership tiers, constraints, and providers.
+				</p>
 			</div>
 
-			{/* Tiers */}
-            <TiersForm initial={tiersInitial} onSave={saveTiers} />
+			<TiersForm
+				initial={tiersInitial}
+				onSave={saveTiers}
+			/>
+			<SubscriptionConstraintsForm
+				base={sub as any}
+				initial={sub as any}
+			/>
 
-
-
-			{/* Constraints */}
-			<SubscriptionConstraintsForm base={sub as any} initial={sub as any} />
-
-			{/* Providers (collapsible sections) */}
-			<div className="space-y-4">
-				<Collapsible defaultOpen={!!sub?.Manual?.Enabled}>
-					<CollapsibleTrigger asChild>
-						<Button variant="outline" className="w-full justify-between">Manual</Button>
-					</CollapsibleTrigger>
-					<CollapsibleContent>
+			<Accordion
+				type="multiple"
+				defaultValue={openValues}
+				className="space-y-3"
+			>
+				<AccordionItem
+					value="manual"
+					className="rounded-md border"
+				>
+					<div className="flex items-center justify-between px-3">
+						<AccordionTrigger className="flex-1 py-3 text-left hover:no-underline">
+							<div className="flex items-center gap-3">
+								<span className="font-medium">Manual</span>
+								<Badge variant={sub.Manual?.Enabled ? 'default' : 'secondary'}>
+									{sub.Manual?.Enabled ? 'Enabled' : 'Disabled'}
+								</Badge>
+							</div>
+						</AccordionTrigger>
+					</div>
+					<AccordionContent className="px-3 pb-4">
 						<ManualProviderForm base={sub as any} />
-					</CollapsibleContent>
-				</Collapsible>
+					</AccordionContent>
+				</AccordionItem>
 
-				<Collapsible defaultOpen={!!sub?.Fortis?.Enabled}>
-					<CollapsibleTrigger asChild>
-						<Button variant="outline" className="w-full justify-between">Fortis</Button>
-					</CollapsibleTrigger>
-					<CollapsibleContent>
+				<AccordionItem
+					value="fortis"
+					className="rounded-md border"
+				>
+					<div className="flex items-center justify-between px-3">
+						<AccordionTrigger className="flex-1 py-3 text-left hover:no-underline">
+							<div className="flex items-center gap-3">
+								<span className="font-medium">Fortis</span>
+								<Badge variant={sub.Fortis?.Enabled ? 'default' : 'secondary'}>
+									{sub.Fortis?.Enabled ? 'Enabled' : 'Disabled'}
+								</Badge>
+							</div>
+						</AccordionTrigger>
+					</div>
+					<AccordionContent className="px-3 pb-4">
 						<FortisProviderForm base={sub as any} />
-					</CollapsibleContent>
-				</Collapsible>
+					</AccordionContent>
+				</AccordionItem>
 
-				<Collapsible defaultOpen={!!sub?.Crypto?.Enabled}>
-					<CollapsibleTrigger asChild>
-						<Button variant="outline" className="w-full justify-between">Crypto</Button>
-					</CollapsibleTrigger>
-					<CollapsibleContent>
+				<AccordionItem
+					value="crypto"
+					className="rounded-md border"
+				>
+					<div className="flex items-center justify-between px-3">
+						<AccordionTrigger className="flex-1 py-3 text-left hover:no-underline">
+							<div className="flex items-center gap-3">
+								<span className="font-medium">Crypto</span>
+								<Badge variant={sub.Crypto?.Enabled ? 'default' : 'secondary'}>
+									{sub.Crypto?.Enabled ? 'Enabled' : 'Disabled'}
+								</Badge>
+							</div>
+						</AccordionTrigger>
+					</div>
+					<AccordionContent className="px-3 pb-4">
 						<CryptoProviderForm base={sub as any} />
-					</CollapsibleContent>
-				</Collapsible>
+					</AccordionContent>
+				</AccordionItem>
 
-				<Collapsible defaultOpen={!!sub?.Stripe?.Enabled}>
-					<CollapsibleTrigger asChild>
-						<Button variant="outline" className="w-full justify-between">Stripe</Button>
-					</CollapsibleTrigger>
-					<CollapsibleContent>
+				<AccordionItem
+					value="stripe"
+					className="rounded-md border"
+				>
+					<div className="flex items-center justify-between px-3">
+						<AccordionTrigger className="flex-1 py-3 text-left hover:no-underline">
+							<div className="flex items-center gap-3">
+								<span className="font-medium">Stripe</span>
+								<Badge variant={sub.Stripe?.Enabled ? 'default' : 'secondary'}>
+									{sub.Stripe?.Enabled ? 'Enabled' : 'Disabled'}
+								</Badge>
+							</div>
+						</AccordionTrigger>
+					</div>
+					<AccordionContent className="px-3 pb-4">
 						<StripeProviderForm base={sub as any} />
-					</CollapsibleContent>
-				</Collapsible>
+					</AccordionContent>
+				</AccordionItem>
 
-				<Collapsible defaultOpen={!!sub?.Paypal?.Enabled}>
-					<CollapsibleTrigger asChild>
-						<Button variant="outline" className="w-full justify-between">PayPal</Button>
-					</CollapsibleTrigger>
-					<CollapsibleContent>
+				<AccordionItem
+					value="paypal"
+					className="rounded-md border"
+				>
+					<div className="flex items-center justify-between px-3">
+						<AccordionTrigger className="flex-1 py-3 text-left hover:no-underline">
+							<div className="flex items-center gap-3">
+								<span className="font-medium">PayPal</span>
+								<Badge variant={sub.Paypal?.Enabled ? 'default' : 'secondary'}>
+									{sub.Paypal?.Enabled ? 'Enabled' : 'Disabled'}
+								</Badge>
+							</div>
+						</AccordionTrigger>
+					</div>
+					<AccordionContent className="px-3 pb-4">
 						<PaypalProviderForm base={sub as any} />
-					</CollapsibleContent>
-				</Collapsible>
-			</div>
+					</AccordionContent>
+				</AccordionItem>
+			</Accordion>
 		</div>
 	);
 }
 
 async function saveTiers(val: TierConfig) {
-    'use server';
-    const { Public } = await getAdminSettings();
-    const sub = Public?.Subscription ?? {};
-    const merged = { ...sub, Tiers: val.Tiers } as any;
-    await modifyPublicSubscriptionSettings({ Data: merged } as any);
+	'use server';
+	const { Public } = await getAdminSettings();
+	const sub = (Public?.Subscription ?? {}) as SubscriptionSettings;
+	const merged = { ...sub, Tiers: val.Tiers } as SubscriptionSettings;
+	await modifyPublicSubscriptionSettings({ Data: merged } as any);
 }

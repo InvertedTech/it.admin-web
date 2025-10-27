@@ -15,9 +15,8 @@ const WrittenContentPublicDataFields = withFieldGroup({
 	render: function Render({ group, title }) {
 		return (
 			<>
-				<h2>{title}</h2>
 				<group.AppField name="HtmlBody">
-					{(field) => <field.TextAreaField label={'Body'} />}
+					{(field) => <field.RichBodyField label={'Body'} />}
 				</group.AppField>
 			</>
 		);
@@ -30,15 +29,14 @@ const VideoContentPublicDataFields = withFieldGroup({
 	render: function Render({ group, title }) {
 		return (
 			<>
-				<h2>{title}</h2>
 				<group.AppField name="RumbleVideoId">
-					{(field) => <field.TextField label={'Rumble Id'} />}
+					{(field) => <field.RumbleLinkField label={'Rumble Url'} />}
 				</group.AppField>
 				<group.AppField name="YoutubeVideoId">
-					{(field) => <field.TextField label={'Youtube Id'} />}
+					{(field) => <field.YoutubeLinkField label={'Youtube Url'} />}
 				</group.AppField>
 				<group.AppField name="HtmlBody">
-					{(field) => <field.TextAreaField label={'Body'} />}
+					{(field) => <field.RichBodyField label={'Body'} />}
 				</group.AppField>
 			</>
 		);
@@ -51,9 +49,8 @@ const AudioContentPublicDataFields = withFieldGroup({
 	render: function Render({ group, title }) {
 		return (
 			<>
-				<h2>{title}</h2>
 				<group.AppField name="HtmlBody">
-					{(field) => <field.TextAreaField label="Body" />}
+					{(field) => <field.RichBodyField label={'Body'} />}
 				</group.AppField>
 			</>
 		);
@@ -66,9 +63,8 @@ const PictureContentPublicDataFields = withFieldGroup({
 	render: function Render({ group, title }) {
 		return (
 			<>
-				<h2>{title}</h2>
 				<group.AppField name="HtmlBody">
-					{(field) => <field.TextAreaField label={'Body'} />}
+					{(field) => <field.RichBodyField label={'Body'} />}
 				</group.AppField>
 			</>
 		);

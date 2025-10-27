@@ -1,5 +1,7 @@
 'use client';
-
+import ReactMarkdown from 'react-markdown';
+import DOMPurify from 'isomorphic-dompurify';
+import remarkGfm from 'remark-gfm';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useFieldContext, useFormContext } from '@/hooks/form-context';
 import {
@@ -14,6 +16,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import {
 	Dialog,
 	DialogContent,
+	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
@@ -35,6 +38,10 @@ import {
 	CheckIcon,
 	XIcon,
 	CalendarIcon,
+	Power,
+	PowerOff,
+	Youtube,
+	Rss,
 } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { parseDate } from 'chrono-node';
@@ -64,7 +71,33 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { CmsBodyTextarea } from '../ui/CMSTextArea';
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupButton,
+} from '@/components/ui/input-group';
+import { Toggle } from '@/components/ui/toggle';
 
+import {
+	Eye,
+	Bold,
+	Italic,
+	Link as LinkIcon,
+	Heading3,
+	List,
+	Quote,
+	Code,
+} from 'lucide-react';
+import {
+	Menubar,
+	MenubarContent,
+	MenubarItem,
+	MenubarMenu,
+	MenubarSeparator,
+	MenubarShortcut,
+	MenubarTrigger,
+} from '../ui/menubar';
 type Tier = {
 	Name: string;
 	Description: string;
@@ -308,12 +341,10 @@ export function TextField({
 export function SwitchField({ label }: { label?: React.ReactNode }) {
 	const field = useFieldContext<boolean | undefined>();
 	const form = useFormContext();
+
 	return (
 		<form.Subscribe
-			selector={(s: any) => ({
-				submit: s?.submitErrors,
-				sync: s?.errors,
-			})}
+			selector={(s: any) => ({ submit: s?.submitErrors, sync: s?.errors })}
 		>
 			{(errState: any) => {
 				const submitField =
@@ -329,20 +360,65 @@ export function SwitchField({ label }: { label?: React.ReactNode }) {
 				];
 				const errors = normalizeFieldErrors(combined as any) ?? [];
 				const isInvalid = errors.length > 0;
+				const checked = !!field.state.value;
+
 				return (
 					<UIField
 						data-invalid={isInvalid}
 						orientation="responsive"
 					>
 						<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
-						<Switch
-							id={field.name}
-							name={field.name}
-							checked={!!field.state.value}
-							onCheckedChange={(v) => field.handleChange(!!v)}
-							aria-invalid={isInvalid}
-							className="w-auto"
-						/>
+
+						<InputGroup className="w-fit">
+							{/* Track: fixed size, inner padding to house knob */}
+							<button
+								id={field.name}
+								name={field.name}
+								type="button"
+								role="switch"
+								aria-checked={checked}
+								aria-invalid={isInvalid}
+								data-slot="input-group-control"
+								onClick={() => field.handleChange(!checked)}
+								className={cn(
+									'relative h-9 w-20 rounded-full border p-1 outline-none transition-colors',
+									checked
+										? 'bg-emerald-500 border-emerald-500'
+										: 'bg-muted border-border'
+								)}
+							>
+								{/* Knob */}
+								<span
+									className={cn(
+										'absolute top-1 left-1 h-7 w-7 rounded-full bg-background shadow-sm',
+										'grid place-items-center transition-transform duration-200 will-change-transform',
+										checked && 'translate-x-11' // 44px = 80 - 28 - 8
+									)}
+								>
+									{checked ? (
+										<Power className="h-4 w-4 text-emerald-600" />
+									) : (
+										<PowerOff className="h-4 w-4 text-muted-foreground" />
+									)}
+								</span>
+							</button>
+
+							{/* Fixed-width status chip to prevent layout shift */}
+							<InputGroupAddon align="inline-end">
+								<Badge
+									variant={checked ? 'default' : 'secondary'}
+									className={cn(
+										'h-6 w-12 justify-center px-0 text-xs font-medium',
+										checked
+											? 'bg-emerald-600 text-white hover:bg-emerald-600'
+											: ''
+									)}
+								>
+									{checked ? 'On' : 'Off'}
+								</Badge>
+							</InputGroupAddon>
+						</InputGroup>
+
 						{isInvalid && <FieldError errors={errors} />}
 					</UIField>
 				);
@@ -361,14 +437,11 @@ export function BooleanField({
 	offLabel?: React.ReactNode;
 }) {
 	const field = useFieldContext<boolean | undefined>();
-	const value = !!field.state.value;
 	const form = useFormContext();
+
 	return (
 		<form.Subscribe
-			selector={(s: any) => ({
-				submit: s?.submitErrors,
-				sync: s?.errors,
-			})}
+			selector={(s: any) => ({ submit: s?.submitErrors, sync: s?.errors })}
 		>
 			{(errState: any) => {
 				const submitField =
@@ -384,26 +457,47 @@ export function BooleanField({
 				];
 				const errors = normalizeFieldErrors(combined as any) ?? [];
 				const isInvalid = errors.length > 0;
+				const value = !!field.state.value;
+
 				return (
 					<UIField
 						data-invalid={isInvalid}
 						orientation="responsive"
 					>
 						<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+
 						<ToggleGroup
 							type="single"
 							value={value ? 'on' : 'off'}
-							onValueChange={(v) => {
-								if (!v) return;
-								field.handleChange(v === 'on');
-							}}
+							onValueChange={(v) => v && field.handleChange(v === 'on')}
 							className="w-fit"
 							variant="outline"
 							size="lg"
 						>
-							<ToggleGroupItem value="on">{onLabel}</ToggleGroupItem>
-							<ToggleGroupItem value="off">{offLabel}</ToggleGroupItem>
+							<ToggleGroupItem
+								value="on"
+								className={cn(
+									'flex items-center gap-2 px-3 transition-colors',
+									'data-[state=on]:bg-emerald-500 data-[state=on]:text-white',
+									'data-[state=on]:hover:bg-emerald-600'
+								)}
+							>
+								<Power className="h-4 w-4" />
+								<span className="text-sm font-medium">{onLabel}</span>
+							</ToggleGroupItem>
+							<ToggleGroupItem
+								value="off"
+								className={cn(
+									'flex items-center gap-2 px-3 transition-colors',
+									'data-[state=on]:bg-muted data-[state=on]:text-muted-foreground',
+									'data-[state=on]:hover:bg-muted/80'
+								)}
+							>
+								<PowerOff className="h-4 w-4" />
+								<span className="text-sm font-medium">{offLabel}</span>
+							</ToggleGroupItem>
 						</ToggleGroup>
+
 						{isInvalid && <FieldError errors={errors} />}
 					</UIField>
 				);
@@ -411,7 +505,6 @@ export function BooleanField({
 		</form.Subscribe>
 	);
 }
-
 export function SubmitErrors() {
 	const form = useFormContext();
 	return (
@@ -1755,6 +1848,892 @@ export function ColorField({ label }: { label?: React.ReactNode }) {
 							/>
 						</div>
 						{isInvalid && <FieldError errors={errors} />}
+					</UIField>
+				);
+			}}
+		</form.Subscribe>
+	);
+}
+
+export function CmsBodyField({
+	label,
+	description,
+	disabled,
+	placeholder = 'Write your article in Markdown…',
+	maxLength,
+	rows = 12,
+}: {
+	label?: React.ReactNode;
+	description?: React.ReactNode;
+	disabled?: boolean;
+	placeholder?: string;
+	maxLength?: number;
+	rows?: number;
+}) {
+	const field = useFieldContext<string | undefined>();
+	const form = useFormContext();
+	const errState = useStore(form.store as any, (s: any) => ({
+		submit: s?.submitErrors,
+		sync: s?.errors,
+	}));
+
+	const submitField =
+		matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
+	const syncField =
+		matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
+
+	const combined = [
+		...(Array.isArray(field.state.meta.errors)
+			? (field.state.meta.errors as any)
+			: []),
+		...submitField,
+		...syncField,
+	];
+
+	const errors = normalizeFieldErrors(combined as any) ?? [];
+	const isInvalid = errors.length > 0;
+
+	const [open, setOpen] = React.useState(false);
+
+	return (
+		<UIField data-invalid={isInvalid}>
+			<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+
+			<CmsBodyTextarea
+				id={field.name}
+				label={undefined}
+				description={typeof description === 'string' ? description : undefined}
+				placeholder={placeholder}
+				value={(field.state.value ?? '') as string}
+				onChange={(v) => field.handleChange(v)}
+				onPreview={() => setOpen(true)}
+				maxLength={maxLength}
+				disabled={disabled}
+				rows={rows}
+				error={isInvalid ? errors[0]?.message ?? 'Invalid value' : undefined}
+				className="mt-1"
+			/>
+
+			{description && (
+				<FieldDescription className="mt-1">{description}</FieldDescription>
+			)}
+			{isInvalid && <FieldError errors={errors} />}
+
+			<Dialog
+				open={open}
+				onOpenChange={setOpen}
+			>
+				<DialogContent className="max-w-3xl">
+					<DialogHeader>
+						<DialogTitle>Preview</DialogTitle>
+					</DialogHeader>
+					<div className="prose dark:prose-invert max-h-[70vh] overflow-auto">
+						{/* If you don’t use react-markdown, swap this with:
+                <pre className="whitespace-pre-wrap">{field.state.value ?? ""}</pre> */}
+						<ReactMarkdown remarkPlugins={[remarkGfm]}>
+							{(field.state.value ?? '') as string}
+						</ReactMarkdown>
+					</div>
+				</DialogContent>
+			</Dialog>
+		</UIField>
+	);
+}
+
+export function HtmlBodyField({
+	label,
+	description,
+	disabled,
+	placeholder = 'Write HTML…',
+	maxLength,
+	rows = 12,
+}: {
+	label?: React.ReactNode;
+	description?: React.ReactNode;
+	disabled?: boolean;
+	placeholder?: string;
+	maxLength?: number;
+	rows?: number;
+}) {
+	const field = useFieldContext<string | undefined>();
+	const form = useFormContext();
+	const errState = useStore(form.store as any, (s: any) => ({
+		submit: s?.submitErrors,
+		sync: s?.errors,
+	}));
+
+	const submitField =
+		matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
+	const syncField =
+		matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
+	const combined = [
+		...(Array.isArray(field.state.meta.errors)
+			? (field.state.meta.errors as any)
+			: []),
+		...submitField,
+		...syncField,
+	];
+	const errors = normalizeFieldErrors(combined as any) ?? [];
+	const isInvalid = errors.length > 0;
+
+	const [open, setOpen] = React.useState(false);
+	const html = (field.state.value ?? '') as string;
+	const safe = React.useMemo(
+		() =>
+			DOMPurify.sanitize(html, {
+				USE_PROFILES: { html: true }, // allow standard HTML only
+			}),
+		[html]
+	);
+
+	return (
+		<UIField data-invalid={isInvalid}>
+			<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+
+			<CmsBodyTextarea
+				id={field.name}
+				label={undefined}
+				description={typeof description === 'string' ? description : undefined}
+				placeholder={placeholder}
+				value={html}
+				onChange={(v) => field.handleChange(v)}
+				onPreview={() => setOpen(true)}
+				maxLength={maxLength}
+				disabled={disabled}
+				rows={rows}
+				error={isInvalid ? errors[0]?.message ?? 'Invalid value' : undefined}
+				className="mt-1"
+			/>
+
+			{description && (
+				<FieldDescription className="mt-1">{description}</FieldDescription>
+			)}
+			{isInvalid && <FieldError errors={errors} />}
+
+			<Dialog
+				open={open}
+				onOpenChange={setOpen}
+			>
+				<DialogContent className="max-w-3xl">
+					<DialogHeader>
+						<DialogTitle>Preview</DialogTitle>
+					</DialogHeader>
+					<div className="prose dark:prose-invert max-w-none">
+						<div dangerouslySetInnerHTML={{ __html: safe }} />
+					</div>
+				</DialogContent>
+			</Dialog>
+		</UIField>
+	);
+}
+
+type Mode = 'markdown' | 'html';
+
+export function RichBodyField({
+	label,
+	description,
+	disabled,
+	placeholder = 'Write content…',
+	rows = 14,
+	mode: initialMode = 'html',
+	maxLength, // optional: show `/max`
+}: {
+	label?: React.ReactNode;
+	description?: React.ReactNode;
+	disabled?: boolean;
+	placeholder?: string;
+	rows?: number;
+	mode?: Mode;
+	maxLength?: number;
+}) {
+	const field = useFieldContext<string | undefined>();
+	const form = useFormContext();
+	const errState = useStore(form.store as any, (s: any) => ({
+		submit: s?.submitErrors,
+		sync: s?.errors,
+	}));
+
+	const submitField =
+		matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
+	const syncField =
+		matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
+
+	const combined = [
+		...(Array.isArray(field.state.meta.errors)
+			? (field.state.meta.errors as any)
+			: []),
+		...submitField,
+		...syncField,
+	];
+	const errors = normalizeFieldErrors(combined as any) ?? [];
+	const isInvalid = errors.length > 0;
+
+	const [open, setOpen] = React.useState(false);
+	const [mode, setMode] = React.useState<Mode>(initialMode);
+	const taRef = React.useRef<HTMLTextAreaElement | null>(null);
+
+	const value = (field.state.value ?? '') as string;
+	const charCount = value.length;
+
+	function replaceSelection(
+		before: string,
+		after: string = '',
+		transform?: (s: string) => string
+	) {
+		const ta = taRef.current;
+		if (!ta) return;
+		const start = ta.selectionStart ?? 0;
+		const end = ta.selectionEnd ?? 0;
+		const selected = value.slice(start, end);
+		const inner = transform ? transform(selected) : selected || 'text';
+		const next =
+			value.slice(0, start) + before + inner + after + value.slice(end);
+		field.handleChange(next);
+		queueMicrotask(() => {
+			const pos = start + before.length + inner.length + after.length;
+			ta.setSelectionRange(pos, pos);
+			ta.focus();
+		});
+	}
+
+	const actions = {
+		bold: () => (mode === 'markdown' ? replaceSelection('**', '**') : null),
+		italic: () => (mode === 'markdown' ? replaceSelection('_', '_') : null),
+		h3: () =>
+			mode === 'markdown'
+				? replaceSelection('### ', '', (s) => s || 'Heading')
+				: null,
+		ul: () =>
+			mode === 'markdown'
+				? replaceSelection('', '', (s) =>
+						(s || 'item')
+							.split(/\n/)
+							.map((l) => `- ${l || 'item'}`)
+							.join('\n')
+				  )
+				: null,
+		quote: () =>
+			mode === 'markdown'
+				? replaceSelection('', '', (s) =>
+						(s || 'quote')
+							.split(/\n/)
+							.map((l) => `> ${l || 'quote'}`)
+							.join('\n')
+				  )
+				: null,
+		code: () =>
+			mode === 'markdown'
+				? replaceSelection('```\n', '\n```', (s) => s || 'code')
+				: null,
+		link: () =>
+			mode === 'markdown'
+				? replaceSelection('[', '](https://)', (s) => s || 'link text')
+				: null,
+		h3_html: () =>
+			mode === 'html'
+				? replaceSelection('<h3>', '</h3>', (s) => s || 'Heading')
+				: null,
+		b_html: () =>
+			mode === 'html' ? replaceSelection('<strong>', '</strong>') : null,
+		i_html: () => (mode === 'html' ? replaceSelection('<em>', '</em>') : null),
+		ul_html: () =>
+			mode === 'html'
+				? replaceSelection('', '', (s) => {
+						const lines = (s || 'item').split(/\n/);
+						const lis = lines.map((l) => `<li>${l || 'item'}</li>`).join('');
+						return `<ul>${lis}</ul>`;
+				  })
+				: null,
+		blockquote_html: () =>
+			mode === 'html'
+				? replaceSelection('<blockquote>', '</blockquote>', (s) => s || 'quote')
+				: null,
+		code_html: () =>
+			mode === 'html'
+				? replaceSelection('<pre><code>', '</code></pre>', (s) => s || 'code')
+				: null,
+		link_html: () =>
+			mode === 'html'
+				? replaceSelection(
+						'<a href="https://">',
+						'</a>',
+						(s) => s || 'link text'
+				  )
+				: null,
+	};
+
+	const safeHtml = React.useMemo(
+		() =>
+			mode === 'html'
+				? DOMPurify.sanitize(value, { USE_PROFILES: { html: true } })
+				: '',
+		[mode, value]
+	);
+
+	return (
+		<UIField data-invalid={isInvalid}>
+			<div className="flex items-center justify-between">
+				<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+
+				{/* Toolbar: mode, actions, preview, count */}
+				<div className="flex items-center gap-2">
+					<Button
+						type="button"
+						size="sm"
+						variant="secondary"
+						onClick={() => setOpen(true)}
+						className="h-8"
+					>
+						<Eye className="mr-1 h-3.5 w-3.5" />
+						Preview
+					</Button>
+
+					{mode === 'markdown' ? (
+						<div className="flex items-center gap-1">
+							<Toggle
+								size="sm"
+								aria-label="Bold"
+								onPressedChange={() => actions.bold?.()}
+							>
+								<Bold className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="Italic"
+								onPressedChange={() => actions.italic?.()}
+							>
+								<Italic className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="Heading 3"
+								onPressedChange={() => actions.h3?.()}
+							>
+								<Heading3 className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="List"
+								onPressedChange={() => actions.ul?.()}
+							>
+								<List className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="Quote"
+								onPressedChange={() => actions.quote?.()}
+							>
+								<Quote className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="Code block"
+								onPressedChange={() => actions.code?.()}
+							>
+								<Code className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="Link"
+								onPressedChange={() => actions.link?.()}
+							>
+								<LinkIcon className="h-4 w-4" />
+							</Toggle>
+						</div>
+					) : (
+						<div className="flex items-center gap-1">
+							<Toggle
+								size="sm"
+								aria-label="Bold"
+								onPressedChange={() => actions.b_html?.()}
+							>
+								<Bold className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="Italic"
+								onPressedChange={() => actions.i_html?.()}
+							>
+								<Italic className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="Heading 3"
+								onPressedChange={() => actions.h3_html?.()}
+							>
+								<Heading3 className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="List"
+								onPressedChange={() => actions.ul_html?.()}
+							>
+								<List className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="Quote"
+								onPressedChange={() => actions.blockquote_html?.()}
+							>
+								<Quote className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="Code block"
+								onPressedChange={() => actions.code_html?.()}
+							>
+								<Code className="h-4 w-4" />
+							</Toggle>
+							<Toggle
+								size="sm"
+								aria-label="Link"
+								onPressedChange={() => actions.link_html?.()}
+							>
+								<LinkIcon className="h-4 w-4" />
+							</Toggle>
+						</div>
+					)}
+				</div>
+			</div>
+
+			<InputGroup className="mt-1">
+				<Textarea
+					ref={taRef}
+					id={field.name}
+					name={field.name}
+					data-slot="input-group-control"
+					className="min-h-48 resize-y field-sizing-content px-3 py-2 text-base"
+					placeholder={placeholder}
+					disabled={disabled}
+					rows={rows}
+					value={value}
+					onBlur={field.handleBlur}
+					onChange={(e) => field.handleChange(e.target.value)}
+					aria-invalid={isInvalid}
+					maxLength={maxLength}
+				/>
+				<InputGroupAddon align="block-end">
+					<span
+						className="px-2 py-1 text-xs text-muted-foreground tabular-nums"
+						aria-live="polite"
+					>
+						{charCount}
+						{typeof maxLength === 'number' ? ` / ${maxLength}` : ''} chars
+					</span>
+				</InputGroupAddon>
+			</InputGroup>
+
+			{description && (
+				<FieldDescription className="mt-1">{description}</FieldDescription>
+			)}
+			{isInvalid && <FieldError errors={errors} />}
+
+			<Dialog
+				open={open}
+				onOpenChange={setOpen}
+			>
+				<DialogContent className="max-w-3xl">
+					<DialogHeader>
+						<DialogTitle>Preview</DialogTitle>
+					</DialogHeader>
+					<div className="prose dark:prose-invert max-w-none max-h-[70vh] overflow-auto">
+						{mode === 'markdown' ? (
+							<ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
+						) : (
+							<div dangerouslySetInnerHTML={{ __html: safeHtml }} />
+						)}
+					</div>
+				</DialogContent>
+			</Dialog>
+		</UIField>
+	);
+}
+
+export function RichBodyFieldMenubar({
+	label,
+	description,
+	disabled,
+	placeholder = 'Write content…',
+	rows = 14,
+	mode: initialMode = 'markdown',
+	maxLength,
+}: {
+	label?: React.ReactNode;
+	description?: React.ReactNode;
+	disabled?: boolean;
+	placeholder?: string;
+	rows?: number;
+	mode?: Mode;
+	maxLength?: number;
+}) {
+	const field = useFieldContext<string | undefined>();
+	const form = useFormContext();
+	const errState = useStore(form.store as any, (s: any) => ({
+		submit: s?.submitErrors,
+		sync: s?.errors,
+	}));
+	const submitField =
+		matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
+	const syncField =
+		matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
+	const combined = [
+		...(Array.isArray(field.state.meta.errors)
+			? (field.state.meta.errors as any)
+			: []),
+		...submitField,
+		...syncField,
+	];
+	const errors = normalizeFieldErrors(combined as any) ?? [];
+	const isInvalid = errors.length > 0;
+
+	const [open, setOpen] = React.useState(false);
+	const [mode, setMode] = React.useState<Mode>(initialMode);
+	const taRef = React.useRef<HTMLTextAreaElement | null>(null);
+
+	const value = (field.state.value ?? '') as string;
+	const charCount = value.length;
+	const safeHtml = React.useMemo(
+		() =>
+			mode === 'html'
+				? DOMPurify.sanitize(value, { USE_PROFILES: { html: true } })
+				: '',
+		[mode, value]
+	);
+
+	function replaceSelection(
+		before: string,
+		after = '',
+		transform?: (s: string) => string
+	) {
+		const ta = taRef.current;
+		if (!ta) return;
+		const start = ta.selectionStart ?? 0;
+		const end = ta.selectionEnd ?? 0;
+		const selected = value.slice(start, end);
+		const inner = transform ? transform(selected) : selected || 'text';
+		const next =
+			value.slice(0, start) + before + inner + after + value.slice(end);
+		field.handleChange(next);
+		queueMicrotask(() => {
+			const pos = start + before.length + inner.length + after.length;
+			ta.setSelectionRange(pos, pos);
+			ta.focus();
+		});
+	}
+
+	const md = {
+		bold: () => replaceSelection('**', '**'),
+		italic: () => replaceSelection('_', '_'),
+		h3: () => replaceSelection('### ', '', (s) => s || 'Heading'),
+		ul: () =>
+			replaceSelection('', '', (s) =>
+				(s || 'item')
+					.split(/\n/)
+					.map((l) => `- ${l || 'item'}`)
+					.join('\n')
+			),
+		quote: () =>
+			replaceSelection('', '', (s) =>
+				(s || 'quote')
+					.split(/\n/)
+					.map((l) => `> ${l || 'quote'}`)
+					.join('\n')
+			),
+		code: () => replaceSelection('```\n', '\n```', (s) => s || 'code'),
+		link: () => replaceSelection('[', '](https://)', (s) => s || 'link text'),
+	};
+
+	const html = {
+		bold: () => replaceSelection('<strong>', '</strong>'),
+		italic: () => replaceSelection('<em>', '</em>'),
+		h3: () => replaceSelection('<h3>', '</h3>', (s) => s || 'Heading'),
+		ul: () =>
+			replaceSelection('', '', (s) => {
+				const lines = (s || 'item').split(/\n/);
+				const lis = lines.map((l) => `<li>${l || 'item'}</li>`).join('');
+				return `<ul>${lis}</ul>`;
+			}),
+		quote: () =>
+			replaceSelection('<blockquote>', '</blockquote>', (s) => s || 'quote'),
+		code: () =>
+			replaceSelection('<pre><code>', '</code></pre>', (s) => s || 'code'),
+		link: () =>
+			replaceSelection('<a href="https://">', '</a>', (s) => s || 'link text'),
+	};
+
+	const A = mode === 'markdown' ? md : html;
+
+	return (
+		<UIField data-invalid={isInvalid}>
+			<div className="flex items-center justify-between">
+				<FieldLabel htmlFor={field.name}>{label ?? field.name}</FieldLabel>
+
+				{/* Menubar */}
+				<Menubar className="h-9">
+					<MenubarMenu>
+						<MenubarTrigger>Mode</MenubarTrigger>
+						<MenubarContent>
+							<MenubarItem
+								onClick={() => setMode('markdown')}
+								inset
+							>
+								Markdown{' '}
+								{mode === 'markdown' && <MenubarShortcut>✓</MenubarShortcut>}
+							</MenubarItem>
+							<MenubarItem
+								onClick={() => setMode('html')}
+								inset
+							>
+								HTML {mode === 'html' && <MenubarShortcut>✓</MenubarShortcut>}
+							</MenubarItem>
+						</MenubarContent>
+					</MenubarMenu>
+
+					<MenubarMenu>
+						<MenubarTrigger>Format</MenubarTrigger>
+						<MenubarContent>
+							<MenubarItem onClick={A.bold}>
+								Bold <MenubarShortcut>Ctrl+B</MenubarShortcut>
+							</MenubarItem>
+							<MenubarItem onClick={A.italic}>
+								Italic <MenubarShortcut>Ctrl+I</MenubarShortcut>
+							</MenubarItem>
+							<MenubarSeparator />
+							<MenubarItem onClick={A.h3}>Heading 3</MenubarItem>
+							<MenubarItem onClick={A.ul}>Bullet List</MenubarItem>
+							<MenubarItem onClick={A.quote}>Blockquote</MenubarItem>
+							<MenubarItem onClick={A.code}>Code Block</MenubarItem>
+							<MenubarSeparator />
+							<MenubarItem onClick={A.link}>Link…</MenubarItem>
+						</MenubarContent>
+					</MenubarMenu>
+
+					<MenubarMenu>
+						<MenubarTrigger>View</MenubarTrigger>
+						<MenubarContent>
+							<MenubarItem onClick={() => setOpen(true)}>
+								<Eye className="mr-2 h-3.5 w-3.5" /> Preview
+							</MenubarItem>
+						</MenubarContent>
+					</MenubarMenu>
+
+					<MenubarMenu>
+						<MenubarTrigger>
+							<Badge
+								variant="secondary"
+								className="ml-0 tabular-nums"
+							>
+								{charCount}
+								{typeof maxLength === 'number' ? ` / ${maxLength}` : ''} chars
+							</Badge>
+						</MenubarTrigger>
+					</MenubarMenu>
+				</Menubar>
+			</div>
+
+			<InputGroup className="mt-2">
+				<Textarea
+					ref={taRef}
+					id={field.name}
+					name={field.name}
+					data-slot="input-group-control"
+					className="min-h-48 resize-y field-sizing-content px-3 py-2 text-base"
+					placeholder={placeholder}
+					disabled={disabled}
+					rows={rows}
+					value={value}
+					onBlur={field.handleBlur}
+					onChange={(e) => field.handleChange(e.target.value)}
+					aria-invalid={isInvalid}
+					maxLength={maxLength}
+				/>
+				<InputGroupAddon align="block-end">
+					<span
+						className="px-2 py-1 text-xs text-muted-foreground tabular-nums"
+						aria-live="polite"
+					>
+						{charCount}
+						{typeof maxLength === 'number' ? ` / ${maxLength}` : ''} chars
+					</span>
+				</InputGroupAddon>
+			</InputGroup>
+
+			{description && (
+				<FieldDescription className="mt-1">{description}</FieldDescription>
+			)}
+			{isInvalid && <FieldError errors={errors} />}
+
+			<Dialog
+				open={open}
+				onOpenChange={setOpen}
+			>
+				<DialogContent className="max-w-3xl">
+					<DialogHeader>
+						<DialogTitle>Preview</DialogTitle>
+					</DialogHeader>
+					<div className="prose dark:prose-invert max-w-none max-h-[70vh] overflow-auto">
+						{mode === 'markdown' ? (
+							<ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
+						) : (
+							<div dangerouslySetInnerHTML={{ __html: safeHtml }} />
+						)}
+					</div>
+				</DialogContent>
+			</Dialog>
+		</UIField>
+	);
+}
+
+export function YoutubeLinkField({ label }: { label?: React.ReactNode }) {
+	const field = useFieldContext<string | undefined>();
+	const form = useFormContext();
+
+	// Extracts YouTube video ID from a full or short URL
+	function extractYouTubeId(url: string): string | null {
+		try {
+			const u = new URL(url);
+			if (u.hostname.includes('youtube.com')) return u.searchParams.get('v');
+			if (u.hostname.includes('youtu.be')) return u.pathname.slice(1);
+			return null;
+		} catch {
+			return null;
+		}
+	}
+
+	return (
+		<form.Subscribe
+			selector={(s: any) => ({ submit: s?.submitErrors, sync: s?.errors })}
+		>
+			{(errState: any) => {
+				const submitField =
+					matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
+				const syncField =
+					matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
+				const combined = [
+					...(Array.isArray(field.state.meta.errors)
+						? (field.state.meta.errors as any)
+						: []),
+					...submitField,
+					...syncField,
+				];
+				const errors = normalizeFieldErrors(combined as any) ?? [];
+				const isInvalid = errors.length > 0;
+
+				const currentVal = field.state.value ?? '';
+
+				return (
+					<UIField data-invalid={isInvalid}>
+						<FieldLabel htmlFor={field.name}>
+							{label ?? 'YouTube Link'}
+						</FieldLabel>
+
+						<div className="relative flex items-center">
+							<Youtube className="absolute left-3 h-4 w-4 text-muted-foreground" />
+							<Input
+								id={field.name}
+								name={field.name}
+								type="url"
+								placeholder="https://www.youtube.com/watch?v=xxxxxxx"
+								value={currentVal}
+								onChange={(e) => {
+									const url = e.target.value;
+									const id = extractYouTubeId(url);
+									field.handleChange(id ?? url);
+								}}
+								onBlur={field.handleBlur}
+								aria-invalid={isInvalid}
+								className="pl-9"
+							/>
+						</div>
+
+						{isInvalid && <FieldError errors={errors} />}
+
+						{currentVal && (
+							<p className="text-xs text-muted-foreground mt-1">
+								Extracted ID: <span className="font-mono">{currentVal}</span>
+							</p>
+						)}
+					</UIField>
+				);
+			}}
+		</form.Subscribe>
+	);
+}
+
+export function RumbleLinkField({ label }: { label?: React.ReactNode }) {
+	const field = useFieldContext<string | undefined>();
+	const form = useFormContext();
+
+	// Extracts Rumble video ID from URLs like:
+	// https://rumble.com/embed/v6yjge4/?pub=4
+	// https://rumble.com/v6yjge4-some-video.html
+	function extractRumbleId(url: string): string | null {
+		try {
+			const u = new URL(url);
+			if (!u.hostname.includes('rumble.com')) return null;
+			// /embed/v6yjge4/ or /v6yjge4-something
+			const parts = u.pathname.split('/');
+			const candidate = parts.find((p) => /^v[a-zA-Z0-9]+/.test(p));
+			return candidate ?? null;
+		} catch {
+			return null;
+		}
+	}
+
+	return (
+		<form.Subscribe
+			selector={(s: any) => ({ submit: s?.submitErrors, sync: s?.errors })}
+		>
+			{(errState: any) => {
+				const submitField =
+					matchFieldErrors(errState?.submit?.fields as any, field.name) ?? [];
+				const syncField =
+					matchFieldErrors(errState?.sync?.fields as any, field.name) ?? [];
+				const combined = [
+					...(Array.isArray(field.state.meta.errors)
+						? (field.state.meta.errors as any)
+						: []),
+					...submitField,
+					...syncField,
+				];
+				const errors = normalizeFieldErrors(combined as any) ?? [];
+				const isInvalid = errors.length > 0;
+
+				const currentVal = field.state.value ?? '';
+
+				return (
+					<UIField data-invalid={isInvalid}>
+						<FieldLabel htmlFor={field.name}>
+							{label ?? 'Rumble Link'}
+						</FieldLabel>
+
+						<div className="relative flex items-center">
+							{/* // TODO: Replace RSS with Rumble Logo */}
+							<Rss className="absolute left-3 h-4 w-4 text-muted-foreground" />
+							<Input
+								id={field.name}
+								name={field.name}
+								type="url"
+								placeholder="https://rumble.com/embed/vxxxxxx/"
+								value={currentVal}
+								onChange={(e) => {
+									const url = e.target.value;
+									const id = extractRumbleId(url);
+									field.handleChange(id ?? url);
+								}}
+								onBlur={field.handleBlur}
+								aria-invalid={isInvalid}
+								className="pl-9"
+							/>
+						</div>
+
+						{isInvalid && <FieldError errors={errors} />}
+
+						{currentVal && (
+							<p className="text-xs text-muted-foreground mt-1">
+								Extracted ID: <span className="font-mono">{currentVal}</span>
+							</p>
+						)}
 					</UIField>
 				);
 			}}
