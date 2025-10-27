@@ -25,7 +25,7 @@ import {
 	RichBodyFieldMenubar,
 	YoutubeLinkField,
 	RumbleLinkField,
-} from '@/components/forms/app-fields';
+} from '@/components/forms/fields';
 import { CreateButton, ResetButton } from '@/components/forms/app-buttons';
 
 export const { useAppForm, withForm, withFieldGroup } = createFormHook({
