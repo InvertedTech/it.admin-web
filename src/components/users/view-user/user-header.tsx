@@ -8,15 +8,42 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Roles as AllRoles, RoleCategories, RoleMeta } from '@/lib/types';
+import * as React from 'react';
+import { toast } from 'sonner';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 type Props = {
-	id: string;
-	displayName: string;
-	userName: string;
-	email: string;
-	roles: string[];
-	profilePng?: string;
-	disabled?: boolean;
+    id: string;
+    displayName: string;
+    userName: string;
+    email: string;
+    roles: string[];
+    profilePng?: string;
+    disabled?: boolean;
+    grantRolesAction?: (formData: FormData) => Promise<void>;
+    enableUserAction?: () => Promise<void>;
+    disableUserAction?: () => Promise<void>;
 };
 
 function initials(name: string) {
@@ -29,23 +56,42 @@ function initials(name: string) {
 }
 
 export function UserHeaderCard({
-	id,
-	displayName,
-	userName,
-	email,
-	roles,
-	profilePng,
-	disabled,
+    id,
+    displayName,
+    userName,
+    email,
+    roles,
+    profilePng,
+    disabled,
+    grantRolesAction,
+    enableUserAction,
+    disableUserAction,
 }: Props) {
-	const statusBadge = disabled ? (
-		<Badge variant="secondary">Disabled</Badge>
-	) : (
-		<Badge>Active</Badge>
-	);
+    const [isDisabled, setIsDisabled] = React.useState(Boolean(disabled));
+    const statusBadge = isDisabled ? (
+        <Badge variant="secondary">Disabled</Badge>
+    ) : (
+        <Badge>Active</Badge>
+    );
 
-	return (
-		<Card>
-			<CardHeader className="flex flex-row items-start justify-between gap-4">
+    const [open, setOpen] = React.useState(false);
+
+    async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        if (!grantRolesAction) return;
+        const fd = new FormData(e.currentTarget);
+        try {
+            await grantRolesAction(fd);
+            setOpen(false);
+            toast.success('Roles updated');
+        } catch (err) {
+            toast.error('Failed to update roles');
+        }
+    }
+
+    return (
+        <Card>
+            <CardHeader className="flex flex-row items-start justify-between gap-4">
 				<div className="flex items-center gap-4">
 					<div className="bg-muted text-foreground/80 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border">
 						{profilePng ? (
@@ -66,36 +112,126 @@ export function UserHeaderCard({
 						<CardDescription>
 							@{userName} · {email || 'no email'}
 						</CardDescription>
-						<div className="mt-2 flex flex-wrap items-center gap-2">
-							{statusBadge}
+						<div className="mt-2 flex flex-col gap-2">
+							<div className="flex flex-wrap items-center gap-2">
+								{statusBadge}
+							</div>
 							{roles.length ? (
-								roles.map((r) => (
-									<Badge
-										key={r}
-										variant="outline"
-										className="px-1.5"
-									>
-										{r}
-									</Badge>
-								))
+								<div className="flex flex-col gap-2">
+									{RoleCategories.map((cat) => {
+										const catRoles = roles.filter((r) => RoleMeta[r as keyof typeof RoleMeta]?.category === cat);
+										if (!catRoles.length) return null;
+										return (
+											<div key={cat} className="flex items-start gap-2">
+												<span className="text-muted-foreground text-xs w-28 shrink-0">
+													{cat}
+												</span>
+												<div className="flex flex-wrap gap-1">
+													{catRoles.map((r) => (
+														<Badge key={r} variant="outline" className="px-1.5">
+															{RoleMeta[r as keyof typeof RoleMeta]?.label ?? r}
+														</Badge>
+													))}
+												</div>
+											</div>
+										);
+									})}
+								</div>
 							) : (
-								<Badge
-									variant="outline"
-									className="px-1.5"
-								>
-									no-roles
-								</Badge>
+								<Badge variant="outline" className="px-1.5">no-roles</Badge>
 							)}
 						</div>
 					</div>
 				</div>
-				<div className="flex shrink-0 gap-2">
-					<Button
-						asChild
-						variant="outline"
-					>
-						<a href={`/users/${id}/edit`}>Edit</a>
-					</Button>
+                <div className="flex shrink-0 gap-2">
+                    {enableUserAction && disableUserAction ? (
+                        isDisabled ? (
+                            <Button
+                                onClick={async () => {
+                                    try {
+                                        await enableUserAction();
+                                        setIsDisabled(false);
+                                        toast.success('User enabled');
+                                    } catch (e) {
+                                        toast.error('Failed to enable user');
+                                    }
+                                }}
+                            >
+                                Enable
+                            </Button>
+                        ) : (
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive">Disable</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Disable user?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This will disable the user’s account. They will not be able to sign in until re-enabled.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                            onClick={async () => {
+                                                try {
+                                                    await disableUserAction();
+                                                    setIsDisabled(true);
+                                                    toast.success('User disabled');
+                                                } catch (e) {
+                                                    toast.error('Failed to disable user');
+                                                }
+                                            }}
+                                        >
+                                            Disable
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )
+                    ) : null}
+                    <Button
+                        asChild
+                        variant="outline"
+                    >
+                        <a href={`/users/${id}/edit`}>Edit</a>
+                    </Button>
+                    {grantRolesAction ? (
+                        <Dialog open={open} onOpenChange={setOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline">Grant Roles</Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Grant Roles</DialogTitle>
+                                    <DialogDescription>
+                                        Select roles to grant to this user.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <form onSubmit={onSubmit} className="space-y-4">
+                                    <div className="space-y-3">
+                                        {RoleCategories.map((cat) => (
+                                            <div key={cat} className="space-y-2">
+                                                <div className="text-xs text-muted-foreground font-medium">{cat}</div>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    {AllRoles.filter((r) => RoleMeta[r].category === cat).map((r) => (
+                                                        <label key={r} className="flex items-center gap-2">
+                                                            <Checkbox name="roles" value={r} defaultChecked={roles?.includes(r)} />
+                                                            <span className="text-sm">{RoleMeta[r].label}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <DialogFooter>
+                                        <Button type="submit">Save</Button>
+                                    </DialogFooter>
+                                </form>
+                            </DialogContent>
+                        </Dialog>
+                    ) : null}
 					<Button asChild>
 						<a href={`/users/${id}`}>Refresh</a>
 					</Button>

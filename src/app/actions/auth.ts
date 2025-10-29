@@ -1,13 +1,23 @@
 'use server';
 
-import { create } from '@bufbuild/protobuf';
+import { Roles } from '@/lib/types';
+import { create, toJsonString } from '@bufbuild/protobuf';
 import {
 	AuthenticateUserRequest,
 	AuthenticateUserResponseSchema,
 	AuthErrorReason,
 	AuthErrorSchema,
+	DisableEnableOtherUserRequest,
+	DisableEnableOtherUserRequestSchema,
+	DisableEnableOtherUserResponse,
+	DisableEnableOtherUserResponseSchema,
 	GetOtherUserResponse,
 	GetOtherUserResponseSchema,
+	ModifyOtherUserRequestSchema,
+	ModifyOtherUserRolesRequest,
+	ModifyOtherUserRolesRequestSchema,
+	ModifyOtherUserRolesResponse,
+	ModifyOtherUserRolesResponseSchema,
 	RenewTokenResponse,
 	RenewTokenResponseSchema,
 	SearchUsersAdminRequest,
@@ -90,9 +100,10 @@ export async function listUsers(
 		CreatedAfter: undefined,
 		CreatedBefore: undefined,
 		UserIDs: [],
+		IncludeDeleted: true,
+		Roles: [...Roles],
 	})
 ) {
-	console.log(1);
 	try {
 		const token = await getToken();
 
@@ -108,7 +119,6 @@ export async function listUsers(
 			for (const r of req.Roles) if (r) parts.push(enc('Roles', r));
 		if (Array.isArray(req.UserIDs))
 			for (const id of req.UserIDs) if (id) parts.push(enc('UserIDs', id));
-		console.log(parts);
 		const ca = toIso((req as any)?.CreatedAfter);
 		const cb = toIso((req as any)?.CreatedBefore);
 		if (ca) parts.push(enc('CreatedAfter', ca));
@@ -120,8 +130,6 @@ export async function listUsers(
 		const base = (ADMIN_API_BASE ?? '').replace(/\/+$/, '');
 		const qs = parts.join('&');
 		const url = `${base}/search${qs ? `?${qs}` : ''}`;
-
-		console.log('listUsers url:', url);
 
 		const res = await fetch(url, {
 			method: 'GET',
@@ -188,5 +196,79 @@ export async function renewToken() {
 	} catch (error) {
 		console.error(error);
 		return create(RenewTokenResponseSchema);
+	}
+}
+
+export async function grantRolesToUser(req: ModifyOtherUserRolesRequest) {
+	try {
+		const token = await getToken();
+		const res = await fetch(ADMIN_API_BASE.concat('/user/roles'), {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: toJsonString(ModifyOtherUserRolesRequestSchema, req),
+		});
+
+		if (!res) {
+			return create(ModifyOtherUserRolesResponseSchema);
+		}
+
+		const body: ModifyOtherUserRolesResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(ModifyOtherUserRolesResponseSchema);
+	}
+}
+
+export async function enableUser(req: DisableEnableOtherUserRequest) {
+	try {
+		const token = await getToken();
+		const res = await fetch(
+			ADMIN_API_BASE.concat(`/user/${req.UserID}/enable`),
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+				body: toJsonString(DisableEnableOtherUserRequestSchema, req),
+			}
+		);
+
+		if (!res) return create(DisableEnableOtherUserResponseSchema);
+
+		const body: DisableEnableOtherUserResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(DisableEnableOtherUserResponseSchema);
+	}
+}
+
+export async function disableUser(req: DisableEnableOtherUserRequest) {
+	try {
+		const token = await getToken();
+		const res = await fetch(
+			ADMIN_API_BASE.concat(`/user/${req.UserID}/disable`),
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+				body: toJsonString(DisableEnableOtherUserRequestSchema, req),
+			}
+		);
+
+		if (!res) return create(DisableEnableOtherUserResponseSchema);
+
+		const body: DisableEnableOtherUserResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(DisableEnableOtherUserResponseSchema);
 	}
 }

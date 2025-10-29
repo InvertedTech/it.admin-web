@@ -7,6 +7,10 @@ import { UserTimeline } from '@/components/users/view-user/user-timeline';
 import { UserDetails } from '@/components/users/view-user/user-details';
 import { UserHeaderCard } from '@/components/users/view-user/user-header';
 import { notFound } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
+import { grantRolesToUser, enableUser, disableUser } from '@/app/actions/auth';
+import { create } from '@bufbuild/protobuf';
+import { ModifyOtherUserRolesRequestSchema, DisableEnableOtherUserRequestSchema } from '@inverted-tech/fragments/Authentication';
 
 function pick<T = unknown>(obj: any, paths: string[], fb?: T): T | undefined {
 	for (const p of paths) {
@@ -17,9 +21,9 @@ function pick<T = unknown>(obj: any, paths: string[], fb?: T): T | undefined {
 }
 
 export default async function ViewUserPage({
-	params,
+    params,
 }: {
-	params: { userId: string };
+    params: { userId: string };
 }) {
 	const { userId } = await params;
 	const res = await adminGetUser(userId);
@@ -47,6 +51,38 @@ export default async function ViewUserPage({
 		''
 	);
 
+	async function grantRolesAction(formData: FormData) {
+		'use server';
+		const selected = formData.getAll('roles')?.map((v) => String(v)) ?? [];
+		await grantRolesToUser(
+			create(ModifyOtherUserRolesRequestSchema, {
+				UserID: id,
+				Roles: selected,
+			})
+		);
+		revalidatePath(`/users/${id}`);
+	}
+
+	async function enableUserAction() {
+		'use server';
+		await enableUser(
+			create(DisableEnableOtherUserRequestSchema, {
+				UserID: id,
+			})
+		);
+		revalidatePath(`/users/${id}`);
+	}
+
+	async function disableUserAction() {
+		'use server';
+		await disableUser(
+			create(DisableEnableOtherUserRequestSchema, {
+				UserID: id,
+			})
+		);
+		revalidatePath(`/users/${id}`);
+	}
+
 	return (
 		<div className="container mx-auto space-y-6 py-8">
 			<UserHeaderCard
@@ -57,6 +93,9 @@ export default async function ViewUserPage({
 				roles={roles}
 				profilePng={profilePng}
 				disabled={Boolean(disabledOn)}
+				grantRolesAction={grantRolesAction}
+				enableUserAction={enableUserAction}
+				disableUserAction={disableUserAction}
 			/>
 
 			<UserTimeline
