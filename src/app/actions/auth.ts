@@ -26,15 +26,28 @@ import {
 	SearchUsersAdminResponseSchema,
 	type AuthenticateUserResponse,
 } from '@inverted-tech/fragments/Authentication';
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
 async function getToken() {
-	const cookieStore = await cookies();
-	const token = await cookieStore.get('token')?.value;
-	return token;
+	const session = await getSession();
+	return session.token;
 }
 
 const API_BASE = 'http://localhost:8001/api/auth';
 const ADMIN_API_BASE = 'http://localhost:8001/api/auth/admin';
+
+export async function logoutAction(): Promise<boolean> {
+	'use server';
+	try {
+		const session = await getSession();
+		await session.destroy();
+		return true;
+	} catch (e) {
+		try {
+			console.error('logoutAction error:', e);
+		} catch {}
+		return false;
+	}
+}
 
 export async function loginAction(
 	payload: AuthenticateUserRequest
@@ -64,8 +77,38 @@ export async function loginAction(
 		const body: AuthenticateUserResponse = await res.json();
 
 		if (body.ok && body.BearerToken && body.BearerToken !== '') {
-			const cookieStore = await cookies();
-			await cookieStore.set('token', body.BearerToken);
+			const session = await getSession();
+			session.token = body.BearerToken;
+			if (body.UserRecord?.Public?.Data?.UserName) {
+				session.userName = body.UserRecord.Public.Data.UserName;
+			}
+
+			if (
+				body.UserRecord?.Private?.Roles &&
+				body.UserRecord.Private.Roles.length > 0
+			) {
+				session.roles = body.UserRecord.Private.Roles;
+			}
+
+			if (
+				body.UserRecord?.Public?.Data?.DisplayName &&
+				body.UserRecord.Public.Data.DisplayName !== ''
+			) {
+				session.displayName = body.UserRecord.Public.Data.DisplayName;
+			}
+
+			if (body.UserRecord?.Public?.Data?.ProfileImagePNG) {
+				session.profileImageId = body.UserRecord.Public.Data.ProfileImagePNG;
+			}
+
+			if (
+				body.UserRecord?.Public?.UserID &&
+				body.UserRecord.Public.UserID !== ''
+			) {
+				session.id = body.UserRecord.Public.UserID;
+			}
+
+			await session.save();
 		}
 
 		return body;
@@ -190,8 +233,9 @@ export async function renewToken() {
 			return create(RenewTokenResponseSchema);
 		}
 
-		const cookieStore = await cookies();
-		await cookieStore.set('token', body.BearerToken);
+		const session = await getSession();
+		session.token = body.BearerToken;
+		await session.save();
 		return body;
 	} catch (error) {
 		console.error(error);

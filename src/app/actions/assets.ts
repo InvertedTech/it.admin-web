@@ -3,7 +3,7 @@
 import { cache } from 'react';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
 
 import {
 	SearchAssetRequest,
@@ -20,9 +20,8 @@ import {
 import { AssetType } from '@inverted-tech/fragments/Content/AssetInterface_pb';
 
 async function getToken() {
-	const cookieStore = await cookies();
-	const token = await cookieStore.get('token')?.value;
-	return token;
+	const session = await getSession();
+	return session.token;
 }
 
 const ADMIN_ASSETS_TAG = 'admin-assets';
@@ -146,3 +145,4 @@ export async function createAsset(req: CreateAssetRequest) {
 		return create(CreateAssetResponseSchema);
 	}
 }
+

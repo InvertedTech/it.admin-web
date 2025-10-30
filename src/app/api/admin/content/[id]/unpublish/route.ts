@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { UnpublishContentRequestSchema } from '@inverted-tech/fragments/Content';
 
@@ -8,7 +8,7 @@ const API_BASE = 'http://localhost:8001/api/cms/admin/content';
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const token = (await cookies()).get('token')?.value ?? '';
+    const token = (await getSession()).token ?? '';
     const { id } = await params;
     const url = `${API_BASE}/${id}/unpublish`;
     const msg = create(UnpublishContentRequestSchema as any, { ContentID: id } as any);

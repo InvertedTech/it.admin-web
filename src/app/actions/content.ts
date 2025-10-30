@@ -2,7 +2,7 @@
 import { cache } from 'react';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
 import type { Item } from '@/lib/utils';
 import {
 	AnnounceContentRequest,
@@ -39,9 +39,8 @@ import {
 	UndeleteContentResponseSchema,
 } from '@inverted-tech/fragments/Content';
 async function getToken() {
-	const cookieStore = await cookies();
-	const token = await cookieStore.get('token')?.value;
-	return token;
+	const session = await getSession();
+	return session.token;
 }
 
 const ADMIN_CONTENT_TAG = 'admin-content';
@@ -587,3 +586,4 @@ export async function getOverviewActivity(args?: {
 
   return { drafts, scheduled, recent, stats: { ...stats } };
 }
+

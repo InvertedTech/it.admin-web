@@ -176,9 +176,13 @@ const data = {
 
 export function AppSidebar({
 	headerTitle = 'Inverted CMS',
+	sessionUserName,
+	sessionEmail,
 	...props
 }: React.ComponentProps<typeof Sidebar> & {
 	headerTitle?: string;
+	sessionUserName?: string;
+	sessionEmail?: string;
 }) {
 	return (
 		<Sidebar
@@ -210,8 +214,12 @@ export function AppSidebar({
 				/>
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser user={data.user} />
+				<NavUser user={{ name: sessionUserName || data.user.name, email: sessionEmail || data.user.email, avatar: data.user.avatar }} />
 			</SidebarFooter>
 		</Sidebar>
 	);
 }
+
+
+
+

@@ -3,7 +3,7 @@
 import { cache } from 'react';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
 import {
 	GetAdminDataResponse,
 	GetAdminDataResponseSchema,
@@ -28,9 +28,8 @@ import {
 } from '@inverted-tech/fragments/Settings';
 
 async function getToken() {
-	const cookieStore = await cookies();
-	const token = await cookieStore.get('token')?.value;
-	return token;
+	const session = await getSession();
+	return session.token;
 }
 
 const ADMIN_SETTINGS_TAG = 'admin-settings';
@@ -150,7 +149,7 @@ export async function modifyPublicSubscriptionSettings(
 
 		if (!res) {
 			return create(ModifySubscriptionPublicDataResponseSchema, {
-				Error2: create(SettingsErrorSchema, {
+				Error: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -165,7 +164,7 @@ export async function modifyPublicSubscriptionSettings(
 	} catch (error) {
 		console.error(error);
 		return create(ModifySubscriptionPublicDataResponseSchema, {
-			Error2: create(SettingsErrorSchema, {
+			Error: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -188,7 +187,7 @@ export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 
 		if (!res) {
 			return create(ModifyCMSPublicDataResponseSchema, {
-				Error2: create(SettingsErrorSchema, {
+				Error: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -200,7 +199,7 @@ export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 	} catch (error) {
 		console.error(error);
 		return create(ModifyCMSPublicDataResponseSchema, {
-			Error2: create(SettingsErrorSchema, {
+			Error: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -225,7 +224,7 @@ export async function modifyOwnerSubscriptionSettings(
 
 		if (!res) {
 			return create(ModifySubscriptionOwnerDataResponseSchema, {
-				Error2: create(SettingsErrorSchema, {
+				Error: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -237,10 +236,12 @@ export async function modifyOwnerSubscriptionSettings(
 	} catch (error) {
 		console.error(error);
 		return create(ModifySubscriptionOwnerDataResponseSchema, {
-			Error2: create(SettingsErrorSchema, {
+			Error: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
 		});
 	}
 }
+
+

@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 
 import { AppSidebar, SiteHeader } from '@/components/layout/nav';
+import { getSession } from '@/lib/session';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from 'sonner';
 
@@ -11,8 +12,10 @@ type DashboardLayoutProps = {
 /**
  * Shared chrome for dashboard pages: sidebar navigation and top header.
  */
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
-	return (
+export default async function DashboardLayout({ children }: DashboardLayoutProps) {
+    const s = await getSession();
+    const userName = s.userName ?? undefined;
+    return (
 		<SidebarProvider
 			style={
 				{
@@ -21,7 +24,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 				} as CSSProperties
 			}
 		>
-			<AppSidebar variant="inset" />
+            <AppSidebar variant="inset" sessionUserName={userName} />
 			<SidebarInset>
 				<SiteHeader />
 				<div className="flex flex-1 flex-col">
