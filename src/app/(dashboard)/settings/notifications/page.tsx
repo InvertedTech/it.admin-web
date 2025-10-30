@@ -2,8 +2,8 @@ import { NotificationsOwnerSettingsForm } from '@/components/forms/notifications
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export default function SettingsNotificationsPage() {
 	return (
-		<div className="space-y-6">
-			<div className="space-y-1">
+		<div>
+			<div className="space-y-1 mb-6">
 				<h1 className="text-2xl font-semibold tracking-tight">
 					Notifications Settings
 				</h1>

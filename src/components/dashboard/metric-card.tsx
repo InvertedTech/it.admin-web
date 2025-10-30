@@ -18,6 +18,7 @@ export type MetricCardProps = {
 	percent: string;
 	subtitle: string;
 	description: string;
+  className?: string;
 };
 
 export function MetricCard({
@@ -27,12 +28,13 @@ export function MetricCard({
 	percent,
 	subtitle,
 	description,
+  className,
 }: MetricCardProps) {
 	const TrendIcon = trend === 'up' ? IconTrendingUp : IconTrendingDown;
 	const trendColor = trend === 'up' ? 'text-green-600' : 'text-red-600';
 
 	return (
-		<Card className="@container/card">
+		<Card className={`@container/card ${className ?? ''}`}>
 			<CardHeader>
 				<CardDescription>{title}</CardDescription>
 				<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">

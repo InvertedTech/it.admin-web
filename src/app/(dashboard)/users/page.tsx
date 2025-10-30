@@ -87,8 +87,8 @@ export default async function AllUsersPage({
       .slice(0, 8);
 
     return (
-        <div className="space-y-6">
-            <div className="space-y-1">
+        <div>
+            <div className="space-y-1 mb-6">
                 <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
                 <p className="text-muted-foreground">Live overview of your user base.</p>
             </div>

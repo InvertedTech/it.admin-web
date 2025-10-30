@@ -8,8 +8,8 @@ export default async function SettingsGeneralPersonalizationPage() {
 	const { Public } = await getAdminSettings();
 
 	return (
-		<div className="space-y-6">
-			<div className="space-y-1">
+		<div>
+			<div className="space-y-1 mb-6">
 				<h1 className="text-2xl font-semibold tracking-tight">
 					Subscription Settings
 				</h1>

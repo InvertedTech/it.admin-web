@@ -25,7 +25,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 			<SidebarInset>
 				<SiteHeader />
 				<div className="flex flex-1 flex-col">
-					<div className="dashboard-shell">{children}</div>
+					<div className="dashboard-shell @container/main">{children}</div>
 				</div>
 				<Toaster />
 			</SidebarInset>

@@ -9,9 +9,11 @@ export default async function EventsDashboardPage() {
     const upcoming = demoUpcoming;
 
     return (
-        <div className="space-y-6">
-            <h1 className="text-2xl font-semibold tracking-tight">Events</h1>
-            <p className="text-sm text-muted-foreground">Overview, calendar, tickets and quick actions.</p>
+        <div>
+            <div className="space-y-1 mb-6">
+                <h1 className="text-2xl font-semibold tracking-tight">Events</h1>
+                <p className="text-sm text-muted-foreground">Overview, calendar, tickets and quick actions.</p>
+            </div>
 
             <Tabs defaultValue="overview" className="w-full">
                 <TabsList className="justify-start overflow-x-auto">

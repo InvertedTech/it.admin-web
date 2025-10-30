@@ -9,8 +9,8 @@ export default async function SettingsEventsPage() {
 	const data = admin?.Public?.Events as any;
 	const privateBase = { Data: admin?.Private?.Events } as any;
 	return (
-		<div className="space-y-6">
-			<div className="space-y-1">
+		<div>
+			<div className="space-y-1 mb-6">
 				<h1 className="text-2xl font-semibold tracking-tight">
 					Events Settings
 				</h1>

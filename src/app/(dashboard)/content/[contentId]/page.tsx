@@ -49,8 +49,9 @@ export default async function ViewContentPage({
 	const coarseTypeLabel = 'Content';
 
 	return (
-		<div className="space-y-6">
-			<ViewContentHeader
+		<div>
+			<div className="mb-6">
+				<ViewContentHeader
 				id={id}
 				title={pubData?.Title}
 				description={pubData?.Description}
@@ -59,6 +60,7 @@ export default async function ViewContentPage({
 				subscriptionLevel={subscriptionLevel}
 				publishOn={publishOn}
 			/>
+			</div>
 			<ContentDetails
 				id={id}
 				pubData={pubData}
