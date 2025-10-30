@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,30 +37,55 @@ import {
 import { calDemoEvents } from './content-dashboard-overview';
 
 export function CalendarSection({
-	initialMonth,
-	events,
+    initialMonth,
+    events,
 }: {
-	initialMonth?: string;
-	events?: ContentEvent[];
+    initialMonth?: string;
+    events?: ContentEvent[];
 }) {
-	const [ym, setYm] = useState(initialMonth ?? calIsoYM(new Date()));
-	const [filter, setFilter] = useState<'all' | 'publish' | 'announcement'>(
-		'all'
-	);
+    const [ym, setYm] = useState(initialMonth ?? calIsoYM(new Date()));
+    const [filter, setFilter] = useState<'all' | 'publish' | 'announcement'>(
+        'all'
+    );
+    const [data, setData] = useState<ContentEvent[] | undefined>(events);
 
-	const month = useMemo(() => calParseYM(ym), [ym]);
-	const grid = useMemo(() => calBuildMonthGrid(month), [month]);
+    const month = useMemo(() => calParseYM(ym), [ym]);
+    const grid = useMemo(() => calBuildMonthGrid(month), [month]);
 
-	const data = events ?? calDemoEvents;
-	const filtered = useMemo(
-		() =>
-			data.filter(
-				(e) =>
-					e.date.startsWith(ym) &&
-					(filter === 'all' || e.type === filter)
-			),
-		[data, ym, filter]
-	);
+    // Fetch events for the visible month when navigating
+    useEffect(() => {
+        let cancelled = false;
+        async function load() {
+            try {
+                const res = await fetch(`/api/admin/content/calendar?ym=${ym}`, {
+                    cache: 'no-store',
+                });
+                if (!res.ok) throw new Error('Failed to load events');
+                const body = (await res.json()) as ContentEvent[];
+                if (!cancelled) setData(body);
+            } catch {
+                // Preserve existing data or fall back to initial/demos
+                if (!cancelled)
+                    setData((cur) => (cur && cur.length ? cur : events ?? calDemoEvents));
+            }
+        }
+        // Always fetch to stay in sync with server filters
+        load();
+        return () => {
+            cancelled = true;
+        };
+    }, [ym]);
+
+    const dataOrDemo = data ?? calDemoEvents;
+    const filtered = useMemo(
+        () =>
+            dataOrDemo.filter(
+                (e) =>
+                    e.date.startsWith(ym) &&
+                    (filter === 'all' || e.type === filter)
+            ),
+        [dataOrDemo, ym, filter]
+    );
 
 	return (
 		<div className='space-y-6'>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -156,22 +157,24 @@ export const calDemoEvents: ContentEvent[] = [
 ];
 
 export function OverviewSection({
-	stats,
-	drafts,
-	scheduled,
-	recent,
+    stats,
+    drafts,
+    scheduled,
+    recent,
+    weekEventsData,
 }: {
-	stats?: Partial<{
-		total: number;
-		published: number;
-		drafts: number;
-		scheduled: number;
-		pendingComments: number;
-		assets: number;
-	}>;
-	drafts?: Item[];
-	scheduled?: Item[];
-	recent?: Item[];
+    stats?: Partial<{
+        total: number;
+        published: number;
+        drafts: number;
+        scheduled: number;
+        pendingComments: number;
+        assets: number;
+    }>;
+    drafts?: Item[];
+    scheduled?: Item[];
+    recent?: Item[];
+    weekEventsData?: ContentEvent[];
 }) {
 	const s = useMemo(
 		() => ({
@@ -208,7 +211,7 @@ export function OverviewSection({
 				/>
 			</div>
 
-			<ContentWeekView events={weekEvents} />
+            <ContentWeekView events={weekEventsData} />
 
 			<div className='grid gap-6 lg:grid-cols-3'>
 				<Card className='lg:col-span-2'>
@@ -220,24 +223,22 @@ export function OverviewSection({
 						<OverviewToolbar />
 					</CardHeader>
 					<CardContent>
-						<Tabs defaultValue='drafts'>
+						<Tabs defaultValue='scheduled'>
 							<TabsList className='w-full justify-start overflow-x-auto'>
+								<TabsTrigger value='scheduled'>Scheduled</TabsTrigger>
 								<TabsTrigger value='drafts'>Drafts</TabsTrigger>
-								<TabsTrigger value='scheduled'>
-									Scheduled
-								</TabsTrigger>
 								<TabsTrigger value='recent'>Recent</TabsTrigger>
 							</TabsList>
-							<TabsContent value='drafts' className='mt-4'>
-								<OverviewList
-									items={drafts ?? demoDrafts}
-									empty='No drafts found.'
-								/>
-							</TabsContent>
 							<TabsContent value='scheduled' className='mt-4'>
 								<OverviewList
 									items={scheduled ?? demoScheduled}
 									empty='Nothing scheduled.'
+								/>
+							</TabsContent>
+							<TabsContent value='drafts' className='mt-4'>
+								<OverviewList
+									items={drafts ?? demoDrafts}
+									empty='No drafts found.'
 								/>
 							</TabsContent>
 							<TabsContent value='recent' className='mt-4'>
@@ -267,26 +268,30 @@ export function OverviewSection({
 /* internal bits */
 
 function OverviewHeader() {
-	return (
-		<div className='flex items-end justify-between gap-4'>
-			<div>
-				<h2 className='text-xl font-semibold tracking-tight'>
-					Content Overview
-				</h2>
-				<p className='text-sm text-muted-foreground'>
-					Manage posts, assets, and workflow at a glance.
-				</p>
-			</div>
-			<div className='flex gap-2'>
-				<Button size='sm' className='gap-2'>
-					<Plus className='h-4 w-4' /> Create
-				</Button>
-				<Button variant='outline' size='sm' className='gap-2'>
-					<Upload className='h-4 w-4' /> Upload asset
-				</Button>
-			</div>
-		</div>
-	);
+    return (
+        <div className='flex items-end justify-between gap-4'>
+            <div>
+                <h2 className='text-xl font-semibold tracking-tight'>
+                    Content Overview
+                </h2>
+                <p className='text-sm text-muted-foreground'>
+                    Manage posts, assets, and workflow at a glance.
+                </p>
+            </div>
+            <div className='flex gap-2'>
+                <Button asChild size='sm' className='gap-2'>
+                    <Link href='/content/create'>
+                        <Plus className='h-4 w-4' /> Create
+                    </Link>
+                </Button>
+                <Button asChild variant='outline' size='sm' className='gap-2'>
+                    <Link href='/content/assets/upload'>
+                        <Upload className='h-4 w-4' /> Upload asset
+                    </Link>
+                </Button>
+            </div>
+        </div>
+    );
 }
 
 function OverviewToolbar() {
@@ -429,25 +434,31 @@ function EmptyState({ label }: { label: string }) {
 }
 
 function QuickActions() {
-	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Quick actions</CardTitle>
-				<CardDescription>Common content tasks.</CardDescription>
-			</CardHeader>
-			<CardContent className='grid gap-2'>
-				<Button className='justify-start gap-2'>
-					<Plus className='h-4 w-4' /> New post
-				</Button>
-				<Button variant='outline' className='justify-start gap-2'>
-					<Upload className='h-4 w-4' /> Upload asset
-				</Button>
-				<Button variant='ghost' className='justify-start gap-2'>
-					<Settings className='h-4 w-4' /> Content settings
-				</Button>
-			</CardContent>
-		</Card>
-	);
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Quick actions</CardTitle>
+                <CardDescription>Common content tasks.</CardDescription>
+            </CardHeader>
+            <CardContent className='grid gap-2'>
+                <Button asChild className='justify-start gap-2'>
+                    <Link href='/content/create'>
+                        <Plus className='h-4 w-4' /> New post
+                    </Link>
+                </Button>
+                <Button asChild variant='outline' className='justify-start gap-2'>
+                    <Link href='/content/assets/upload'>
+                        <Upload className='h-4 w-4' /> Upload asset
+                    </Link>
+                </Button>
+                <Button asChild variant='ghost' className='justify-start gap-2'>
+                    <Link href='/settings/content'>
+                        <Settings className='h-4 w-4' /> Content settings
+                    </Link>
+                </Button>
+            </CardContent>
+        </Card>
+    );
 }
 
 function ContentHealth({

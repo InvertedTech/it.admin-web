@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { UnpublishContentRequestSchema } from '@inverted-tech/fragments/Content';
@@ -20,6 +21,12 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       body: toJsonString(UnpublishContentRequestSchema as any, msg as any),
     });
     const body = await res.json().catch(() => ({}));
+    try {
+      revalidateTag('admin-content');
+      revalidatePath('/content');
+      revalidatePath('/content/all');
+      revalidatePath(`/content/${id}`);
+    } catch {}
     return NextResponse.json(body, { status: res.status || 200 });
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: e?.message || 'Unpublish failed' }, { status: 500 });
