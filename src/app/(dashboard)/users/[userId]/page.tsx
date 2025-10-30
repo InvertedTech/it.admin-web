@@ -84,7 +84,7 @@ export default async function ViewUserPage({
 	}
 
 	return (
-		<div className="container mx-auto space-y-6 py-8">
+		<div className="space-y-6">
 			<UserHeaderCard
 				id={id}
 				displayName={displayName}

@@ -11,7 +11,7 @@ import { getContent } from '@/app/actions/content';
 export default async function AllContentPage() {
 	const data = await getContent();
 	return (
-		<div className="container mx-auto space-y-6 py-8">
+		<div className="space-y-6">
 			<div className="space-y-1">
 				<h1 className="text-2xl font-semibold tracking-tight">Content</h1>
 				<p className="text-muted-foreground">

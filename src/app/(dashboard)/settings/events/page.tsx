@@ -1,7 +1,15 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-export default function SettingsEventsPage() {
+import { EventPublicSettingsForm } from '@/components/forms/event-public-settings-form';
+import { EventPrivateSettingsForm } from '@/components/forms/event-private-settings-form';
+import { EventOwnerSettingsForm } from '@/components/forms/event-owner-settings-form';
+import { getAdminSettings } from '@/app/actions/settings';
+
+export default async function SettingsEventsPage() {
+	const admin = await getAdminSettings();
+	const data = admin?.Public?.Events as any;
+	const privateBase = { Data: admin?.Private?.Events } as any;
 	return (
-		<div className="container mx-auto py-8 space-y-6 w-9/10">
+		<div className="space-y-6">
 			<div className="space-y-1">
 				<h1 className="text-2xl font-semibold tracking-tight">
 					Events Settings
@@ -12,11 +20,21 @@ export default function SettingsEventsPage() {
 			<Tabs defaultValue="public">
 				<TabsList>
 					<TabsTrigger value="public">Public</TabsTrigger>
+					<TabsTrigger value="private">Private</TabsTrigger>
 					<TabsTrigger value="owner">Owner</TabsTrigger>
 				</TabsList>
-				<TabsContent value="public"></TabsContent>
 
-				<TabsContent value="owner"></TabsContent>
+				<TabsContent value="public">
+					<EventPublicSettingsForm data={data} />
+				</TabsContent>
+
+				<TabsContent value="private">
+					<EventPrivateSettingsForm base={privateBase} />
+				</TabsContent>
+
+				<TabsContent value="owner">
+					<EventOwnerSettingsForm />
+				</TabsContent>
 			</Tabs>
 		</div>
 	);

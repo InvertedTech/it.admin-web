@@ -8,7 +8,7 @@ export default async function SettingsGeneralPersonalizationPage() {
 	const { Public } = await getAdminSettings();
 
 	return (
-		<div className="container mx-auto py-8 space-y-6 w-9/10">
+		<div className="space-y-6">
 			<div className="space-y-1">
 				<h1 className="text-2xl font-semibold tracking-tight">
 					Subscription Settings

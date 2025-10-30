@@ -44,7 +44,7 @@ const sections = [
 
 export default function SettingsOverviewPage() {
 	return (
-		<div className="container mx-auto space-y-8 py-8">
+		<div className="space-y-8">
 			<div>
 				<h1 className="text-2xl font-semibold tracking-tight">
 					Platform Settings

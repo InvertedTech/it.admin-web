@@ -38,38 +38,50 @@ export const ChannelFieldGroup = withFieldGroup({
 		// ensure ChannelId exists
 		React.useEffect(() => {
 			if (!channelId) {
-				group.form.setFieldValue(
-					pathOf(group, 'ChannelId') as any,
-					uuidv4()
-				);
+				group.form.setFieldValue(pathOf(group, 'ChannelId') as any, uuidv4());
 			}
 		}, [channelId, group]);
 
 		return (
 			<FieldGroup>
-				<group.AppField name='ChannelId'>
-					{(f) => <f.TextField label='Id' disabled />}
+				<group.AppField name="ChannelId">
+					{(f) => (
+						<f.TextField
+							label="Id"
+							disabled
+						/>
+					)}
 				</group.AppField>
-				<group.AppField name='ParentChannelId'>
-					{(f) => <f.TextField label='Parent Id' disabled />}
+				<group.AppField name="ParentChannelId">
+					{(f) => (
+						<f.TextField
+							label="Parent Id"
+							disabled
+						/>
+					)}
 				</group.AppField>
-				<group.AppField name='DisplayName'>
-					{(f) => <f.TextField label='Display Name' />}
+				<group.AppField name="DisplayName">
+					{(f) => <f.TextField label="Display Name" />}
 				</group.AppField>
-				<group.AppField name='UrlStub'>
-					{(f) => <f.TextField label='Url Stub' />}
+				<group.AppField name="UrlStub">
+					{(f) => <f.TextField label="Url Stub" />}
 				</group.AppField>
-				<group.AppField name='ImageAssetId'>
-					{(f) => <f.ImagePickerField label='Image' />}
+				<group.AppField name="ImageAssetId">
+					{(f) => <f.ImagePickerField label="Image" />}
 				</group.AppField>
-				<group.AppField name='YoutubeUrl'>
-					{(f) => <f.TextField label='Youtube URL' />}
+				<group.AppField name="YoutubeUrl">
+					{(f) => <f.TextField label="Youtube URL" />}
 				</group.AppField>
-				<group.AppField name='RumbleUrl'>
-					{(f) => <f.TextField label='Rumble URL' />}
+				<group.AppField name="RumbleUrl">
+					{(f) => <f.TextField label="Rumble URL" />}
 				</group.AppField>
-				<group.AppField name='OldChannelId'>
-					{(f) => <f.TextField label='Old Id' disabled />}
+				<group.AppField name="OldChannelId">
+					{(f) => (
+						<f.TextField
+							label="Old Id"
+							disabled
+						/>
+					)}
 				</group.AppField>
 			</FieldGroup>
 		);
@@ -82,24 +94,39 @@ export const CategoryFieldGroup = withFieldGroup({
 		return (
 			<FieldGroup>
 				<group.AppField
-					name='CategoryId'
-					children={(f) => <f.TextField label='Id' disabled />}
+					name="CategoryId"
+					children={(f) => (
+						<f.TextField
+							label="Id"
+							disabled
+						/>
+					)}
 				/>
 				<group.AppField
-					name='ParentCategoryId'
-					children={(f) => <f.TextField label='Parent Id' disabled />}
+					name="ParentCategoryId"
+					children={(f) => (
+						<f.TextField
+							label="Parent Id"
+							disabled
+						/>
+					)}
 				/>
 				<group.AppField
-					name='DisplayName'
-					children={(f) => <f.TextField label='Display Name' />}
+					name="DisplayName"
+					children={(f) => <f.TextField label="Display Name" />}
 				/>
 				<group.AppField
-					name='UrlStub'
-					children={(f) => <f.TextField label='Url Stub' />}
+					name="UrlStub"
+					children={(f) => <f.TextField label="Url Stub" />}
 				/>
 				<group.AppField
-					name='OldCategoryId'
-					children={(f) => <f.TextField label='Old Id' disabled />}
+					name="OldCategoryId"
+					children={(f) => (
+						<f.TextField
+							label="Old Id"
+							disabled
+						/>
+					)}
 				/>
 			</FieldGroup>
 		);
@@ -112,20 +139,20 @@ export const MenuFieldGroup = withFieldGroup({
 		return (
 			<FieldGroup>
 				<group.AppField
-					name='AudioMenuLinkName'
-					children={(f) => <f.TextField label='Audio Link Name' />}
+					name="AudioMenuLinkName"
+					children={(f) => <f.TextField label="Audio Link Name" />}
 				/>
 				<group.AppField
-					name='PictureMenuLinkName'
-					children={(f) => <f.TextField label='Picture Link Name' />}
+					name="PictureMenuLinkName"
+					children={(f) => <f.TextField label="Picture Link Name" />}
 				/>
 				<group.AppField
-					name='WrittenMenuLinkName'
-					children={(f) => <f.TextField label='Written Link Name' />}
+					name="WrittenMenuLinkName"
+					children={(f) => <f.TextField label="Written Link Name" />}
 				/>
 				<group.AppField
-					name='VideoMenuLinkName'
-					children={(f) => <f.TextField label='Video Link Name' />}
+					name="VideoMenuLinkName"
+					children={(f) => <f.TextField label="Video Link Name" />}
 				/>
 			</FieldGroup>
 		);
