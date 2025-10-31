@@ -8,31 +8,31 @@ import {
 	SettingsSection,
 	SettingsTabs,
 } from '@/components/settings';
-import { ModifySubscriptionOwnerDataRequestSchema } from '@inverted-tech/fragments/Settings';
+import { ModifyNotificationOwnerDataRequestSchema } from '@inverted-tech/fragments/Settings';
 
 import { SendgridOwnerSettingsFieldGroup } from './groups/settings/notification-settings-field-groups';
 
 type Props = { base?: any; onSubmit?: (v: any) => Promise<void> | void };
 
 const sendgridOwner = {
-	Enabled: 'Data.Notification.Sendgrid.Enabled',
-	ApiKeySecret: 'Data.Notification.Sendgrid.ApiKeySecret',
-	SendFromAddress: 'Data.Notification.Sendgrid.SendFromAddress',
+    Enabled: 'Data.Sendgrid.Enabled',
+    ApiKeySecret: 'Data.Sendgrid.ApiKeySecret',
+    SendFromAddress: 'Data.Sendgrid.SendFromAddress',
 } as const;
 
 export function NotificationsOwnerSettingsForm({ base, onSubmit }: Props) {
-	const defaults = create(ModifySubscriptionOwnerDataRequestSchema, base ?? {});
-	const form = useProtoAppForm({
-		schema: ModifySubscriptionOwnerDataRequestSchema,
-		defaultValues: defaults,
-		onSubmitAsync: async ({ value }) => {
-			if (onSubmit) return onSubmit(value);
-			const { modifyOwnerSubscriptionSettings } = await import(
-				'@/app/actions/settings'
-			);
-			await modifyOwnerSubscriptionSettings(value as any);
-		},
-	});
+    const defaults = create(ModifyNotificationOwnerDataRequestSchema, base ?? {});
+    const form = useProtoAppForm({
+        schema: ModifyNotificationOwnerDataRequestSchema,
+        defaultValues: defaults,
+        onSubmitAsync: async ({ value }) => {
+            if (onSubmit) return onSubmit(value);
+            const { modifyNotificationsOwnerSettings } = await import(
+                '@/app/actions/settings'
+            );
+            await modifyNotificationsOwnerSettings(value as any);
+        },
+    });
 
 	return (
 		<SettingsForm form={form}>

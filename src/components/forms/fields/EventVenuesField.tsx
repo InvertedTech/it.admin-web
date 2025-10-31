@@ -130,10 +130,10 @@ export function EventVenuesField({ label = 'Venues' }: { label?: string }) {
 							<AccordionTrigger className="group flex w-full items-center justify-between px-3 py-3 hover:no-underline">
 								<div className="flex items-center gap-3">
 									<span className="font-medium">
-										{v.VenueOneOf.case === 'Physical'
-											? v.VenueOneOf.value?.Name || `Physical Venue ${i + 1}`
-											: v.VenueOneOf.case === 'Virtual'
-											? v.VenueOneOf.value?.Name || `Virtual Venue ${i + 1}`
+										{v.VenueOneOf?.case === 'Physical'
+											? v.VenueOneOf?.value?.Name || `Physical Venue ${i + 1}`
+											: v.VenueOneOf?.case === 'Virtual'
+											? v.VenueOneOf?.value?.Name || `Virtual Venue ${i + 1}`
 											: `Venue ${i + 1}`}
 										<span className="text-muted-foreground font-normal">
 											{' '}
@@ -193,7 +193,7 @@ export function EventVenuesField({ label = 'Venues' }: { label?: string }) {
 									</div>
 								</div>
 
-								{v.VenueOneOf.case === 'Physical' ? (
+									{v.VenueOneOf?.case === 'Physical' ? (
 									<div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
 										<div className="grid gap-2">
 											<Label>Name</Label>
@@ -332,7 +332,7 @@ export function EventVenuesField({ label = 'Venues' }: { label?: string }) {
 											/>
 										</div>
 									</div>
-								) : v.VenueOneOf.case === 'Virtual' ? (
+									) : v.VenueOneOf?.case === 'Virtual' ? (
 									<div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
 										<div className="grid gap-2">
 											<Label>Name</Label>

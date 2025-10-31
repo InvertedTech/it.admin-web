@@ -3,28 +3,44 @@
 import { SettingsForm, SettingsSection } from '@/components/settings';
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 import {
-	EventPublicSettings,
-	EventPublicSettingsSchema,
+  EventPublicSettings,
+  EventPublicSettingsSchema,
 } from '@inverted-tech/fragments/Authorization/Events/index';
 import { EventPublicSettingsFieldGroup } from './groups/settings/event-settings-field-groups';
+import { useRouter } from 'next/navigation';
 
 export function EventPublicSettingsForm({
     data,
 }: {
     data?: EventPublicSettings;
 }) {
-    // Map logical field names to form paths for the field group
+    const router = useRouter();
+    // Map logical field names to form paths (validate inner message)
     const fields = {
         TicketClasses: 'TicketClasses',
     } as const;
+
+	// Sanitize defaults: strip foreign-only fields like TicketClassId
+	const sanitized = ((): any => {
+		if (!data) return undefined as any;
+		const tc = Array.isArray((data as any)?.TicketClasses)
+			? (data as any).TicketClasses.map(({ TicketClassId, ...rest }: any) => rest)
+			: undefined;
+		return { ...(data as any), TicketClasses: tc };
+	})();
+
 	const form = useProtoAppForm({
 		schema: EventPublicSettingsSchema,
-		defaultValues: data as any,
-		onValidSubmit: async ({ value }) => {
-			// For now, just log submitted values
-			// eslint-disable-next-line no-console
-			console.log('Submitting event public settings', value);
+		defaultValues: sanitized as any,
+		onSubmitAsync: async ({ value }) => {
+			const { modifyEventsPublicSettings } = await import(
+				'@/app/actions/settings'
+			);
+			await modifyEventsPublicSettings({ Data: value } as any);
+			try { router.refresh(); } catch {}
 		},
+		onValidatorError: 'ignore',
+		disableValidation: true,
 	});
 
 	return (

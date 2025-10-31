@@ -2,12 +2,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EventPublicSettingsForm } from '@/components/forms/event-public-settings-form';
 import { EventPrivateSettingsForm } from '@/components/forms/event-private-settings-form';
 import { EventOwnerSettingsForm } from '@/components/forms/event-owner-settings-form';
-import { getAdminSettings } from '@/app/actions/settings';
+import { getAdminSettings, getOwnerSettings } from '@/app/actions/settings';
 
 export default async function SettingsEventsPage() {
 	const admin = await getAdminSettings();
+	const owner = await getOwnerSettings().catch(() => undefined);
 	const data = admin?.Public?.Events as any;
 	const privateBase = { Data: admin?.Private?.Events } as any;
+    const ownerBase = owner?.Owner?.Events as any;
 	return (
 		<div>
 			<div className="space-y-1 mb-6">
@@ -33,7 +35,7 @@ export default async function SettingsEventsPage() {
 				</TabsContent>
 
 				<TabsContent value="owner">
-					<EventOwnerSettingsForm />
+					<EventOwnerSettingsForm base={ownerBase} />
 				</TabsContent>
 			</Tabs>
 		</div>

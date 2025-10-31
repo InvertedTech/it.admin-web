@@ -1,11 +1,13 @@
-import { getAdminSettings } from '@/app/actions/settings';
+import { getAdminSettings, getOwnerSettings } from '@/app/actions/settings';
 import { SubscriptionOwnerSettingsForm } from '@/components/forms/subscription-owner-settings-form';
 import { SubscriptionPublicSettingsForm } from '@/components/forms/subscription-public-settings-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default async function SubscriptionSettingsPage() {
 	const { Public, Private } = await getAdminSettings();
+	const owner = await getOwnerSettings().catch(() => undefined);
 	const base = { Data: Public?.Subscription };
+	const ownerBase = { Data: owner?.Owner?.Subscription } as any;
 
 	return (
 		<div>
@@ -27,7 +29,7 @@ export default async function SubscriptionSettingsPage() {
 				</TabsContent>
 
 				<TabsContent value="owner">
-					<SubscriptionOwnerSettingsForm />
+					<SubscriptionOwnerSettingsForm base={ownerBase} />
 				</TabsContent>
 			</Tabs>
 		</div>

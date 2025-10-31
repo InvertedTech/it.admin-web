@@ -22,6 +22,8 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
   onValidSubmit,
   onSubmitAsync,
   mapViolations,
+  onValidatorError = 'report',
+  disableValidation = false,
 }: {
   schema: TSchema;
   defaultValues?: TValues;
@@ -29,6 +31,8 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
   onValidSubmit?: (args: { value: TValues; formApi: any }) => Promise<void> | void;
   onSubmitAsync?: (args: { value: TValues; formApi: any }) => Promise<SubmitResult | void>;
   mapViolations?: (violations: any[] | undefined | null) => SubmitResult;
+  onValidatorError?: 'ignore' | 'report';
+  disableValidation?: boolean;
 }) {
   const resolvedDefaults = ((): TValues => {
     if (defaultValues) return defaultValues as TValues;
@@ -45,6 +49,19 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
           // eslint-disable-next-line no-console
           console.log('[useProtoAppForm] onSubmitAsync value', value);
         } catch {}
+        if (disableValidation) {
+          // Skip proto validation entirely for this form
+          if (onSubmitAsync) {
+            const ret = await onSubmitAsync({ value: value as TValues, formApi });
+            try {
+              // eslint-disable-next-line no-console
+              console.log('[useProtoAppForm] onSubmitAsync returned', ret);
+            } catch {}
+            return ret;
+          }
+          return undefined;
+        }
+
         const validator = await getValidator();
         const payload = create(schema as any, value as any);
         try {
@@ -54,7 +71,9 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
         const res = await validator.validate(schema as any, payload);
         try {
           // eslint-disable-next-line no-console
-          console.log('[useProtoAppForm] validator result', res);
+          if (!(res?.kind === 'error' && onValidatorError === 'ignore')) {
+            console.log('[useProtoAppForm] validator result', res);
+          }
         } catch {}
         // Start building a result we can merge manual checks into
         let result: SubmitResult | undefined = undefined;
@@ -90,6 +109,10 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
             // eslint-disable-next-line no-console
             console.log('[useProtoAppForm] validator error', msg);
           } catch {}
+          if (onValidatorError === 'ignore') {
+            // Proceed without blocking submission
+            return undefined;
+          }
           return { form: msg };
         }
         // Manual group validations for content data oneofs (no proto rules)

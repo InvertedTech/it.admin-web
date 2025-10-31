@@ -20,11 +20,9 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { centsToCurrency } from './utils';
-import { v4 as uuid } from 'uuid';
 import { EventTicketClassType } from '@inverted-tech/fragments/Authorization/Events/index';
 
 type TicketClass = {
-	TicketClassId: string;
 	Type: EventTicketClassType;
 	Name: string;
 	AmountAvailable: number;
@@ -35,7 +33,6 @@ type TicketClass = {
 };
 
 const makeDefaultTicketClass = (): TicketClass => ({
-	TicketClassId: uuid(),
 	Type: EventTicketClassType.TICKET_GENERAL_ACCESS,
 	Name: '',
 	AmountAvailable: 0,
@@ -114,7 +111,7 @@ export function TicketClassesField({
 				>
 					{classes.map((c, i) => (
 						<AccordionItem
-							key={c.TicketClassId || i}
+							key={i}
 							value={`ticket-${i}`}
 							className="rounded-lg border"
 						>
@@ -257,14 +254,7 @@ export function TicketClassesField({
 										</Label>
 									</div>
 
-									<div className="grid gap-2">
-										<Label>Ticket Class ID</Label>
-										<Input
-											value={c.TicketClassId}
-											readOnly
-											disabled
-										/>
-									</div>
+                                {/* ID is server-managed; intentionally omitted from payload */}
 								</div>
 							</AccordionContent>
 						</AccordionItem>

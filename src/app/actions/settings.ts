@@ -7,6 +7,8 @@ import { getSession } from '@/lib/session';
 import {
 	GetAdminDataResponse,
 	GetAdminDataResponseSchema,
+	GetOwnerDataResponse,
+	GetOwnerDataResponseSchema,
 	ChannelRecord,
 	CategoryRecord,
 	ModifySubscriptionPublicDataRequest,
@@ -25,6 +27,22 @@ import {
 	ModifySubscriptionOwnerDataResponseSchema,
 	ModifySubscriptionOwnerDataRequestSchema,
 	ModifySubscriptionOwnerDataResponse,
+	ModifyEventPublicSettingsRequest,
+	ModifyEventPublicSettingsRequestSchema,
+	ModifyEventPublicSettingsResponseSchema,
+	ModifyEventPublicSettingsResponse,
+	ModifyEventPrivateSettingsRequest,
+	ModifyEventPrivateSettingsRequestSchema,
+	ModifyEventPrivateSettingsResponse,
+	ModifyEventPrivateSettingsResponseSchema,
+	ModifyEventOwnerSettingsRequest,
+	ModifyEventOwnerSettingsRequestSchema,
+	ModifyEventOwnerSettingsResponseSchema,
+	ModifyEventOwnerSettingsResponse,
+	ModifyNotificationOwnerDataRequest,
+	ModifyNotificationOwnerDataRequestSchema,
+	ModifyNotificationOwnerDataResponse,
+	ModifyNotificationOwnerDataResponseSchema,
 } from '@inverted-tech/fragments/Settings';
 
 async function getToken() {
@@ -55,6 +73,7 @@ const _getAdminSettings = cache(async (token?: string) => {
 		}
 
 		const body: GetAdminDataResponse = await res.json();
+		console.log(body.Public?.Events);
 		return body;
 	} catch (error) {
 		console.error(error);
@@ -65,9 +84,54 @@ const _getAdminSettings = cache(async (token?: string) => {
 	}
 });
 
+const _getOwnerSettings = cache(async (token?: string) => {
+	const url = 'http://localhost:8001/api/settings/owner';
+	try {
+		const res = await fetch(url, {
+			method: 'GET',
+			next: { tags: [ADMIN_SETTINGS_TAG], revalidate: 30 },
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token ?? ''}`,
+			},
+		});
+
+		if (!res) {
+			return create(GetOwnerDataResponseSchema, {
+				Public: {},
+				Private: {},
+			});
+		}
+
+		const body: GetOwnerDataResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(GetOwnerDataResponseSchema, {
+			Public: {},
+			Private: {},
+		});
+	}
+});
+
 export async function getAdminSettings() {
-	const token = await getToken();
+	const session = await getSession();
+	const token = session.token;
+	const roles = session.roles ?? [];
+	if (roles.includes('owner')) {
+		const owner = await _getOwnerSettings(token);
+		// Normalize to the admin response shape for callers expecting { Public, Private }
+		return create(GetAdminDataResponseSchema, {
+			Public: owner?.Public ?? {},
+			Private: owner?.Private ?? {},
+		});
+	}
 	return _getAdminSettings(token);
+}
+
+export async function getOwnerSettings() {
+	const token = await getToken();
+	return _getOwnerSettings(token);
 }
 
 export async function createChannel(req: ChannelRecord) {
@@ -136,7 +200,6 @@ export async function modifyPublicSubscriptionSettings(
 ) {
 	const token = await getToken();
 	const url = 'http://localhost:8001/api/settings/subscription/public';
-	console.log(req);
 	try {
 		const res = await fetch(url, {
 			method: 'POST',
@@ -244,4 +307,189 @@ export async function modifyOwnerSubscriptionSettings(
 	}
 }
 
+export async function modifyNotificationsOwnerSettings(
+	req: ModifyNotificationOwnerDataRequest
+) {
+	try {
+		const token = await getToken();
+		const url = 'http://localhost:8001/api/settings/notifications/owner';
+		const msg = create(ModifyNotificationOwnerDataRequestSchema, req as any);
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: toJsonString(ModifyNotificationOwnerDataRequestSchema, msg),
+		});
 
+		if (!res) {
+			return create(ModifyNotificationOwnerDataResponseSchema, {
+				Error: create(SettingsErrorSchema, {
+					Message: 'Unknown Error',
+					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				}),
+			});
+		}
+
+		const body: ModifyNotificationOwnerDataResponse = await res.json();
+		revalidateTag(ADMIN_SETTINGS_TAG);
+		revalidatePath('/settings/notifications');
+		return body;
+	} catch (error) {
+		return create(ModifyNotificationOwnerDataResponseSchema, {
+			Error: create(SettingsErrorSchema, {
+				Message: 'Unknown Error',
+				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+			}),
+		});
+	}
+}
+
+export async function modifyEventsPublicSettings(
+	req: ModifyEventPublicSettingsRequest
+) {
+	try {
+		const token = await getToken();
+		const url = 'http://localhost:8001/api/settings/events/public';
+
+		// Sanitize any foreign/server-managed fields to avoid ForeignFieldError
+		const dropMeta = (o: any) => {
+			if (!o || typeof o !== 'object') return o;
+			const { $typeName, ...rest } = o as any;
+			return rest;
+		};
+		const sanitized: ModifyEventPublicSettingsRequest = {
+			...dropMeta(req as any),
+			Data: req?.Data
+				? {
+						...dropMeta(req.Data as any),
+						TicketClasses: Array.isArray((req.Data as any)?.TicketClasses)
+							? (req.Data as any).TicketClasses.map((tc: any) => {
+									const { TicketClassId, ...rest } = dropMeta(tc ?? {});
+									return dropMeta(rest);
+							  })
+							: undefined,
+				  }
+				: undefined,
+		} as any;
+
+		// Ensure we serialize using a proper message instance so field names map correctly
+		const msg = create(
+			ModifyEventPublicSettingsRequestSchema,
+			sanitized as any
+		);
+
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: toJsonString(ModifyEventPublicSettingsRequestSchema, msg),
+		});
+
+		if (!res) {
+			return create(ModifyEventPublicSettingsResponseSchema, {
+				Error: create(SettingsErrorSchema, {
+					Message: 'Unknown Error',
+					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				}),
+			});
+		}
+
+		const body: ModifyEventPublicSettingsResponse = await res.json();
+		// Bust caches so refreshed page reads latest settings
+		revalidateTag(ADMIN_SETTINGS_TAG);
+		revalidatePath('/settings/events');
+		return body;
+	} catch (error) {
+		console.error('[actions] modifyEventsPublicSettings error', error);
+		return create(ModifyEventPublicSettingsResponseSchema, {
+			Error: create(SettingsErrorSchema, {
+				Message: 'Unknown Error',
+				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+			}),
+		});
+	}
+}
+
+export async function modifyEventsPrivateSettings(
+	req: ModifyEventPrivateSettingsRequest
+) {
+	try {
+		const token = await getToken();
+		const url = 'http://localhost:8001/api/settings/events/private';
+		const msg = create(ModifyEventPrivateSettingsRequestSchema, req as any);
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: toJsonString(ModifyEventPrivateSettingsRequestSchema, msg),
+		});
+
+		if (!res) {
+			return create(ModifyEventPrivateSettingsResponseSchema, {
+				Error: create(SettingsErrorSchema, {
+					Message: 'Unknown Error',
+					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				}),
+			});
+		}
+
+		const body: ModifyEventPrivateSettingsResponse = await res.json();
+		// Bust caches so refreshed page reads latest settings
+		revalidateTag(ADMIN_SETTINGS_TAG);
+		revalidatePath('/settings/events');
+		return body;
+	} catch (error) {
+		return create(ModifyEventPrivateSettingsResponseSchema, {
+			Error: create(SettingsErrorSchema, {
+				Message: 'Unknown Error',
+				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+			}),
+		});
+	}
+}
+
+export async function modifyEventsOwnerSettings(
+	req: ModifyEventOwnerSettingsRequest
+) {
+	try {
+		const token = await getToken();
+		const url = 'http://localhost:8001/api/settings/events/owner';
+		const msg = create(ModifyEventOwnerSettingsRequestSchema, req as any);
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: toJsonString(ModifyEventOwnerSettingsRequestSchema, msg),
+		});
+
+		if (!res) {
+			return create(ModifyEventOwnerSettingsResponseSchema, {
+				Error: create(SettingsErrorSchema, {
+					Message: 'Unknown Error',
+					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				}),
+			});
+		}
+
+		const body: ModifyEventOwnerSettingsResponse = await res.json();
+		// Bust caches so refreshed page reads latest settings
+		revalidateTag(ADMIN_SETTINGS_TAG);
+		revalidatePath('/settings/events');
+		return body;
+	} catch (error) {
+		return create(ModifyEventOwnerSettingsResponseSchema, {
+			Error: create(SettingsErrorSchema, {
+				Message: 'Unknown Error',
+				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+			}),
+		});
+	}
+}

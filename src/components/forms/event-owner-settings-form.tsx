@@ -3,15 +3,19 @@
 import { SettingsForm, SettingsSection } from '@/components/settings';
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 import { EventOwnerSettingsSchema } from '@inverted-tech/fragments/Authorization/Events/index';
+import { useRouter } from 'next/navigation';
 
 export function EventOwnerSettingsForm({ base }: { base?: any }) {
+	const router = useRouter();
 	const form = useProtoAppForm({
 		schema: EventOwnerSettingsSchema,
 		defaultValues: base as any,
-		onValidSubmit: async ({ value }) => {
-			// For now, just log submitted values
-			// eslint-disable-next-line no-console
-			console.log('Submitting event owner settings', value);
+		onSubmitAsync: async ({ value }) => {
+			const { modifyEventsOwnerSettings } = await import(
+				'@/app/actions/settings'
+			);
+			await modifyEventsOwnerSettings({ Data: value } as any);
+			try { router.refresh(); } catch {}
 		},
 	});
 
