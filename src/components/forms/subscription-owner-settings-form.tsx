@@ -16,16 +16,16 @@ import {
 type Props = { base?: any };
 
 const stripeOwner = {
-	Account: 'Data.StripeOwner.Account',
-	ClientID: 'Data.StripeOwner.ClientID',
-	ClientSecret: 'Data.StripeOwner.ClientSecret',
+	Account: 'Data.Stripe.Account',
+	ClientID: 'Data.Stripe.ClientID',
+	ClientSecret: 'Data.Stripe.ClientSecret',
 } as const;
-const paypalOwner = { ClientSecret: 'Data.PaypalOwner.ClientSecret' } as const;
+const paypalOwner = { ClientSecret: 'Data.Paypal.ClientSecret' } as const;
 const fortisOwner = {
-	UserID: 'Data.FortisOwner.UserID',
-	UserApiKey: 'Data.FortisOwner.UserApiKey',
-	LocationID: 'Data.FortisOwner.LocationID',
-	ProductID: 'Data.FortisOwner.ProductID',
+	UserID: 'Data.Fortis.UserID',
+	UserApiKey: 'Data.Fortis.UserApiKey',
+	LocationID: 'Data.Fortis.LocationID',
+	ProductID: 'Data.Fortis.ProductID',
 } as const;
 
 export function SubscriptionOwnerSettingsForm({ base }: Props) {

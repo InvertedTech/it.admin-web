@@ -212,7 +212,7 @@ export async function modifyPublicSubscriptionSettings(
 
 		if (!res) {
 			return create(ModifySubscriptionPublicDataResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error2: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -227,7 +227,7 @@ export async function modifyPublicSubscriptionSettings(
 	} catch (error) {
 		console.error(error);
 		return create(ModifySubscriptionPublicDataResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error2: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -250,7 +250,7 @@ export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 
 		if (!res) {
 			return create(ModifyCMSPublicDataResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error2: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -262,7 +262,7 @@ export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 	} catch (error) {
 		console.error(error);
 		return create(ModifyCMSPublicDataResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error2: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -287,7 +287,7 @@ export async function modifyOwnerSubscriptionSettings(
 
 		if (!res) {
 			return create(ModifySubscriptionOwnerDataResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error2: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -299,7 +299,7 @@ export async function modifyOwnerSubscriptionSettings(
 	} catch (error) {
 		console.error(error);
 		return create(ModifySubscriptionOwnerDataResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error2: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -313,7 +313,10 @@ export async function modifyNotificationsOwnerSettings(
 	try {
 		const token = await getToken();
 		const url = 'http://localhost:8001/api/settings/notifications/owner';
-		const msg = create(ModifyNotificationOwnerDataRequestSchema, req as any);
+		const msg = create(
+			ModifyNotificationOwnerDataRequestSchema,
+			req as any
+		);
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
@@ -325,7 +328,7 @@ export async function modifyNotificationsOwnerSettings(
 
 		if (!res) {
 			return create(ModifyNotificationOwnerDataResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error2: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -338,7 +341,7 @@ export async function modifyNotificationsOwnerSettings(
 		return body;
 	} catch (error) {
 		return create(ModifyNotificationOwnerDataResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error2: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -364,9 +367,13 @@ export async function modifyEventsPublicSettings(
 			Data: req?.Data
 				? {
 						...dropMeta(req.Data as any),
-						TicketClasses: Array.isArray((req.Data as any)?.TicketClasses)
+						TicketClasses: Array.isArray(
+							(req.Data as any)?.TicketClasses
+						)
 							? (req.Data as any).TicketClasses.map((tc: any) => {
-									const { TicketClassId, ...rest } = dropMeta(tc ?? {});
+									const { TicketClassId, ...rest } = dropMeta(
+										tc ?? {}
+									);
 									return dropMeta(rest);
 							  })
 							: undefined,
@@ -391,7 +398,7 @@ export async function modifyEventsPublicSettings(
 
 		if (!res) {
 			return create(ModifyEventPublicSettingsResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error2: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -406,7 +413,7 @@ export async function modifyEventsPublicSettings(
 	} catch (error) {
 		console.error('[actions] modifyEventsPublicSettings error', error);
 		return create(ModifyEventPublicSettingsResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error2: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -432,7 +439,7 @@ export async function modifyEventsPrivateSettings(
 
 		if (!res) {
 			return create(ModifyEventPrivateSettingsResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error2: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -446,7 +453,7 @@ export async function modifyEventsPrivateSettings(
 		return body;
 	} catch (error) {
 		return create(ModifyEventPrivateSettingsResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error2: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -472,7 +479,7 @@ export async function modifyEventsOwnerSettings(
 
 		if (!res) {
 			return create(ModifyEventOwnerSettingsResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error2: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -486,7 +493,7 @@ export async function modifyEventsOwnerSettings(
 		return body;
 	} catch (error) {
 		return create(ModifyEventOwnerSettingsResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error2: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),

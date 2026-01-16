@@ -26,12 +26,14 @@ export const SubscriptionProviderPublicStripeFieldGroup = withFieldGroup({
 			<FieldGroup>
 				<FieldLegend>{title}</FieldLegend>
 				<group.AppField
-					name="Enabled"
-					children={(field) => <field.BooleanField label="Enabled" />}
+					name='Enabled'
+					children={(field) => <field.BooleanField label='Enabled' />}
 				/>
 				<group.AppField
-					name="Url"
-					children={(field) => <field.TextField label="Checkout URL" />}
+					name='Url'
+					children={(field) => (
+						<field.TextField label='Checkout URL' />
+					)}
 				/>
 			</FieldGroup>
 		);
@@ -44,16 +46,18 @@ export const SubscriptionProviderStripOwnerFieldGroup = withFieldGroup({
 		return (
 			<FieldGroup>
 				<group.AppField
-					name="Account"
-					children={(field) => <field.TextField label="Account" />}
+					name='Account'
+					children={(field) => <field.TextField label='Account' />}
 				/>
 				<group.AppField
-					name="ClientID"
-					children={(field) => <field.TextField label="Client Id" />}
+					name='ClientID'
+					children={(field) => <field.TextField label='Client Id' />}
 				/>
 				<group.AppField
-					name="ClientSecret"
-					children={(field) => <field.PasswordField label="Client Secret" />}
+					name='ClientSecret'
+					children={(field) => (
+						<field.PasswordField label='Client Secret' />
+					)}
 				/>
 			</FieldGroup>
 		);
@@ -67,8 +71,8 @@ export const SubscriptionProviderPublicManualFieldGroup = withFieldGroup({
 			<FieldGroup>
 				<FieldLegend>{title}</FieldLegend>
 				<group.AppField
-					name="Enabled"
-					children={(field) => <field.BooleanField label="Enabled" />}
+					name='Enabled'
+					children={(field) => <field.BooleanField label='Enabled' />}
 				/>
 			</FieldGroup>
 		);
@@ -82,16 +86,18 @@ export const SubscriptionProviderPublicPaypalFieldGroup = withFieldGroup({
 			<FieldGroup>
 				<FieldLegend>{title}</FieldLegend>
 				<group.AppField
-					name="Enabled"
-					children={(field) => <field.BooleanField label="Enabled" />}
+					name='Enabled'
+					children={(field) => <field.BooleanField label='Enabled' />}
 				/>
 				<group.AppField
-					name="Url"
-					children={(field) => <field.TextField label="Checkout URL" />}
+					name='Url'
+					children={(field) => (
+						<field.TextField label='Checkout URL' />
+					)}
 				/>
 				<group.AppField
-					name="ClientID"
-					children={(field) => <field.TextField label="Client ID" />}
+					name='ClientID'
+					children={(field) => <field.TextField label='Client ID' />}
 				/>
 			</FieldGroup>
 		);
@@ -103,8 +109,10 @@ export const SubscriptionProviderPaypalOwnerFieldGroup = withFieldGroup({
 		return (
 			<FieldGroup>
 				<group.AppField
-					name="ClientSecret"
-					children={(field) => <field.PasswordField label="Client Secret" />}
+					name='ClientSecret'
+					children={(field) => (
+						<field.PasswordField label='Client Secret' />
+					)}
 				/>
 			</FieldGroup>
 		);
@@ -118,12 +126,14 @@ export const SubscriptionProviderPublicFortisFieldGroup = withFieldGroup({
 			<FieldGroup>
 				<FieldLegend>{title}</FieldLegend>
 				<group.AppField
-					name="Enabled"
-					children={(field) => <field.BooleanField label="Enabled" />}
+					name='Enabled'
+					children={(field) => <field.BooleanField label='Enabled' />}
 				/>
 				<group.AppField
-					name="IsTest"
-					children={(field) => <field.BooleanField label="Test Mode" />}
+					name='IsTest'
+					children={(field) => (
+						<field.BooleanField label='Test Mode' />
+					)}
 				/>
 			</FieldGroup>
 		);
@@ -135,21 +145,25 @@ export const SubscriptionProviderFortisOwnerFieldGroup = withFieldGroup({
 		return (
 			<FieldGroup>
 				<group.AppField
-					name="UserID"
-					children={(field) => <field.TextField label="User Id" />}
+					name='UserID'
+					children={(field) => <field.TextField label='User Id' />}
 				/>
 				<group.AppField
-					name="UserApiKey"
-					children={(field) => <field.PasswordField label="User API Key" />}
+					name='UserApiKey'
+					children={(field) => (
+						<field.PasswordField label='User API Key' />
+					)}
 				/>
 				<group.AppField
-					name="LocationID"
-					children={(field) => <field.TextField label="Location Id" />}
+					name='LocationID'
+					children={(field) => (
+						<field.TextField label='Location Id' />
+					)}
 				/>
 
 				<group.AppField
-					name="ProductID"
-					children={(field) => <field.TextField label="Product Id" />}
+					name='ProductID'
+					children={(field) => <field.TextField label='Product Id' />}
 				/>
 			</FieldGroup>
 		);
@@ -163,8 +177,8 @@ export const SubscriptionProviderPublicCryptoFieldGroup = withFieldGroup({
 			<FieldGroup>
 				<FieldLegend>{title}</FieldLegend>
 				<group.AppField
-					name="Enabled"
-					children={(field) => <field.BooleanField label="Enabled" />}
+					name='Enabled'
+					children={(field) => <field.BooleanField label='Enabled' />}
 				/>
 			</FieldGroup>
 		);
