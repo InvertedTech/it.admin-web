@@ -44,7 +44,8 @@ async function getToken() {
 }
 
 const ADMIN_CONTENT_TAG = 'admin-content';
-const API_BASE = 'http://localhost:8001/api/cms/admin/content';
+const API_BASE_URL = process.env.API_BASE_URL!;
+const API_BASE = `${API_BASE_URL}/cms/admin/content`;
 
 export async function createContent(req: CreateContentRequest) {
 	try {

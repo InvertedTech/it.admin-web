@@ -16,7 +16,7 @@ import {
 	CreateAssetRequestSchema,
 	GetAssetAdminResponse,
 	GetAssetAdminResponseSchema,
-} from '@inverted-tech/fragments/Content';
+} from '@inverted-tech/fragments/Content/index';
 import { AssetType } from '@inverted-tech/fragments/Content/AssetInterface_pb';
 
 async function getToken() {
@@ -24,29 +24,30 @@ async function getToken() {
 	return session.token;
 }
 
+const API_BASE_URL = process.env.API_BASE_URL!;
 const ADMIN_ASSETS_TAG = 'admin-assets';
 
 export async function getAsset(assetId: string) {
-    try {
-        const url = `http://localhost:8001/api/cms/admin/asset/${encodeURIComponent(assetId)}`;
-        const token = await getToken();
-        const res = await fetch(url, {
-            method: 'GET',
-            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-            next: { tags: [ADMIN_ASSETS_TAG], revalidate: 30 },
-        });
-        if (!res) return create(GetAssetAdminResponseSchema);
-        const body: GetAssetAdminResponse = await res.json();
-        return body ?? create(GetAssetAdminResponseSchema);
-    } catch (error) {
-        console.error(error);
-        return create(GetAssetAdminResponseSchema);
-    }
+	try {
+		const url = `${API_BASE_URL}/cms/admin/asset/${encodeURIComponent(assetId)}`;
+		const token = await getToken();
+		const res = await fetch(url, {
+			method: 'GET',
+			headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+			next: { tags: [ADMIN_ASSETS_TAG], revalidate: 30 },
+		});
+		if (!res) return create(GetAssetAdminResponseSchema);
+		const body: GetAssetAdminResponse = await res.json();
+		return body ?? create(GetAssetAdminResponseSchema);
+	} catch (error) {
+		console.error(error);
+		return create(GetAssetAdminResponseSchema);
+	}
 }
 
 export async function getImages() {
 	try {
-		const url = 'http://localhost:8001/api/cms/admin/asset/image';
+		const url = `${API_BASE_URL}/cms/admin/asset/image`;
 		const token = await getToken();
 
 		const res = await fetch(url, {
@@ -75,10 +76,10 @@ export async function getImages() {
 }
 
 export async function searchAssets(
-	req?: Partial<SearchAssetRequest> & { AssetType?: number | string }
+	req?: Partial<SearchAssetRequest> & { AssetType?: number | string },
 ) {
 	try {
-		const base = 'http://localhost:8001/api/cms/admin/asset/search';
+		const base = `${API_BASE_URL}/cms/admin/asset/search`;
 		const url = new URL(base);
 		if (req?.PageSize != null)
 			url.searchParams.set('PageSize', String(req.PageSize));
@@ -115,7 +116,7 @@ export async function searchAssets(
 }
 
 export async function createAsset(req: CreateAssetRequest) {
-	const url = 'http://localhost:8001/api/cms/admin/asset';
+	const url = `${API_BASE_URL}/cms/admin/asset`;
 	const token = await getToken();
 
 	try {
@@ -145,4 +146,3 @@ export async function createAsset(req: CreateAssetRequest) {
 		return create(CreateAssetResponseSchema);
 	}
 }
-

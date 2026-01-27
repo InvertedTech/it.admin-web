@@ -45,7 +45,7 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
 		if (defaultInit)
 			return create(
 				schema as any,
-				defaultInit as any
+				defaultInit as any,
 			) as unknown as TValues;
 		return create(schema as any) as unknown as TValues;
 	})();
@@ -70,7 +70,7 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
 							// eslint-disable-next-line no-console
 							console.log(
 								'[useProtoAppForm] onSubmitAsync returned',
-								ret
+								ret,
 							);
 						} catch {}
 						return ret;
@@ -113,13 +113,13 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
 											(p: any) =>
 												p?.name ??
 												p?.jsonName ??
-												p?.localName
+												p?.localName,
 										)
 										.filter(Boolean)
-								: (
+								: ((
 										(v as any)?.fieldPath?.elements ??
 										(v as any)?.field?.elements
-								  )?.map((e: any) => e?.name) ?? [];
+									)?.map((e: any) => e?.name) ?? []);
 							const path =
 								Array.isArray(parts) && parts.length
 									? parts.join('.')
@@ -130,7 +130,7 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
 								path?.toLowerCase() === 'public.url' &&
 								(/uri/i.test(ruleId) || /uri/i.test(msg));
 							return !isUrlUri;
-						}
+						},
 					);
 
 					if (filteredViolations.length) {
@@ -144,7 +144,7 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
 						// eslint-disable-next-line no-console
 						console.log(
 							'[useProtoAppForm] mapped submit errors (after filter)',
-							result
+							result,
 						);
 					} catch {}
 				}
@@ -205,7 +205,7 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
 						// eslint-disable-next-line no-console
 						console.log(
 							'[useProtoAppForm] onSubmitAsync returned',
-							ret
+							ret,
 						);
 					} catch {}
 					return ret;
@@ -249,7 +249,7 @@ export function normalizeProviders(value: any) {
 				: undefined,
 			Manual: create(
 				ManualPaymentPublicSettingsSchema,
-				value.Data.Manual ?? {}
+				value.Data.Manual ?? {},
 			),
 			Crypto: create(CryptoPublicSettingsSchema, value.Data.Crypto ?? {}),
 		},

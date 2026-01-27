@@ -8,7 +8,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import type { Tier } from '@/components/forms/tiers-form';
+import type { Tier } from '@/components/forms/fields/TierListField';
 
 function centsToCurrency(cents: number) {
 	try {

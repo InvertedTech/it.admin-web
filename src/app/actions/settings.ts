@@ -51,9 +51,10 @@ async function getToken() {
 }
 
 const ADMIN_SETTINGS_TAG = 'admin-settings';
+const API_BASE_URL = process.env.API_BASE_URL!;
 
 const _getAdminSettings = cache(async (token?: string) => {
-	const url = 'http://localhost:8001/api/settings/admin';
+	const url = `${API_BASE_URL}/settings/admin`;
 	try {
 		const res = await fetch(url, {
 			method: 'GET',
@@ -85,7 +86,7 @@ const _getAdminSettings = cache(async (token?: string) => {
 });
 
 const _getOwnerSettings = cache(async (token?: string) => {
-	const url = 'http://localhost:8001/api/settings/owner';
+	const url = `${API_BASE_URL}/settings/owner`;
 	try {
 		const res = await fetch(url, {
 			method: 'GET',
@@ -136,7 +137,7 @@ export async function getOwnerSettings() {
 
 export async function createChannel(req: ChannelRecord) {
 	const token = await getToken();
-	const url = 'http://localhost:8001/api/settings/channel/create';
+	const url = `${API_BASE_URL}/settings/channel/create`;
 
 	try {
 		const res = await fetch(url, {
@@ -167,7 +168,7 @@ export async function createChannel(req: ChannelRecord) {
 
 export async function createCategory(req: CategoryRecord) {
 	const token = await getToken();
-	const url = 'http://localhost:8001/api/settings/category/create';
+	const url = `${API_BASE_URL}/settings/category/create`;
 	try {
 		// Ensure we serialize using a proper message instance so field names map correctly
 		const msg = create(CategoryRecordSchema, req as any);
@@ -196,10 +197,10 @@ export async function createCategory(req: CategoryRecord) {
 }
 
 export async function modifyPublicSubscriptionSettings(
-	req: ModifySubscriptionPublicDataRequest
+	req: ModifySubscriptionPublicDataRequest,
 ) {
 	const token = await getToken();
-	const url = 'http://localhost:8001/api/settings/subscription/public';
+	const url = `${API_BASE_URL}/settings/subscription/public`;
 	try {
 		const res = await fetch(url, {
 			method: 'POST',
@@ -212,7 +213,7 @@ export async function modifyPublicSubscriptionSettings(
 
 		if (!res) {
 			return create(ModifySubscriptionPublicDataResponseSchema, {
-				Error2: create(SettingsErrorSchema, {
+				Error: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -227,7 +228,7 @@ export async function modifyPublicSubscriptionSettings(
 	} catch (error) {
 		console.error(error);
 		return create(ModifySubscriptionPublicDataResponseSchema, {
-			Error2: create(SettingsErrorSchema, {
+			Error: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -238,7 +239,7 @@ export async function modifyPublicSubscriptionSettings(
 export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 	try {
 		const token = await getToken();
-		const url = 'http://localhost:8001/api/settings/cms/public';
+		const url = `${API_BASE_URL}/settings/cms/public`;
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
@@ -250,7 +251,7 @@ export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 
 		if (!res) {
 			return create(ModifyCMSPublicDataResponseSchema, {
-				Error2: create(SettingsErrorSchema, {
+				Error: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -262,7 +263,7 @@ export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 	} catch (error) {
 		console.error(error);
 		return create(ModifyCMSPublicDataResponseSchema, {
-			Error2: create(SettingsErrorSchema, {
+			Error: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -271,11 +272,11 @@ export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 }
 
 export async function modifyOwnerSubscriptionSettings(
-	req: ModifySubscriptionOwnerDataRequest
+	req: ModifySubscriptionOwnerDataRequest,
 ) {
 	try {
 		const token = await getToken();
-		const url = 'http://localhost:8001/api/settings/cms/public';
+		const url = `${API_BASE_URL}/settings/cms/public`;
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
@@ -287,7 +288,7 @@ export async function modifyOwnerSubscriptionSettings(
 
 		if (!res) {
 			return create(ModifySubscriptionOwnerDataResponseSchema, {
-				Error2: create(SettingsErrorSchema, {
+				Error: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -299,7 +300,7 @@ export async function modifyOwnerSubscriptionSettings(
 	} catch (error) {
 		console.error(error);
 		return create(ModifySubscriptionOwnerDataResponseSchema, {
-			Error2: create(SettingsErrorSchema, {
+			Error: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -308,14 +309,14 @@ export async function modifyOwnerSubscriptionSettings(
 }
 
 export async function modifyNotificationsOwnerSettings(
-	req: ModifyNotificationOwnerDataRequest
+	req: ModifyNotificationOwnerDataRequest,
 ) {
 	try {
 		const token = await getToken();
-		const url = 'http://localhost:8001/api/settings/notifications/owner';
+		const url = `${API_BASE_URL}/settings/notifications/owner`;
 		const msg = create(
 			ModifyNotificationOwnerDataRequestSchema,
-			req as any
+			req as any,
 		);
 		const res = await fetch(url, {
 			method: 'POST',
@@ -328,7 +329,7 @@ export async function modifyNotificationsOwnerSettings(
 
 		if (!res) {
 			return create(ModifyNotificationOwnerDataResponseSchema, {
-				Error2: create(SettingsErrorSchema, {
+				Error: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -341,7 +342,7 @@ export async function modifyNotificationsOwnerSettings(
 		return body;
 	} catch (error) {
 		return create(ModifyNotificationOwnerDataResponseSchema, {
-			Error2: create(SettingsErrorSchema, {
+			Error: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -350,11 +351,11 @@ export async function modifyNotificationsOwnerSettings(
 }
 
 export async function modifyEventsPublicSettings(
-	req: ModifyEventPublicSettingsRequest
+	req: ModifyEventPublicSettingsRequest,
 ) {
 	try {
 		const token = await getToken();
-		const url = 'http://localhost:8001/api/settings/events/public';
+		const url = `${API_BASE_URL}/settings/events/public`;
 
 		// Sanitize any foreign/server-managed fields to avoid ForeignFieldError
 		const dropMeta = (o: any) => {
@@ -368,23 +369,23 @@ export async function modifyEventsPublicSettings(
 				? {
 						...dropMeta(req.Data as any),
 						TicketClasses: Array.isArray(
-							(req.Data as any)?.TicketClasses
+							(req.Data as any)?.TicketClasses,
 						)
 							? (req.Data as any).TicketClasses.map((tc: any) => {
 									const { TicketClassId, ...rest } = dropMeta(
-										tc ?? {}
+										tc ?? {},
 									);
 									return dropMeta(rest);
-							  })
+								})
 							: undefined,
-				  }
+					}
 				: undefined,
 		} as any;
 
 		// Ensure we serialize using a proper message instance so field names map correctly
 		const msg = create(
 			ModifyEventPublicSettingsRequestSchema,
-			sanitized as any
+			sanitized as any,
 		);
 
 		const res = await fetch(url, {
@@ -398,7 +399,7 @@ export async function modifyEventsPublicSettings(
 
 		if (!res) {
 			return create(ModifyEventPublicSettingsResponseSchema, {
-				Error2: create(SettingsErrorSchema, {
+				Error: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -413,7 +414,7 @@ export async function modifyEventsPublicSettings(
 	} catch (error) {
 		console.error('[actions] modifyEventsPublicSettings error', error);
 		return create(ModifyEventPublicSettingsResponseSchema, {
-			Error2: create(SettingsErrorSchema, {
+			Error: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -422,11 +423,11 @@ export async function modifyEventsPublicSettings(
 }
 
 export async function modifyEventsPrivateSettings(
-	req: ModifyEventPrivateSettingsRequest
+	req: ModifyEventPrivateSettingsRequest,
 ) {
 	try {
 		const token = await getToken();
-		const url = 'http://localhost:8001/api/settings/events/private';
+		const url = `${API_BASE_URL}/settings/events/private`;
 		const msg = create(ModifyEventPrivateSettingsRequestSchema, req as any);
 		const res = await fetch(url, {
 			method: 'POST',
@@ -439,7 +440,7 @@ export async function modifyEventsPrivateSettings(
 
 		if (!res) {
 			return create(ModifyEventPrivateSettingsResponseSchema, {
-				Error2: create(SettingsErrorSchema, {
+				Error: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -453,7 +454,7 @@ export async function modifyEventsPrivateSettings(
 		return body;
 	} catch (error) {
 		return create(ModifyEventPrivateSettingsResponseSchema, {
-			Error2: create(SettingsErrorSchema, {
+			Error: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),
@@ -462,11 +463,11 @@ export async function modifyEventsPrivateSettings(
 }
 
 export async function modifyEventsOwnerSettings(
-	req: ModifyEventOwnerSettingsRequest
+	req: ModifyEventOwnerSettingsRequest,
 ) {
 	try {
 		const token = await getToken();
-		const url = 'http://localhost:8001/api/settings/events/owner';
+		const url = `${API_BASE_URL}/settings/events/owner`;
 		const msg = create(ModifyEventOwnerSettingsRequestSchema, req as any);
 		const res = await fetch(url, {
 			method: 'POST',
@@ -479,7 +480,7 @@ export async function modifyEventsOwnerSettings(
 
 		if (!res) {
 			return create(ModifyEventOwnerSettingsResponseSchema, {
-				Error2: create(SettingsErrorSchema, {
+				Error: create(SettingsErrorSchema, {
 					Message: 'Unknown Error',
 					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 				}),
@@ -493,7 +494,7 @@ export async function modifyEventsOwnerSettings(
 		return body;
 	} catch (error) {
 		return create(ModifyEventOwnerSettingsResponseSchema, {
-			Error2: create(SettingsErrorSchema, {
+			Error: create(SettingsErrorSchema, {
 				Message: 'Unknown Error',
 				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
 			}),

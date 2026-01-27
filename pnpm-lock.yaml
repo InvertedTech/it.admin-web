@@ -24,8 +24,8 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@19.1.0)
       '@inverted-tech/fragments':
-        specifier: ^0.4.0
-        version: 0.4.0
+        specifier: ^0.7.2
+        version: 0.7.2
       '@radix-ui/react-accordion':
         specifier: ^1.2.12
         version: 1.2.12(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -212,21 +212,21 @@ packages:
     resolution: {integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==}
     engines: {node: '>=6.9.0'}
 
-  '@bufbuild/cel-spec@0.3.0':
-    resolution: {integrity: sha512-mN669LGlXkYNco6NzSTpFoW52UwGb0h5UJNct43nkOjk9YrgUtzcBn9PfjrwbyAe3OlUtasvXAFf1Tjs3NQLOg==}
+  '@bufbuild/cel-spec@0.4.0':
+    resolution: {integrity: sha512-dUS6f2fNt6KEumsYGE7YFxERZE5ZuyME1hQmGjtO8tkZhR6ow6/ne3v4Gik9cfdb9lSLK3AJ+vDxCdGWmDbWvA==}
     peerDependencies:
       '@bufbuild/protobuf': ^2.6.2
 
-  '@bufbuild/cel@0.3.0':
-    resolution: {integrity: sha512-vIdcn0Ot6XDKakcDqEQvvlCtMlYwLlxc++SrVjjCmYIiZRH+tlr1GRYpe5R9kguSiTS3BLh7C+I7ZoektVPICQ==}
+  '@bufbuild/cel@0.4.0':
+    resolution: {integrity: sha512-CdW/JgiTJCYXqnwuaJRo7NcoYhR37AaF58MMiog0/t8nudn86ZyLXYaA1f2yGhm2U17h8pKGZNksTHVSTcpmAw==}
     peerDependencies:
       '@bufbuild/protobuf': ^2.6.2
 
   '@bufbuild/protobuf@2.10.0':
     resolution: {integrity: sha512-fdRs9PSrBF7QUntpZpq6BTw58fhgGJojgg39m9oFOJGZT+nip9b0so5cYY1oWl5pvemDLr0cPPsH46vwThEbpQ==}
 
-  '@bufbuild/protovalidate@1.0.0':
-    resolution: {integrity: sha512-ICGANMQXaPKdR5BJ+6/L3nySHOZQQEZQvvivSZCFb799138obPLjNk32rSIKOMrA/YHc4Y2W738e+SL3CbZXSg==}
+  '@bufbuild/protovalidate@1.1.1':
+    resolution: {integrity: sha512-sE6CojU25nfeb1w88Sm+jRnmk4GvQTeEZvLDHHDPvIHbj2NsDJWFAUJdJr+RcuMnjdWmbur+rAS38VuEK/XviQ==}
     peerDependencies:
       '@bufbuild/protobuf': ^2.8.0
 
@@ -444,8 +444,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@inverted-tech/fragments@0.4.0':
-    resolution: {integrity: sha512-n5diAQlNV8VaUUV1QwBrBDzeA9c5iqfiZ5IOlh1B7COdtMfSJAwXiFrEHoVtOOmPKWaNUyX0ne0a+1YAmnpjmQ==}
+  '@inverted-tech/fragments@0.7.2':
+    resolution: {integrity: sha512-AehZBwz0P6ZNAuYK9cxvgWREzh0P2Uxu01D6O8g49J30ACxqls1OdsBZMufUkbZfGqa+ptYZFR31dfxsCRTn8g==}
 
   '@isaacs/fs-minipass@4.0.1':
     resolution: {integrity: sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w==}
@@ -2195,20 +2195,20 @@ snapshots:
 
   '@babel/runtime@7.28.4': {}
 
-  '@bufbuild/cel-spec@0.3.0(@bufbuild/protobuf@2.10.0)':
+  '@bufbuild/cel-spec@0.4.0(@bufbuild/protobuf@2.10.0)':
     dependencies:
       '@bufbuild/protobuf': 2.10.0
 
-  '@bufbuild/cel@0.3.0(@bufbuild/protobuf@2.10.0)':
+  '@bufbuild/cel@0.4.0(@bufbuild/protobuf@2.10.0)':
     dependencies:
-      '@bufbuild/cel-spec': 0.3.0(@bufbuild/protobuf@2.10.0)
+      '@bufbuild/cel-spec': 0.4.0(@bufbuild/protobuf@2.10.0)
       '@bufbuild/protobuf': 2.10.0
 
   '@bufbuild/protobuf@2.10.0': {}
 
-  '@bufbuild/protovalidate@1.0.0(@bufbuild/protobuf@2.10.0)':
+  '@bufbuild/protovalidate@1.1.1(@bufbuild/protobuf@2.10.0)':
     dependencies:
-      '@bufbuild/cel': 0.3.0(@bufbuild/protobuf@2.10.0)
+      '@bufbuild/cel': 0.4.0(@bufbuild/protobuf@2.10.0)
       '@bufbuild/protobuf': 2.10.0
 
   '@connectrpc/connect@1.7.0(@bufbuild/protobuf@2.10.0)':
@@ -2384,10 +2384,10 @@ snapshots:
   '@img/sharp-win32-x64@0.34.4':
     optional: true
 
-  '@inverted-tech/fragments@0.4.0':
+  '@inverted-tech/fragments@0.7.2':
     dependencies:
       '@bufbuild/protobuf': 2.10.0
-      '@bufbuild/protovalidate': 1.0.0(@bufbuild/protobuf@2.10.0)
+      '@bufbuild/protovalidate': 1.1.1(@bufbuild/protobuf@2.10.0)
       '@connectrpc/connect': 1.7.0(@bufbuild/protobuf@2.10.0)
 
   '@isaacs/fs-minipass@4.0.1':

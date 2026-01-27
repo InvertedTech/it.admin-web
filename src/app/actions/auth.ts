@@ -32,8 +32,9 @@ async function getToken() {
 	return session.token;
 }
 
-const API_BASE = 'http://localhost:8001/api/auth';
-const ADMIN_API_BASE = 'http://localhost:8001/api/auth/admin';
+const API_BASE_URL = process.env.API_BASE_URL!;
+const API_BASE = `${API_BASE_URL}/auth`;
+const ADMIN_API_BASE = `${API_BASE_URL}/auth/admin`;
 
 export async function logoutAction(): Promise<boolean> {
 	'use server';
@@ -52,8 +53,7 @@ export async function logoutAction(): Promise<boolean> {
 export async function loginAction(
 	payload: AuthenticateUserRequest
 ): Promise<AuthenticateUserResponse> {
-	const url =
-		process.env.AUTH_LOGIN_URL || 'http://localhost:8001/api/auth/login';
+	const url = process.env.AUTH_LOGIN_URL || `${API_BASE_URL}/auth/login`;
 
 	try {
 		const res = await fetch(url, {
