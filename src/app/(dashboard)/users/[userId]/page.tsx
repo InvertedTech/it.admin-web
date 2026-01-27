@@ -6,40 +6,50 @@ import { Badge } from '@/components/ui/badge';
 import { UserTimeline } from '@/components/users/view-user/user-timeline';
 import { UserDetails } from '@/components/users/view-user/user-details';
 import { UserHeaderCard } from '@/components/users/view-user/user-header';
+import { UserSubscriptions } from '@/components/users/view-user/user-subscriptions';
 import { notFound } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { grantRolesToUser, enableUser, disableUser } from '@/app/actions/auth';
 import { create } from '@bufbuild/protobuf';
-import { ModifyOtherUserRolesRequestSchema, DisableEnableOtherUserRequestSchema } from '@inverted-tech/fragments/Authentication';
+import {
+	ModifyOtherUserRolesRequestSchema,
+	DisableEnableOtherUserRequestSchema,
+} from '@inverted-tech/fragments/Authentication';
+import { getSubscriptionsForUser } from '@/app/actions/payment';
 
 function pick<T = unknown>(obj: any, paths: string[], fb?: T): T | undefined {
 	for (const p of paths) {
-		const v = p.split('.').reduce<any>((o, k) => (o ? o[k] : undefined), obj);
+		const v = p
+			.split('.')
+			.reduce<any>((o, k) => (o ? o[k] : undefined), obj);
 		if (v !== undefined && v !== null && v !== '') return v as T;
 	}
 	return fb;
 }
 
 export default async function ViewUserPage({
-    params,
+	params,
 }: {
-    params: { userId: string };
+	params: { userId: string };
 }) {
 	const { userId } = await params;
+	const subs = await getSubscriptionsForUser(userId);
 	const res = await adminGetUser(userId);
 	const user: UserNormalRecord | undefined = res?.Record;
 	if (!user) notFound();
 
 	// inferred fields across Public/Private shapes
-	const id = pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
+	const id =
+		pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
 	const displayName = pick<string>(
 		user,
 		['Public.Data.DisplayName', 'DisplayName'],
-		'—'
+		'—',
 	)!;
 	const userName =
 		pick<string>(user, ['Public.Data.UserName', 'UserName'], '') || '—';
-	const email = pick<string>(user, ['Private.Data.Email', 'Email'], '') || '—';
+	const email =
+		pick<string>(user, ['Private.Data.Email', 'Email'], '') || '—';
 	const bio = pick<string>(user, ['Public.Data.Bio', 'Bio'], '') || '—';
 	const roles = pick<string[]>(user, ['Private.Roles', 'Roles'], []) ?? [];
 	const createdOn = pick(user, ['Public.CreatedOnUTC', 'CreatedOnUTC']);
@@ -48,7 +58,7 @@ export default async function ViewUserPage({
 	const profilePng = pick<string>(
 		user,
 		['Public.Data.ProfileImagePNG', 'ProfileImagePNG'],
-		''
+		'',
 	);
 
 	async function grantRolesAction(formData: FormData) {
@@ -58,7 +68,7 @@ export default async function ViewUserPage({
 			create(ModifyOtherUserRolesRequestSchema, {
 				UserID: id,
 				Roles: selected,
-			})
+			}),
 		);
 		revalidatePath(`/users/${id}`);
 	}
@@ -68,7 +78,7 @@ export default async function ViewUserPage({
 		await enableUser(
 			create(DisableEnableOtherUserRequestSchema, {
 				UserID: id,
-			})
+			}),
 		);
 		revalidatePath(`/users/${id}`);
 	}
@@ -78,7 +88,7 @@ export default async function ViewUserPage({
 		await disableUser(
 			create(DisableEnableOtherUserRequestSchema, {
 				UserID: id,
-			})
+			}),
 		);
 		revalidatePath(`/users/${id}`);
 	}
@@ -104,12 +114,9 @@ export default async function ViewUserPage({
 				disabledOn={disabledOn}
 			/>
 
-			<UserDetails
-				id={id}
-				email={email}
-				bio={bio}
-				userName={userName}
-			/>
+			<UserDetails id={id} email={email} bio={bio} userName={userName} />
+
+			<UserSubscriptions subscriptions={subs} />
 		</div>
 	);
 }
