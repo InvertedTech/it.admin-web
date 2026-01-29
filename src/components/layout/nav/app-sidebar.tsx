@@ -50,7 +50,11 @@ const data = {
 			icon: GalleryVerticalEnd,
 			url: '/content',
 			items: [
-				{ title: 'Assets', icon: GalleryVerticalEnd, url: '/content/assets' },
+				{
+					title: 'Assets',
+					icon: GalleryVerticalEnd,
+					url: '/content/assets',
+				},
 				{
 					title: 'Upload Asset',
 					icon: GalleryVerticalEnd,
@@ -61,7 +65,11 @@ const data = {
 					icon: FilesIcon,
 					url: '/content/all',
 				},
-				{ title: 'Create', icon: GalleryVerticalEnd, url: '/content/create' },
+				{
+					title: 'Create',
+					icon: GalleryVerticalEnd,
+					url: '/content/create',
+				},
 				{
 					title: 'Comments Settings',
 					icon: MessageSquare,
@@ -74,24 +82,24 @@ const data = {
 				},
 			],
 		},
-		{
-			title: 'Events',
-			icon: CalendarDays,
-			url: '/events',
-			items: [
-				{ title: 'Create', icon: CalendarDays, url: '/events/create' },
-				{
-					title: 'Create Recurring',
-					icon: CalendarDays,
-					url: '/events/create/recurring',
-				},
-				{
-					title: 'Events (future)',
-					icon: CalendarDays,
-					url: '/settings/events',
-				},
-			],
-		},
+		// {
+		// 	title: 'Events',
+		// 	icon: CalendarDays,
+		// 	url: '/events',
+		// 	items: [
+		// 		{ title: 'Create', icon: CalendarDays, url: '/events/create' },
+		// 		{
+		// 			title: 'Create Recurring',
+		// 			icon: CalendarDays,
+		// 			url: '/events/create/recurring',
+		// 		},
+		// 		{
+		// 			title: 'Events (future)',
+		// 			icon: CalendarDays,
+		// 			url: '/settings/events',
+		// 		},
+		// 	],
+		// },
 		{
 			title: 'Members',
 			icon: UserIcon,
@@ -185,20 +193,19 @@ export function AppSidebar({
 	sessionEmail?: string;
 }) {
 	return (
-		<Sidebar
-			collapsible="offcanvas"
-			{...props}
-		>
+		<Sidebar collapsible='offcanvas' {...props}>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							asChild
-							className="data-[slot=sidebar-menu-button]:!p-1.5"
+							className='data-[slot=sidebar-menu-button]:!p-1.5'
 						>
-							<a href="/">
-								<IconInnerShadowTop className="!size-5" />
-								<span className="text-base font-semibold">{headerTitle}</span>
+							<a href='/'>
+								<IconInnerShadowTop className='!size-5' />
+								<span className='text-base font-semibold'>
+									{headerTitle}
+								</span>
 							</a>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
@@ -208,18 +215,17 @@ export function AppSidebar({
 				<NavQuick items={data.navQuick} />
 				<Separator />
 				<NavMain items={data.navMain} />
-				<NavSecondary
-					items={data.navSecondary}
-					className="mt-auto"
-				/>
+				<NavSecondary items={data.navSecondary} className='mt-auto' />
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser user={{ name: sessionUserName || data.user.name, email: sessionEmail || data.user.email, avatar: data.user.avatar }} />
+				<NavUser
+					user={{
+						name: sessionUserName || data.user.name,
+						email: sessionEmail || data.user.email,
+						avatar: data.user.avatar,
+					}}
+				/>
 			</SidebarFooter>
 		</Sidebar>
 	);
 }
-
-
-
-

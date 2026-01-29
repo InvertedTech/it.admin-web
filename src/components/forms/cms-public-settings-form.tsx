@@ -31,8 +31,8 @@ type Props = { base?: any };
 export function CmsPublicSettingsForm({ base }: Props) {
 	const coerceLayout = (v: unknown) =>
 		typeof v === 'string'
-			? (LayoutEnum as any)[v] ?? LayoutEnum.List
-			: v ?? LayoutEnum.List;
+			? ((LayoutEnum as any)[v] ?? LayoutEnum.List)
+			: (v ?? LayoutEnum.List);
 
 	const defaults = base
 		? {
@@ -43,7 +43,7 @@ export function CmsPublicSettingsForm({ base }: Props) {
 					Categories: base.Data?.Categories ?? [],
 					Menu: base.Data?.Menu ?? {},
 				},
-		  }
+			}
 		: {
 				Data: {
 					DefaultLayout: LayoutEnum.List,
@@ -51,15 +51,16 @@ export function CmsPublicSettingsForm({ base }: Props) {
 					Categories: [],
 					Menu: {},
 				},
-		  };
+			};
 
 	const form = useProtoAppForm({
 		schema: ModifyCMSPublicDataRequestSchema,
 		defaultValues: create(
 			ModifyCMSPublicDataRequestSchema,
-			defaults as any
+			defaults as any,
 		),
 		onSubmitAsync: async ({ value }) => {
+			console.log(value);
 			await modifyCmsPublicSettings(value as any);
 		},
 	});
@@ -69,7 +70,7 @@ export function CmsPublicSettingsForm({ base }: Props) {
 		if (typeof v === 'string') {
 			form.setFieldValue(
 				'Data.DefaultLayout' as any,
-				(LayoutEnum as any)[v] ?? LayoutEnum.List
+				(LayoutEnum as any)[v] ?? LayoutEnum.List,
 			);
 		}
 	}, [form.state.values?.Data?.DefaultLayout]);
@@ -88,7 +89,7 @@ export function CmsPublicSettingsForm({ base }: Props) {
 		const list = (form.state.values?.Data?.Channels ?? []) as any[];
 		form.setFieldValue(
 			'Data.Channels' as any,
-			list.slice(0, i).concat(list.slice(i + 1))
+			list.slice(0, i).concat(list.slice(i + 1)),
 		);
 	};
 
@@ -103,7 +104,7 @@ export function CmsPublicSettingsForm({ base }: Props) {
 		const list = (form.state.values?.Data?.Categories ?? []) as any[];
 		form.setFieldValue(
 			'Data.Categories' as any,
-			list.slice(0, i).concat(list.slice(i + 1))
+			list.slice(0, i).concat(list.slice(i + 1)),
 		);
 	};
 
@@ -142,7 +143,7 @@ export function CmsPublicSettingsForm({ base }: Props) {
 										onValueChange={(v) =>
 											form.setFieldValue(
 												'Data.DefaultLayout' as any,
-												Number(v)
+												Number(v),
 											)
 										}
 									>
@@ -162,7 +163,7 @@ export function CmsPublicSettingsForm({ base }: Props) {
 											</SelectItem>
 											<SelectItem
 												value={String(
-													LayoutEnum.Masonry
+													LayoutEnum.Masonry,
 												)}
 											>
 												Masonry

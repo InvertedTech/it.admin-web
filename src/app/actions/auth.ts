@@ -316,3 +316,16 @@ export async function disableUser(req: DisableEnableOtherUserRequest) {
 		return create(DisableEnableOtherUserResponseSchema);
 	}
 }
+
+export async function getSessionUser() {
+	try {
+		const session = await getSession();
+		return {
+			id: session.id ?? '',
+			userName: session.userName ?? '',
+			displayName: session.displayName ?? '',
+		};
+	} catch {
+		return { id: '', userName: '', displayName: '' };
+	}
+}

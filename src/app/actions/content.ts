@@ -63,17 +63,17 @@ export async function createContent(req: CreateContentRequest) {
 			return create(CreateContentResponseSchema);
 		}
 
-        const body: CreateContentResponse = await res.json();
-        if (!body) {
-            return create(CreateContentResponseSchema);
-        }
+		const body: CreateContentResponse = await res.json();
+		if (!body) {
+			return create(CreateContentResponseSchema);
+		}
 
-        try {
-            revalidateTag(ADMIN_CONTENT_TAG);
-            revalidatePath('/content');
-            revalidatePath('/content/all');
-        } catch {}
-        return body;
+		try {
+			revalidateTag(ADMIN_CONTENT_TAG);
+			revalidatePath('/content');
+			revalidatePath('/content/all');
+		} catch {}
+		return body;
 	} catch (error) {
 		console.error(error);
 		return create(CreateContentResponseSchema);
@@ -82,15 +82,17 @@ export async function createContent(req: CreateContentRequest) {
 
 // TODO: Add GetAdminContentRequest
 export async function getContent() {
-    try {
-        const token = await getToken();
-        const res = await fetch(API_BASE, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            method: 'GET',
-            next: { tags: [ADMIN_CONTENT_TAG], revalidate: 30 },
-        });
+	try {
+		const token = await getToken();
+		const head: HeadersInit = {
+			Authorization: `Bearer ${token}`,
+		};
+		console.log(head);
+		const res = await fetch(API_BASE, {
+			headers: head,
+			method: 'GET',
+			next: { tags: [ADMIN_CONTENT_TAG], revalidate: 30 },
+		});
 
 		if (!res) return create(GetAllContentAdminResponseSchema);
 
@@ -103,15 +105,15 @@ export async function getContent() {
 }
 
 export async function adminGetContent(contentId: string) {
-    try {
-        const token = await getToken();
-        const res = await fetch(API_BASE.concat(`/${contentId}`), {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            method: 'GET',
-            next: { tags: [ADMIN_CONTENT_TAG], revalidate: 30 },
-        });
+	try {
+		const token = await getToken();
+		const res = await fetch(API_BASE.concat(`/${contentId}`), {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+			method: 'GET',
+			next: { tags: [ADMIN_CONTENT_TAG], revalidate: 30 },
+		});
 
 		if (!res) {
 			return create(GetContentAdminResponseSchema);
@@ -170,7 +172,8 @@ export async function publishContent(req: PublishContentRequest) {
 			revalidateTag(ADMIN_CONTENT_TAG);
 			revalidatePath('/content');
 			revalidatePath('/content/all');
-			if ((req as any)?.ContentID) revalidatePath(`/content/${(req as any).ContentID}`);
+			if ((req as any)?.ContentID)
+				revalidatePath(`/content/${(req as any).ContentID}`);
 		} catch {}
 		return body;
 	} catch (error) {
@@ -195,15 +198,16 @@ export async function unpublishContent(req: UnpublishContentRequest) {
 			return create(UnpublishContentResponseSchema);
 		}
 
-        const body: UnpublishContentResponse = await res.json();
-        console.log(body);
-        try {
-            revalidateTag(ADMIN_CONTENT_TAG);
-            revalidatePath('/content');
-            revalidatePath('/content/all');
-            if ((req as any)?.ContentID) revalidatePath(`/content/${(req as any).ContentID}`);
-        } catch {}
-        return body;
+		const body: UnpublishContentResponse = await res.json();
+		console.log(body);
+		try {
+			revalidateTag(ADMIN_CONTENT_TAG);
+			revalidatePath('/content');
+			revalidatePath('/content/all');
+			if ((req as any)?.ContentID)
+				revalidatePath(`/content/${(req as any).ContentID}`);
+		} catch {}
+		return body;
 	} catch (error) {
 		console.error(error);
 		return create(UnpublishContentResponseSchema);
@@ -227,14 +231,15 @@ export async function announceContent(req: AnnounceContentRequest) {
 			return create(AnnounceContentResponseSchema);
 		}
 
-        const body: AnnounceContentResponse = await res.json();
-        try {
-            revalidateTag(ADMIN_CONTENT_TAG);
-            revalidatePath('/content');
-            revalidatePath('/content/all');
-            if ((req as any)?.ContentID) revalidatePath(`/content/${(req as any).ContentID}`);
-        } catch {}
-        return body;
+		const body: AnnounceContentResponse = await res.json();
+		try {
+			revalidateTag(ADMIN_CONTENT_TAG);
+			revalidatePath('/content');
+			revalidatePath('/content/all');
+			if ((req as any)?.ContentID)
+				revalidatePath(`/content/${(req as any).ContentID}`);
+		} catch {}
+		return body;
 	} catch (error) {
 		console.error(error);
 		return create(AnnounceContentResponseSchema);
@@ -258,14 +263,15 @@ export async function unannounceContent(req: UnannounceContentRequest) {
 			return create(UnannounceContentResponseSchema);
 		}
 
-        const body: UnannounceContentResponse = await res.json();
-        try {
-            revalidateTag(ADMIN_CONTENT_TAG);
-            revalidatePath('/content');
-            revalidatePath('/content/all');
-            if ((req as any)?.ContentID) revalidatePath(`/content/${(req as any).ContentID}`);
-        } catch {}
-        return body;
+		const body: UnannounceContentResponse = await res.json();
+		try {
+			revalidateTag(ADMIN_CONTENT_TAG);
+			revalidatePath('/content');
+			revalidatePath('/content/all');
+			if ((req as any)?.ContentID)
+				revalidatePath(`/content/${(req as any).ContentID}`);
+		} catch {}
+		return body;
 	} catch (error) {
 		console.error(error);
 		return create(UnannounceContentResponseSchema);
@@ -288,14 +294,15 @@ export async function deleteContent(req: DeleteContentRequest) {
 			return create(DeleteContentResponseSchema);
 		}
 
-        const body: DeleteContentResponse = await res.json();
-        try {
-            revalidateTag(ADMIN_CONTENT_TAG);
-            revalidatePath('/content');
-            revalidatePath('/content/all');
-            if ((req as any)?.ContentID) revalidatePath(`/content/${(req as any).ContentID}`);
-        } catch {}
-        return body;
+		const body: DeleteContentResponse = await res.json();
+		try {
+			revalidateTag(ADMIN_CONTENT_TAG);
+			revalidatePath('/content');
+			revalidatePath('/content/all');
+			if ((req as any)?.ContentID)
+				revalidatePath(`/content/${(req as any).ContentID}`);
+		} catch {}
+		return body;
 	} catch (error) {
 		console.error(error);
 		return create(DeleteContentResponseSchema);
@@ -318,14 +325,15 @@ export async function undeleteContent(req: UndeleteContentRequest) {
 			return create(UndeleteContentResponseSchema);
 		}
 
-        const body: UndeleteContentResponse = await res.json();
-        try {
-            revalidateTag(ADMIN_CONTENT_TAG);
-            revalidatePath('/content');
-            revalidatePath('/content/all');
-            if ((req as any)?.ContentID) revalidatePath(`/content/${(req as any).ContentID}`);
-        } catch {}
-        return body;
+		const body: UndeleteContentResponse = await res.json();
+		try {
+			revalidateTag(ADMIN_CONTENT_TAG);
+			revalidatePath('/content');
+			revalidatePath('/content/all');
+			if ((req as any)?.ContentID)
+				revalidatePath(`/content/${(req as any).ContentID}`);
+		} catch {}
+		return body;
 	} catch (error) {
 		console.error(error);
 		return create(UndeleteContentResponseSchema);
@@ -336,255 +344,275 @@ export async function undeleteContent(req: UndeleteContentRequest) {
 type MaybeTimestamp = unknown;
 
 function tsToDate(value: MaybeTimestamp): Date | undefined {
-  if (!value) return undefined;
-  if (value instanceof Date) return value;
-  if (typeof value === 'string') {
-    const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? undefined : d;
-  }
-  if (
-    typeof value === 'object' &&
-    value !== null &&
-    'toDate' in (value as any) &&
-    typeof (value as any).toDate === 'function'
-  ) {
-    try {
-      const d = (value as any).toDate();
-      if (d instanceof Date && !Number.isNaN(d.getTime())) return d;
-    } catch {}
-  }
-  if (typeof value === 'object' && value !== null && 'seconds' in (value as any)) {
-    const seconds = (value as any).seconds as unknown;
-    const nanos = (value as any).nanos as unknown;
-    const sNum =
-      typeof seconds === 'string'
-        ? Number(seconds)
-        : typeof seconds === 'number'
-        ? seconds
-        : typeof seconds === 'bigint'
-        ? Number(seconds)
-        : undefined;
-    const nNum =
-      typeof nanos === 'string'
-        ? Number(nanos)
-        : typeof nanos === 'number'
-        ? nanos
-        : typeof nanos === 'bigint'
-        ? Number(nanos)
-        : 0;
-    if (typeof sNum === 'number' && Number.isFinite(sNum)) {
-      const millis = sNum * 1000 + Math.floor(nNum / 1_000_000);
-      const d = new Date(millis);
-      return Number.isNaN(d.getTime()) ? undefined : d;
-    }
-  }
-  return undefined;
+	if (!value) return undefined;
+	if (value instanceof Date) return value;
+	if (typeof value === 'string') {
+		const d = new Date(value);
+		return Number.isNaN(d.getTime()) ? undefined : d;
+	}
+	if (
+		typeof value === 'object' &&
+		value !== null &&
+		'toDate' in (value as any) &&
+		typeof (value as any).toDate === 'function'
+	) {
+		try {
+			const d = (value as any).toDate();
+			if (d instanceof Date && !Number.isNaN(d.getTime())) return d;
+		} catch {}
+	}
+	if (
+		typeof value === 'object' &&
+		value !== null &&
+		'seconds' in (value as any)
+	) {
+		const seconds = (value as any).seconds as unknown;
+		const nanos = (value as any).nanos as unknown;
+		const sNum =
+			typeof seconds === 'string'
+				? Number(seconds)
+				: typeof seconds === 'number'
+					? seconds
+					: typeof seconds === 'bigint'
+						? Number(seconds)
+						: undefined;
+		const nNum =
+			typeof nanos === 'string'
+				? Number(nanos)
+				: typeof nanos === 'number'
+					? nanos
+					: typeof nanos === 'bigint'
+						? Number(nanos)
+						: 0;
+		if (typeof sNum === 'number' && Number.isFinite(sNum)) {
+			const millis = sNum * 1000 + Math.floor(nNum / 1_000_000);
+			const d = new Date(millis);
+			return Number.isNaN(d.getTime()) ? undefined : d;
+		}
+	}
+	return undefined;
 }
 
 function isoDate(d: Date) {
-  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+	return d.toISOString().slice(0, 10); // YYYY-MM-DD
 }
 
 function isoTime(d?: Date) {
-  if (!d) return undefined;
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mm = String(d.getMinutes()).padStart(2, '0');
-  return `${hh}:${mm}`;
+	if (!d) return undefined;
+	const hh = String(d.getHours()).padStart(2, '0');
+	const mm = String(d.getMinutes()).padStart(2, '0');
+	return `${hh}:${mm}`;
 }
 
 export type DashboardContentEvent = {
-  id: string;
-  title: string;
-  date: string; // YYYY-MM-DD
-  time?: string; // HH:mm
-  type: 'publish' | 'announcement';
-  url?: string;
+	id: string;
+	title: string;
+	date: string; // YYYY-MM-DD
+	time?: string; // HH:mm
+	type: 'publish' | 'announcement';
+	url?: string;
 };
 
 // Returns concatenated publish + announcement events for a given year-month (YYYY-MM)
 export async function getCalendarEvents(args: {
-  ym: string;
-  type?: 'publish' | 'announcement' | 'all';
+	ym: string;
+	type?: 'publish' | 'announcement' | 'all';
 }): Promise<DashboardContentEvent[]> {
-  const { ym, type = 'all' } = args;
-  const list = await getContent();
-  const records = (list as any)?.Records ?? [];
+	const { ym, type = 'all' } = args;
+	const list = await getContent();
+	const records = (list as any)?.Records ?? [];
 
-  const events: DashboardContentEvent[] = [];
-  for (const r of records) {
-    const title: string = r?.Title ?? 'Untitled';
-    const id: string = r?.ContentID ?? '';
+	const events: DashboardContentEvent[] = [];
+	for (const r of records) {
+		const title: string = r?.Title ?? 'Untitled';
+		const id: string = r?.ContentID ?? '';
 
-    const p = tsToDate(r?.PublishOnUTC);
-    if (p && isoDate(p).startsWith(ym) && (type === 'all' || type === 'publish')) {
-      events.push({
-        id: `${id}-pub`,
-        title,
-        date: isoDate(p),
-        time: isoTime(p),
-        type: 'publish',
-        url: `/content/${id}`,
-      });
-    }
+		const p = tsToDate(r?.PublishOnUTC);
+		if (
+			p &&
+			isoDate(p).startsWith(ym) &&
+			(type === 'all' || type === 'publish')
+		) {
+			events.push({
+				id: `${id}-pub`,
+				title,
+				date: isoDate(p),
+				time: isoTime(p),
+				type: 'publish',
+				url: `/content/${id}`,
+			});
+		}
 
-    const a = tsToDate(r?.AnnounceOnUTC);
-    if (a && isoDate(a).startsWith(ym) && (type === 'all' || type === 'announcement')) {
-      events.push({
-        id: `${id}-ann`,
-        title,
-        date: isoDate(a),
-        time: isoTime(a),
-        type: 'announcement',
-        url: `/content/${id}`,
-      });
-    }
-  }
+		const a = tsToDate(r?.AnnounceOnUTC);
+		if (
+			a &&
+			isoDate(a).startsWith(ym) &&
+			(type === 'all' || type === 'announcement')
+		) {
+			events.push({
+				id: `${id}-ann`,
+				title,
+				date: isoDate(a),
+				time: isoTime(a),
+				type: 'announcement',
+				url: `/content/${id}`,
+			});
+		}
+	}
 
-  events.sort((x, y) => (x.date + (x.time ?? '')) .localeCompare(y.date + (y.time ?? '')));
-  return events;
+	events.sort((x, y) =>
+		(x.date + (x.time ?? '')).localeCompare(y.date + (y.time ?? '')),
+	);
+	return events;
 }
 
 // Returns concatenated publish + announcement events for the week containing startDate (ISO YYYY-MM-DD)
 export async function getWeekEvents(args?: {
-  startDate?: string;
+	startDate?: string;
 }): Promise<DashboardContentEvent[]> {
-  const start = args?.startDate ? new Date(args.startDate) : new Date();
-  const weekStart = new Date(start);
-  weekStart.setHours(0, 0, 0, 0);
-  weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Sunday start
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekEnd.getDate() + 6);
+	const start = args?.startDate ? new Date(args.startDate) : new Date();
+	const weekStart = new Date(start);
+	weekStart.setHours(0, 0, 0, 0);
+	weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Sunday start
+	const weekEnd = new Date(weekStart);
+	weekEnd.setDate(weekEnd.getDate() + 6);
 
-  function inWeek(d: Date) {
-    const x = new Date(d);
-    x.setHours(0, 0, 0, 0);
-    return x >= weekStart && x <= weekEnd;
-  }
+	function inWeek(d: Date) {
+		const x = new Date(d);
+		x.setHours(0, 0, 0, 0);
+		return x >= weekStart && x <= weekEnd;
+	}
 
-  const list = await getContent();
-  const records = (list as any)?.Records ?? [];
-  const events: DashboardContentEvent[] = [];
-  for (const r of records) {
-    const title: string = r?.Title ?? 'Untitled';
-    const id: string = r?.ContentID ?? '';
+	const list = await getContent();
+	const records = (list as any)?.Records ?? [];
+	const events: DashboardContentEvent[] = [];
+	for (const r of records) {
+		const title: string = r?.Title ?? 'Untitled';
+		const id: string = r?.ContentID ?? '';
 
-    const p = tsToDate(r?.PublishOnUTC);
-    if (p && inWeek(p)) {
-      events.push({
-        id: `${id}-pub`,
-        title,
-        date: isoDate(p),
-        time: isoTime(p),
-        type: 'publish',
-        url: `/content/${id}`,
-      });
-    }
+		const p = tsToDate(r?.PublishOnUTC);
+		if (p && inWeek(p)) {
+			events.push({
+				id: `${id}-pub`,
+				title,
+				date: isoDate(p),
+				time: isoTime(p),
+				type: 'publish',
+				url: `/content/${id}`,
+			});
+		}
 
-    const a = tsToDate(r?.AnnounceOnUTC);
-    if (a && inWeek(a)) {
-      events.push({
-        id: `${id}-ann`,
-        title,
-        date: isoDate(a),
-        time: isoTime(a),
-        type: 'announcement',
-        url: `/content/${id}`,
-      });
-    }
-  }
+		const a = tsToDate(r?.AnnounceOnUTC);
+		if (a && inWeek(a)) {
+			events.push({
+				id: `${id}-ann`,
+				title,
+				date: isoDate(a),
+				time: isoTime(a),
+				type: 'announcement',
+				url: `/content/${id}`,
+			});
+		}
+	}
 
-  events.sort((x, y) => (x.date + (x.time ?? '')) .localeCompare(y.date + (y.time ?? '')));
-  return events;
+	events.sort((x, y) =>
+		(x.date + (x.time ?? '')).localeCompare(y.date + (y.time ?? '')),
+	);
+	return events;
 }
 
 // Overview activity (drafts, scheduled, recent) + stats
 function relLabel(d?: Date): string {
-  if (!d) return '';
-  const now = new Date();
-  const sameDay =
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate();
-  if (sameDay) return 'Today';
-  return d.toLocaleString();
+	if (!d) return '';
+	const now = new Date();
+	const sameDay =
+		d.getFullYear() === now.getFullYear() &&
+		d.getMonth() === now.getMonth() &&
+		d.getDate() === now.getDate();
+	if (sameDay) return 'Today';
+	return d.toLocaleString();
 }
 
 export async function getOverviewActivity(args?: {
-  rangeDays?: number;
-  limitDrafts?: number;
-  limitScheduled?: number;
-  limitRecent?: number;
+	rangeDays?: number;
+	limitDrafts?: number;
+	limitScheduled?: number;
+	limitRecent?: number;
 }): Promise<{
-  drafts: Item[];
-  scheduled: Item[];
-  recent: Item[];
-  stats: {
-    total: number;
-    published: number;
-    drafts: number;
-    scheduled: number;
-    pendingComments: number;
-    assets: number;
-  };
+	drafts: Item[];
+	scheduled: Item[];
+	recent: Item[];
+	stats: {
+		total: number;
+		published: number;
+		drafts: number;
+		scheduled: number;
+		pendingComments: number;
+		assets: number;
+	};
 }> {
-  const rangeDays = args?.rangeDays ?? 90;
-  const limD = args?.limitDrafts ?? 5;
-  const limS = args?.limitScheduled ?? 5;
-  const limR = args?.limitRecent ?? 5;
+	const rangeDays = args?.rangeDays ?? 90;
+	const limD = args?.limitDrafts ?? 5;
+	const limS = args?.limitScheduled ?? 5;
+	const limR = args?.limitRecent ?? 5;
 
-  const list = await getContent();
-  const records = ((list as any)?.Records ?? []) as any[];
-  const now = new Date();
-  const since = new Date(now);
-  since.setDate(now.getDate() - rangeDays);
+	const list = await getContent();
+	const records = ((list as any)?.Records ?? []) as any[];
+	const now = new Date();
+	const since = new Date(now);
+	since.setDate(now.getDate() - rangeDays);
 
-  const toItem = (r: any, status: Item['status'], when?: Date): Item => ({
-    id: String(r?.ContentID ?? ''),
-    title: String(r?.Title ?? 'Untitled'),
-    status,
-    date: relLabel(when),
-    author: String(r?.Author ?? '—'),
-  });
+	const toItem = (r: any, status: Item['status'], when?: Date): Item => ({
+		id: String(r?.ContentID ?? ''),
+		title: String(r?.Title ?? 'Untitled'),
+		status,
+		date: relLabel(when),
+		author: String(r?.Author ?? '—'),
+	});
 
-  let draftCount = 0;
-  let publishCount = 0;
-  let scheduledCount = 0;
+	let draftCount = 0;
+	let publishCount = 0;
+	let scheduledCount = 0;
 
-  const drafts: Item[] = [];
-  const scheduled: Item[] = [];
-  const recent: Item[] = [];
+	const drafts: Item[] = [];
+	const scheduled: Item[] = [];
+	const recent: Item[] = [];
 
-  for (const r of records) {
-    const pub = tsToDate((r as any)?.PublishOnUTC);
-    if (!pub) {
-      draftCount++;
-      if (drafts.length < limD) drafts.push(toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)));
-      continue;
-    }
-    if (pub > now) {
-      scheduledCount++;
-      if (scheduled.length < limS) scheduled.push(toItem(r, 'scheduled', pub));
-      continue;
-    }
-    // published in the past
-    publishCount++;
-    if (pub >= since && recent.length < limR) recent.push(toItem(r, 'published', pub));
-  }
+	for (const r of records) {
+		const pub = tsToDate((r as any)?.PublishOnUTC);
+		if (!pub) {
+			draftCount++;
+			if (drafts.length < limD)
+				drafts.push(
+					toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)),
+				);
+			continue;
+		}
+		if (pub > now) {
+			scheduledCount++;
+			if (scheduled.length < limS)
+				scheduled.push(toItem(r, 'scheduled', pub));
+			continue;
+		}
+		// published in the past
+		publishCount++;
+		if (pub >= since && recent.length < limR)
+			recent.push(toItem(r, 'published', pub));
+	}
 
-  // Sort lists
-  drafts.sort((a, b) => String(a.title).localeCompare(b.title));
-  scheduled.sort((a, b) => String(a.date).localeCompare(b.date));
-  recent.sort((a, b) => String(b.date).localeCompare(a.date));
+	// Sort lists
+	drafts.sort((a, b) => String(a.title).localeCompare(b.title));
+	scheduled.sort((a, b) => String(a.date).localeCompare(b.date));
+	recent.sort((a, b) => String(b.date).localeCompare(a.date));
 
-  const stats = {
-    total: Number(records.length || 0),
-    published: publishCount,
-    drafts: draftCount,
-    scheduled: scheduledCount,
-    pendingComments: 0,
-    assets: 0,
-  } as const;
+	const stats = {
+		total: Number(records.length || 0),
+		published: publishCount,
+		drafts: draftCount,
+		scheduled: scheduledCount,
+		pendingComments: 0,
+		assets: 0,
+	} as const;
 
-  return { drafts, scheduled, recent, stats: { ...stats } };
+	return { drafts, scheduled, recent, stats: { ...stats } };
 }
-

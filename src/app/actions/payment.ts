@@ -34,3 +34,32 @@ export async function getSubscriptionsForUser(userId: string) {
 		return create(GetSubscriptionRecordResponseSchema, {});
 	}
 }
+
+// TODO: Find ListSubscriptionsRequest and Response protos
+export async function listSubscriptions(
+	pageSize: number,
+	pageOffset: number,
+	includeInactive: boolean = false,
+) {
+	try {
+		const token = await getToken();
+		if (!token) throw new Error('No auth token');
+
+		const url = `${API_BASE}/payment/admin/subscriptions?PageSize=${pageSize}&PageOffset=${pageOffset}&IncludeInactive=${includeInactive}`;
+		const res = await fetch(url, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		if (!res) {
+			return create(GetSubscriptionRecordResponseSchema, {});
+		}
+		const body = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(GetSubscriptionRecordResponseSchema, {});
+	}
+}
