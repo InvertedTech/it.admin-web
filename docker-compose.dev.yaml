@@ -10,7 +10,7 @@ services:
         container_name: it.admin-web-dev
         command: pnpm dev
         ports:
-            - '3000:3000'
+            - '3001:3001'
         environment:
             - NODE_ENV=development
             - NEXT_TELEMETRY_DISABLED=1

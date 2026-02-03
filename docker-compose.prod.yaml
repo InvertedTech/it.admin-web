@@ -8,7 +8,7 @@ services:
                 - NODE_VERSION=22-alpine
         container_name: it.admin-web
         ports:
-            - '3000:3000'
+            - '3001:3001'
         environment:
             - NODE_ENV=production
             - NEXT_TELEMETRY_DISABLED=1
