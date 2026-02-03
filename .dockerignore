@@ -1,0 +1,22 @@
+# Dependencies and builds
+
+node_modules
+.next
+storybook-static
+
+# Local env and caches
+
+.pnpm-store
+.npm
+.cache
+
+# VCS and editor
+
+.git
+.gitignore
+.vscode
+
+# OS files
+
+.DS_Store
+Thumbs.db

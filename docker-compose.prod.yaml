@@ -1,0 +1,18 @@
+version: '3.9'
+services:
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - NODE_VERSION=22-alpine
+        container_name: it.admin-web
+        ports:
+            - '3000:3000'
+        environment:
+            - NODE_ENV=production
+            - NEXT_TELEMETRY_DISABLED=1
+        # Provide your runtime env here (or use your orchestrator's secrets)
+        env_file:
+            - .env.local
+        restart: unless-stopped

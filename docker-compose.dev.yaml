@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: dev
+            args:
+                - NODE_VERSION=22-alpine
+        container_name: it.admin-web-dev
+        command: pnpm dev
+        ports:
+            - '3000:3000'
+        environment:
+            - NODE_ENV=development
+            - NEXT_TELEMETRY_DISABLED=1
+            - WATCHPACK_POLLING=true
+            - CHOKIDAR_USEPOLLING=true
+        volumes:
+            - .:/app
+            - /app/node_modules
+        # Uncomment to pass through your host env values during dev
+        env_file:
+            - .env.local
+
+volumes: {}
