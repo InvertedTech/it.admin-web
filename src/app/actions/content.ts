@@ -1,5 +1,4 @@
 'use server';
-import { cache } from 'react';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { getSession } from '@/lib/session';
@@ -87,7 +86,6 @@ export async function getContent() {
 		const head: HeadersInit = {
 			Authorization: `Bearer ${token}`,
 		};
-		console.log(head);
 		const res = await fetch(API_BASE, {
 			headers: head,
 			method: 'GET',
@@ -583,15 +581,12 @@ export async function getOverviewActivity(args?: {
 		if (!pub) {
 			draftCount++;
 			if (drafts.length < limD)
-				drafts.push(
-					toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)),
-				);
+				drafts.push(toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)));
 			continue;
 		}
 		if (pub > now) {
 			scheduledCount++;
-			if (scheduled.length < limS)
-				scheduled.push(toItem(r, 'scheduled', pub));
+			if (scheduled.length < limS) scheduled.push(toItem(r, 'scheduled', pub));
 			continue;
 		}
 		// published in the past

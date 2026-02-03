@@ -4,10 +4,6 @@
 import type {
 	ContentPublicData,
 	ContentPrivateData,
-	VideoContentPublicData,
-	WrittenContentPublicData,
-	PictureContentPublicData,
-	AudioContentPublicData,
 } from '@inverted-tech/fragments/Content'; // adjust import path to your gen
 import {
 	Card,

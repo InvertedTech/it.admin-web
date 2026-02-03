@@ -2,8 +2,6 @@
 
 import { withFieldGroup } from '@/hooks/use-proto-app-form';
 import { create } from '@bufbuild/protobuf';
-import { useStore } from '@tanstack/react-form';
-
 import { PictureContentPublicDataSchema } from '@inverted-tech/fragments/Content';
 import { AudioContentPublicDataSchema } from '@inverted-tech/fragments/Content';
 import { VideoContentPublicDataSchema } from '@inverted-tech/fragments/Content';

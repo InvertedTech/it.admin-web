@@ -1,9 +1,12 @@
 'use client';
 
+import * as React from 'react';
 import { create } from '@bufbuild/protobuf';
 
 import { Button } from '@/components/ui/button';
 import { FieldGroup } from '@/components/ui/field';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 import { FormCard } from './form-card';
 import { loginAction } from '@/app/actions/auth';
@@ -17,6 +20,7 @@ type Props = { from?: string };
 
 export function LoginForm({ from }: Props) {
 	const router = useRouter();
+	const [useMfa, setUseMfa] = React.useState(false);
 	const form = useProtoAppForm({
 		schema: AuthenticateUserRequestSchema,
 		onSubmitAsync: async ({ value }) => {
@@ -76,7 +80,28 @@ export function LoginForm({ from }: Props) {
 								</div>
 							)}
 						/>
+
 						<div className="flex items-center gap-2">
+							<Switch
+								id="use-mfa"
+								checked={useMfa}
+								onCheckedChange={setUseMfa}
+							/>
+							<Label htmlFor="use-mfa">Use MFA</Label>
+						</div>
+						{/* TODO: add shadcn tooltip for MFA guidance */}
+						{useMfa ? (
+							<form.AppField
+								name="MFACode"
+								children={(field) => (
+									<field.MFAField
+										label="MFA Code"
+										description="Code From Your Authenticator "
+									/>
+								)}
+							/>
+						) : null}
+						<div className="flex flex-col gap-2">
 							{
 								<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
 									{(isSubmitting: boolean) => (
@@ -99,8 +124,43 @@ export function LoginForm({ from }: Props) {
 							<Button
 								variant="outline"
 								type="button"
+								className="border-[#8C8C8C] bg-white text-[#5E5E5E] hover:bg-[#F3F2F1] hover:text-[#323130]"
 							>
-								Login with Google
+								<svg
+									aria-hidden="true"
+									viewBox="0 0 23 23"
+									className="size-4"
+								>
+									<rect
+										x="1"
+										y="1"
+										width="10"
+										height="10"
+										fill="#F25022"
+									/>
+									<rect
+										x="12"
+										y="1"
+										width="10"
+										height="10"
+										fill="#7FBA00"
+									/>
+									<rect
+										x="1"
+										y="12"
+										width="10"
+										height="10"
+										fill="#00A4EF"
+									/>
+									<rect
+										x="12"
+										y="12"
+										width="10"
+										height="10"
+										fill="#FFB900"
+									/>
+								</svg>
+								Login with Microsoft
 							</Button>
 						</div>
 					</FieldGroup>
@@ -109,4 +169,3 @@ export function LoginForm({ from }: Props) {
 		</FormCard>
 	);
 }
-

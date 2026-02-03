@@ -33,7 +33,6 @@ import { NewCategoryForm } from '@/components/forms/new-category-form';
 import { NewChannelForm } from '@/components/forms/new-channel-form';
 import {
 	CreateContentWizard,
-	CreateContentWizardDialog,
 } from '@/components/forms/create-content-wizard';
 
 export function NavQuick({

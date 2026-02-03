@@ -2,13 +2,10 @@
 
 import * as React from 'react';
 import {
-	IconFolders,
 	IconHelp,
 	IconInnerShadowTop,
 	IconMoneybag,
 	IconSearch,
-	IconTags,
-	IconUpload,
 } from '@tabler/icons-react';
 
 import { NavQuick } from '@/components/layout/nav/nav-quick';
@@ -25,10 +22,8 @@ import {
 } from '@/components/ui/sidebar';
 import {
 	Bell,
-	CalendarDays,
 	CreditCard,
 	FilesIcon,
-	FolderCog,
 	GalleryVerticalEnd,
 	MessageSquare,
 	Palette,

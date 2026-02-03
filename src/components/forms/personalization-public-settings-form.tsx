@@ -11,7 +11,6 @@ import {
 
 // shared wrappers
 import { SettingsForm, SettingsSection } from '@/components/settings';
-import { FormSubmitErrors } from '@/components/ui/form-submit-errors';
 
 export function PersonalizationPublicForm({
 	data,

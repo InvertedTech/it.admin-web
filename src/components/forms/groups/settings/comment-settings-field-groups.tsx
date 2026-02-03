@@ -37,8 +37,6 @@ export const CommentPublicSettingsFieldGroup = withFieldGroup({
 	props: { title: '' },
 	defaultValues: create(CommentsPublicRecordSchema),
 	render: function Render({ group, title }) {
-		const hasTitle = title && title !== '';
-
 		return (
 			<FieldGroup>
 				{/* AllowLinks */}

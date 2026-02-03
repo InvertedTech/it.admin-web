@@ -16,7 +16,6 @@ import {
 	ModifySubscriptionPublicDataResponse,
 	SettingsErrorSchema,
 	SettingsErrorReason,
-	ChannelRecordSchema,
 	CategoryRecordSchema,
 	ModifySubscriptionPublicDataRequestSchema,
 	ModifyCMSPublicDataRequestSchema,

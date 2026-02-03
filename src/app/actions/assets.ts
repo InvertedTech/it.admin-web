@@ -1,13 +1,10 @@
 'use server';
 
-import { cache } from 'react';
-import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { getSession } from '@/lib/session';
 
 import {
 	SearchAssetRequest,
-	SearchAssetRequestSchema,
 	SearchAssetResponse,
 	SearchAssetResponseSchema,
 	CreateAssetRequest,

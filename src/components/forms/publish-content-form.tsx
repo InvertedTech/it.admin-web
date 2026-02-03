@@ -3,8 +3,6 @@ import { useRouter } from 'next/navigation';
 import { publishContent } from '@/app/actions/content';
 import {
     PublishContentRequestSchema,
-    PublishContentRequest,
-    PublishContentResponse,
 } from '@inverted-tech/fragments/Content';
 import { useAppForm } from '@/hooks/app-form';
 

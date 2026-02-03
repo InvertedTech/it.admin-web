@@ -4,10 +4,7 @@ import * as React from 'react';
 import { create } from '@bufbuild/protobuf';
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 import { SearchUsersAdminRequestSchema } from '@inverted-tech/fragments/Authentication';
-import type {
-	SearchUsersAdminResponse,
-	UserSearchRecord,
-} from '@inverted-tech/fragments/Authentication';
+import type { UserSearchRecord } from '@inverted-tech/fragments/Authentication';
 import {
 	AdminSearchUsersSearchBarFieldGroup,
 	AdminSearchUsersFiltersFieldGroup,

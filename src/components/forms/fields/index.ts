@@ -25,3 +25,4 @@ export * from './NumberField';
 export * from './HiddenField';
 export * from './TicketClassesField';
 export * from './EventVenuesField';
+export * from './MFAField';

@@ -24,7 +24,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
-import { cn, ContentEvent, Item } from '@/lib/utils';
+import { ContentEvent, Item } from '@/lib/utils';
 import {
 	Plus,
 	Upload,

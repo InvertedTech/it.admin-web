@@ -1,13 +1,9 @@
 import { FieldGroup } from '@/components/ui/field';
 import { withFieldGroup } from '@/hooks/app-form';
-import { useFormContext } from '@/hooks/form-context';
 import { create } from '@bufbuild/protobuf';
 import {
-	EventVenueSchema,
 	PhysicalEventVenueSchema,
 	VirtualEventVenueSchema,
-	EventVenueOneOfType,
-	EventRecordOneOfTypeSchema,
 } from '@inverted-tech/fragments/protos/Authorization/Events/EventRecord_pb';
 
 export const PhysicalVenueFields = withFieldGroup({

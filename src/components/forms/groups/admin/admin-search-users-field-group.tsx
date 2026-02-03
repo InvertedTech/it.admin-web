@@ -35,22 +35,6 @@ export const ROLES: readonly Role[] = [
 	'evt_moderator',
 ] as const;
 
-// Optional labels if you want prettier text
-const roleLabel: Record<Role, string> = {
-	owner: 'Owner',
-	admin: 'Admin',
-	backup: 'Backup',
-	ops: 'Ops',
-	service: 'Service',
-	con_publisher: 'Content Publisher',
-	con_writer: 'Content Writer',
-	com_mod: 'Comments Moderator',
-	com_appellate: 'Comments Appellate',
-	bot_verification: 'Bot Verification',
-	evt_creator: 'Event Creator',
-	evt_moderator: 'Event Moderator',
-};
-
 export const AdminSearchUsersSearchBarFieldGroup = withFieldGroup({
 	defaultValues: create(SearchUsersAdminRequestSchema),
 	render: function Render({ group }) {

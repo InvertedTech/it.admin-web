@@ -29,6 +29,7 @@ import {
 	RumbleLinkField,
 	HiddenField,
 	NumberField,
+	MFAField,
 } from '@/components/forms/fields';
 import {
 	CreateButton,
@@ -65,6 +66,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
 		RumbleLinkField,
 		HiddenField,
 		NumberField,
+		MFAField,
 	},
 	formComponents: {
 		SubmitErrors,

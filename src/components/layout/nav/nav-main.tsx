@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
-import { ChevronRight, type LucideIcon } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import {
 	SidebarGroup,

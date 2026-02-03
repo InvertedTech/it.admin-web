@@ -73,11 +73,10 @@ export function RichBodyField({
 	const isInvalid = errors.length > 0;
 
 	const [open, setOpen] = React.useState(false);
-	const [mode, setMode] = React.useState<Mode>(initialMode);
+	const [mode] = React.useState<Mode>(initialMode);
 	const taRef = React.useRef<HTMLTextAreaElement | null>(null);
 
 	const value = (field.state.value ?? '') as string;
-	const charCount = value.length;
 
 	function replaceSelection(
 		before: string,

@@ -3,8 +3,6 @@ import { useAppForm } from '@/hooks/app-form';
 import { create } from '@bufbuild/protobuf';
 import {
 	AnnounceContentRequestSchema,
-	AnnounceContentRequest,
-	AnnounceContentResponse,
 } from '@inverted-tech/fragments/Content';
 
 export function AnnounceContentForm({ contentId }: { contentId?: string }) {

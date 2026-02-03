@@ -24,7 +24,6 @@ import {
 import { FieldError, FieldLabel } from '@/components/ui/field'
 import { normalizeFieldErrors } from '@/hooks/use-proto-validation'
 
-// TODO: Replace Zod with generated req/res schemas from @inverted-tech/fragments/schemas
 const CreateChannelRequestSchema = z.object({
   DisplayName: z.string().nonempty("DisplayName must not be empty"),
   UrlStub: z.string().nonempty("UrlStub must not be empty"),

@@ -10,14 +10,6 @@ import { useStore } from '@tanstack/react-form';
 import { v4 as uuidv4 } from 'uuid';
 import React from 'react';
 
-const toSlug = (s: string) =>
-	s
-		.toLowerCase()
-		.trim()
-		.replace(/[^a-z0-9]+/g, '-')
-		.replace(/^-+|-+$/g, '')
-		.replace(/--+/g, '-');
-
 function getIn(obj: any, path: string) {
 	return path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj);
 }

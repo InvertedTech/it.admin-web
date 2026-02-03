@@ -2,7 +2,6 @@
 
 import { adminGetUser } from '@/app/actions/auth';
 import type { UserNormalRecord } from '@inverted-tech/fragments/protos/Authentication/UserRecord_pb';
-import { Badge } from '@/components/ui/badge';
 import { UserTimeline } from '@/components/users/view-user/user-timeline';
 import { UserDetails } from '@/components/users/view-user/user-details';
 import { UserHeaderCard } from '@/components/users/view-user/user-header';

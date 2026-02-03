@@ -6,7 +6,6 @@ import {
 	ProviderTogglePanel,
 	TierList,
 } from '@/components/settings';
-import { Button } from '@/components/ui/button';
 import {
 	normalizeProviders,
 	useProtoAppForm,

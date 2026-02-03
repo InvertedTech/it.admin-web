@@ -4,7 +4,7 @@ import { SubscriptionPublicSettingsForm } from '@/components/forms/subscription-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default async function SubscriptionSettingsPage() {
-	const { Public, Private } = await getAdminSettings();
+	const { Public } = await getAdminSettings();
 	const owner = await getOwnerSettings().catch(() => undefined);
 	const base = { Data: Public?.Subscription };
 	const ownerBase = { Data: owner?.Owner?.Subscription } as any;

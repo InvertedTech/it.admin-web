@@ -41,8 +41,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import {
 	ContentListRecord,
-	ContentType,
-	GetAllContentAdminResponse,
 } from '@inverted-tech/fragments/Content';
 export const ContentTypeLabels: Record<
 	ContentListRecord['ContentType'],

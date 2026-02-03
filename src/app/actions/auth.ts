@@ -13,7 +13,6 @@ import {
 	DisableEnableOtherUserResponseSchema,
 	GetOtherUserResponse,
 	GetOtherUserResponseSchema,
-	ModifyOtherUserRequestSchema,
 	ModifyOtherUserRolesRequest,
 	ModifyOtherUserRolesRequestSchema,
 	ModifyOtherUserRolesResponse,
