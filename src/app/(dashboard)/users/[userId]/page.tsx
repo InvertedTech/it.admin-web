@@ -1,6 +1,10 @@
 'use server';
 
-import { adminGetUser } from '@/app/actions/auth';
+import {
+	adminDisableOtherTotp,
+	adminGetUser,
+	adminGetUserTotpDevices,
+} from '@/app/actions/auth';
 import type { UserNormalRecord } from '@inverted-tech/fragments/protos/Authentication/UserRecord_pb';
 import { UserTimeline } from '@/components/users/view-user/user-timeline';
 import { UserDetails } from '@/components/users/view-user/user-details';
@@ -13,14 +17,13 @@ import { create } from '@bufbuild/protobuf';
 import {
 	ModifyOtherUserRolesRequestSchema,
 	DisableEnableOtherUserRequestSchema,
+	DisableOtherTotpRequestSchema,
 } from '@inverted-tech/fragments/Authentication';
 import { getSubscriptionsForUser } from '@/app/actions/payment';
 
 function pick<T = unknown>(obj: any, paths: string[], fb?: T): T | undefined {
 	for (const p of paths) {
-		const v = p
-			.split('.')
-			.reduce<any>((o, k) => (o ? o[k] : undefined), obj);
+		const v = p.split('.').reduce<any>((o, k) => (o ? o[k] : undefined), obj);
 		if (v !== undefined && v !== null && v !== '') return v as T;
 	}
 	return fb;
@@ -38,8 +41,7 @@ export default async function ViewUserPage({
 	if (!user) notFound();
 
 	// inferred fields across Public/Private shapes
-	const id =
-		pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
+	const id = pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
 	const displayName = pick<string>(
 		user,
 		['Public.Data.DisplayName', 'DisplayName'],
@@ -47,8 +49,7 @@ export default async function ViewUserPage({
 	)!;
 	const userName =
 		pick<string>(user, ['Public.Data.UserName', 'UserName'], '') || '—';
-	const email =
-		pick<string>(user, ['Private.Data.Email', 'Email'], '') || '—';
+	const email = pick<string>(user, ['Private.Data.Email', 'Email'], '') || '—';
 	const bio = pick<string>(user, ['Public.Data.Bio', 'Bio'], '') || '—';
 	const roles = pick<string[]>(user, ['Private.Roles', 'Roles'], []) ?? [];
 	const createdOn = pick(user, ['Public.CreatedOnUTC', 'CreatedOnUTC']);
@@ -59,7 +60,7 @@ export default async function ViewUserPage({
 		['Public.Data.ProfileImagePNG', 'ProfileImagePNG'],
 		'',
 	);
-
+	const totpDevices = (await adminGetUserTotpDevices(userId)).Devices ?? [];
 	async function grantRolesAction(formData: FormData) {
 		'use server';
 		const selected = formData.getAll('roles')?.map((v) => String(v)) ?? [];
@@ -92,6 +93,20 @@ export default async function ViewUserPage({
 		revalidatePath(`/users/${id}`);
 	}
 
+	async function disableTotpAction(formData: FormData) {
+		'use server';
+		// TODO: Fix this
+		const totpId = String(formData.get('totpId') ?? '').trim();
+		if (!totpId) return;
+		await adminDisableOtherTotp(
+			create(DisableOtherTotpRequestSchema, {
+				UserID: id,
+				TotpID: totpId,
+			}),
+		);
+		revalidatePath(`/users/${id}`);
+	}
+
 	return (
 		<div>
 			<UserHeaderCard
@@ -113,7 +128,14 @@ export default async function ViewUserPage({
 				disabledOn={disabledOn}
 			/>
 
-			<UserDetails id={id} email={email} bio={bio} userName={userName} />
+			<UserDetails
+				id={id}
+				email={email}
+				bio={bio}
+				userName={userName}
+				totpDevices={totpDevices}
+				disableTotpAction={disableTotpAction}
+			/>
 
 			<UserSubscriptions subscriptions={subs} />
 		</div>

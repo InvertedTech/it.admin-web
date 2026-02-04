@@ -11,6 +11,13 @@ import {
 	DisableEnableOtherUserRequestSchema,
 	DisableEnableOtherUserResponse,
 	DisableEnableOtherUserResponseSchema,
+	DisableOtherTotpRequest,
+	DisableOtherTotpRequestSchema,
+	DisableOtherTotpResponse,
+	DisableOtherTotpResponseSchema,
+	GetOtherTotpListRequestSchema,
+	GetOtherTotpListResponse,
+	GetOtherTotpListResponseSchema,
 	GetOtherUserResponse,
 	GetOtherUserResponseSchema,
 	ModifyOtherUserRolesRequest,
@@ -98,8 +105,7 @@ export async function loginAction(
 			}
 
 			if (body.UserRecord?.Public?.Data?.ProfileImagePNG) {
-				session.profileImageId =
-					body.UserRecord.Public.Data.ProfileImagePNG;
+				session.profileImageId = body.UserRecord.Public.Data.ProfileImagePNG;
 			}
 
 			if (
@@ -143,15 +149,13 @@ export async function listUsers(
 			`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`;
 
 		if (req.PageSize != null) parts.push(enc('PageSize', req.PageSize));
-		if (req.PageOffset != null)
-			parts.push(enc('PageOffset', req.PageOffset));
+		if (req.PageOffset != null) parts.push(enc('PageOffset', req.PageOffset));
 		if (req.SearchString?.trim())
 			parts.push(enc('SearchString', req.SearchString.trim()));
 		if (Array.isArray(req.Roles))
 			for (const r of req.Roles) if (r) parts.push(enc('Roles', r));
 		if (Array.isArray(req.UserIDs))
-			for (const id of req.UserIDs)
-				if (id) parts.push(enc('UserIDs', id));
+			for (const id of req.UserIDs) if (id) parts.push(enc('UserIDs', id));
 		const ca = toIso((req as any)?.CreatedAfter);
 		const cb = toIso((req as any)?.CreatedBefore);
 		if (ca) parts.push(enc('CreatedAfter', ca));
@@ -317,5 +321,50 @@ export async function getSessionUser() {
 		};
 	} catch {
 		return { id: '', userName: '', displayName: '' };
+	}
+}
+
+export async function adminGetUserTotpDevices(userId: string) {
+	try {
+		const token = await getToken();
+		if (!token || token === '')
+			return create(GetOtherTotpListResponseSchema, {});
+
+		const res = await fetch(ADMIN_API_BASE.concat(`/totp/${userId}`), {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		const body: GetOtherTotpListResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(GetOtherTotpListResponseSchema, {});
+	}
+}
+
+export async function adminDisableOtherTotp(req: DisableOtherTotpRequest) {
+	try {
+		const token = await getToken();
+		if (!token || token === '')
+			return create(DisableOtherTotpResponseSchema, {});
+
+		const res = await fetch(ADMIN_API_BASE.concat('/totp/disable'), {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+			},
+			body: toJsonString(DisableOtherTotpRequestSchema, req),
+		});
+
+		if (!res) return create(DisableOtherTotpResponseSchema, {});
+
+		const body: DisableOtherTotpResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(DisableOtherTotpResponseSchema, {});
 	}
 }
