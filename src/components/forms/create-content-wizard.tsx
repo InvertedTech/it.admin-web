@@ -23,11 +23,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Separator } from '@/components/ui/separator';
-
+import { useRouter } from 'next/navigation';
 /** ——————— Inline body export ——————— */
 export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 	const [step, setStep] = React.useState<1 | 2 | 3 | 4>(1);
-
+	const router = useRouter();
 	const form = useProtoAppForm({
 		schema: CreateContentRequestSchema,
 		defaultInit: {
@@ -43,8 +43,10 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 		} as any,
 		onValidSubmit: async ({ value }) => {
 			const req = create(CreateContentRequestSchema, value);
-			await createContent(req);
-			onDone?.();
+			const res = await createContent(req);
+			if (res.Record && res.Record.Public?.ContentID !== '')
+				router.push(`/content/${res.Record.Public?.ContentID}`);
+			// TODO: Display Error
 		},
 	});
 
@@ -121,16 +123,16 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 													{
 														case: 'Video',
 														value: create(
-															VideoContentPublicDataSchema
+															VideoContentPublicDataSchema,
 														) as any,
-													} as any
+													} as any,
 												);
 												form.setFieldValue(
 													'Private.ContentDataOneof',
 													{
 														case: 'Video',
 														value: {},
-													} as any
+													} as any,
 												);
 											} else if (v === 'Written') {
 												form.setFieldValue(
@@ -138,16 +140,16 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 													{
 														case: 'Written',
 														value: create(
-															WrittenContentPublicDataSchema
+															WrittenContentPublicDataSchema,
 														) as any,
-													} as any
+													} as any,
 												);
 												form.setFieldValue(
 													'Private.ContentDataOneof',
 													{
 														case: 'Written',
 														value: {},
-													} as any
+													} as any,
 												);
 											} else if (v === 'Audio') {
 												form.setFieldValue(
@@ -155,16 +157,16 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 													{
 														case: 'Audio',
 														value: create(
-															AudioContentPublicDataSchema
+															AudioContentPublicDataSchema,
 														) as any,
-													} as any
+													} as any,
 												);
 												form.setFieldValue(
 													'Private.ContentDataOneof',
 													{
 														case: 'Audio',
 														value: {},
-													} as any
+													} as any,
 												);
 											} else if (v === 'Picture') {
 												form.setFieldValue(
@@ -172,16 +174,16 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 													{
 														case: 'Picture',
 														value: create(
-															PictureContentPublicDataSchema
+															PictureContentPublicDataSchema,
 														) as any,
-													} as any
+													} as any,
 												);
 												form.setFieldValue(
 													'Private.ContentDataOneof',
 													{
 														case: 'Picture',
 														value: {},
-													} as any
+													} as any,
 												);
 											}
 										}}
@@ -222,7 +224,7 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 						}
 					>
 						{(
-							selected: 'Video' | 'Written' | 'Audio' | 'Picture'
+							selected: 'Video' | 'Written' | 'Audio' | 'Picture',
 						) => (
 							<div className='space-y-4'>
 								{selected === 'Video' && (
@@ -345,8 +347,8 @@ function Stepper({ step }: { step: number }) {
 							active
 								? 'border-primary text-primary'
 								: done
-								? 'border-muted-foreground/20 text-foreground'
-								: 'text-muted-foreground',
+									? 'border-muted-foreground/20 text-foreground'
+									: 'text-muted-foreground',
 						].join(' ')}
 					>
 						{label}

@@ -2,7 +2,7 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { getSession } from '@/lib/session';
-import type { Item } from '@/lib/utils';
+import { isoDate, isoTime, tsToDate, type Item } from '@/lib/utils';
 import {
 	AnnounceContentRequest,
 	AnnounceContentRequestSchema,
@@ -338,68 +338,6 @@ export async function undeleteContent(req: UndeleteContentRequest) {
 }
 
 // Dashboard event helpers (publish + announcement)
-type MaybeTimestamp = unknown;
-
-function tsToDate(value: MaybeTimestamp): Date | undefined {
-	if (!value) return undefined;
-	if (value instanceof Date) return value;
-	if (typeof value === 'string') {
-		const d = new Date(value);
-		return Number.isNaN(d.getTime()) ? undefined : d;
-	}
-	if (
-		typeof value === 'object' &&
-		value !== null &&
-		'toDate' in (value as any) &&
-		typeof (value as any).toDate === 'function'
-	) {
-		try {
-			const d = (value as any).toDate();
-			if (d instanceof Date && !Number.isNaN(d.getTime())) return d;
-		} catch {}
-	}
-	if (
-		typeof value === 'object' &&
-		value !== null &&
-		'seconds' in (value as any)
-	) {
-		const seconds = (value as any).seconds as unknown;
-		const nanos = (value as any).nanos as unknown;
-		const sNum =
-			typeof seconds === 'string'
-				? Number(seconds)
-				: typeof seconds === 'number'
-					? seconds
-					: typeof seconds === 'bigint'
-						? Number(seconds)
-						: undefined;
-		const nNum =
-			typeof nanos === 'string'
-				? Number(nanos)
-				: typeof nanos === 'number'
-					? nanos
-					: typeof nanos === 'bigint'
-						? Number(nanos)
-						: 0;
-		if (typeof sNum === 'number' && Number.isFinite(sNum)) {
-			const millis = sNum * 1000 + Math.floor(nNum / 1_000_000);
-			const d = new Date(millis);
-			return Number.isNaN(d.getTime()) ? undefined : d;
-		}
-	}
-	return undefined;
-}
-
-function isoDate(d: Date) {
-	return d.toISOString().slice(0, 10); // YYYY-MM-DD
-}
-
-function isoTime(d?: Date) {
-	if (!d) return undefined;
-	const hh = String(d.getHours()).padStart(2, '0');
-	const mm = String(d.getMinutes()).padStart(2, '0');
-	return `${hh}:${mm}`;
-}
 
 export type DashboardContentEvent = {
 	id: string;

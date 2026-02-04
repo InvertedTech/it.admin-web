@@ -5,14 +5,16 @@ import { SectionCards } from '@/components/section-cards';
 import data from '../data.json';
 
 export default function Page() {
-    return (
-        <div>
-            <div className="space-y-6">
-                <SectionCards />
-                <ChartAreaInteractive />
-                <DataTable data={data} />
-            </div>
-        </div>
-    );
+	// TODO: Put actual data in Section Cards
+	// TODO: Put actual data in Data Table
+	// TODO: Put actual data in Chart Area Interactive
+	return (
+		<div>
+			<div className='space-y-6'>
+				<SectionCards />
+				<ChartAreaInteractive />
+				<DataTable data={data} />
+			</div>
+		</div>
+	);
 }
-

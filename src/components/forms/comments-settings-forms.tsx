@@ -29,6 +29,7 @@ export function CommentsPublicSettingsForm() {
 	const form = useProtoAppForm({
 		schema: CommentsPublicRecordSchema,
 		defaultValues: create(CommentsPublicRecordSchema),
+		// TODO: Send this to the API/server action instead of console logging.
 		onSubmitAsync: async ({ value }) => console.log(value),
 	});
 
@@ -54,6 +55,7 @@ export function CommentsPrivateSettingsForm() {
 	const form = useProtoAppForm({
 		schema: CommentsPrivateRecordSchema,
 		defaultValues: create(CommentsPrivateRecordSchema),
+		// TODO: Send this to the API/server action instead of console logging.
 		onSubmitAsync: async ({ value }) => console.log(value),
 	});
 

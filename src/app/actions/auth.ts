@@ -26,6 +26,7 @@ import {
 	type AuthenticateUserResponse,
 } from '@inverted-tech/fragments/Authentication';
 import { getSession } from '@/lib/session';
+import { toIso } from '@/lib/utils';
 async function getToken() {
 	const session = await getSession();
 	return session.token;
@@ -50,7 +51,7 @@ export async function logoutAction(): Promise<boolean> {
 }
 
 export async function loginAction(
-	payload: AuthenticateUserRequest
+	payload: AuthenticateUserRequest,
 ): Promise<AuthenticateUserResponse> {
 	const url = process.env.AUTH_LOGIN_URL || `${API_BASE_URL}/auth/login`;
 
@@ -97,7 +98,8 @@ export async function loginAction(
 			}
 
 			if (body.UserRecord?.Public?.Data?.ProfileImagePNG) {
-				session.profileImageId = body.UserRecord.Public.Data.ProfileImagePNG;
+				session.profileImageId =
+					body.UserRecord.Public.Data.ProfileImagePNG;
 			}
 
 			if (
@@ -122,19 +124,6 @@ export async function loginAction(
 	}
 }
 
-function toIso(v: unknown): string | undefined {
-	if (!v) return;
-	if (typeof v === 'string') return v;
-	if (v instanceof Date) return v.toISOString();
-	if (typeof v === 'object' && v && 'seconds' in (v as any)) {
-		const sec = (v as any).seconds as number | bigint | string;
-		const s = typeof sec === 'bigint' ? Number(sec) : Number(sec ?? 0);
-		const n = Number((v as any).nanos ?? 0);
-		const d = new Date(s * 1000 + Math.floor(n / 1_000_000));
-		return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
-	}
-}
-
 export async function listUsers(
 	req: SearchUsersAdminRequest = create(SearchUsersAdminRequestSchema, {
 		PageSize: 25,
@@ -144,7 +133,7 @@ export async function listUsers(
 		UserIDs: [],
 		IncludeDeleted: true,
 		Roles: [...Roles],
-	})
+	}),
 ) {
 	try {
 		const token = await getToken();
@@ -154,13 +143,15 @@ export async function listUsers(
 			`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`;
 
 		if (req.PageSize != null) parts.push(enc('PageSize', req.PageSize));
-		if (req.PageOffset != null) parts.push(enc('PageOffset', req.PageOffset));
+		if (req.PageOffset != null)
+			parts.push(enc('PageOffset', req.PageOffset));
 		if (req.SearchString?.trim())
 			parts.push(enc('SearchString', req.SearchString.trim()));
 		if (Array.isArray(req.Roles))
 			for (const r of req.Roles) if (r) parts.push(enc('Roles', r));
 		if (Array.isArray(req.UserIDs))
-			for (const id of req.UserIDs) if (id) parts.push(enc('UserIDs', id));
+			for (const id of req.UserIDs)
+				if (id) parts.push(enc('UserIDs', id));
 		const ca = toIso((req as any)?.CreatedAfter);
 		const cb = toIso((req as any)?.CreatedBefore);
 		if (ca) parts.push(enc('CreatedAfter', ca));
@@ -278,7 +269,7 @@ export async function enableUser(req: DisableEnableOtherUserRequest) {
 					Authorization: `Bearer ${token}`,
 				},
 				body: toJsonString(DisableEnableOtherUserRequestSchema, req),
-			}
+			},
 		);
 
 		if (!res) return create(DisableEnableOtherUserResponseSchema);
@@ -303,7 +294,7 @@ export async function disableUser(req: DisableEnableOtherUserRequest) {
 					Authorization: `Bearer ${token}`,
 				},
 				body: toJsonString(DisableEnableOtherUserRequestSchema, req),
-			}
+			},
 		);
 
 		if (!res) return create(DisableEnableOtherUserResponseSchema);

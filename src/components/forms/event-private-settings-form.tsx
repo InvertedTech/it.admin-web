@@ -19,6 +19,7 @@ export function EventPrivateSettingsForm({ base }: { base?: any }) {
       const { modifyEventsPrivateSettings } = await import(
         '@/app/actions/settings'
       );
+      // TODO: Handle API response/errors and surface feedback to the user.
       await modifyEventsPrivateSettings(value as any);
       try { router.refresh(); } catch {}
     },

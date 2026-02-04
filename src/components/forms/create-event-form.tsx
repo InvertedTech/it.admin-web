@@ -14,7 +14,7 @@ export function CreateEventForm() {
 			const req = create(AdminCreateEventRequestSchema, {
 				Data: value,
 			});
-
+			// TODO: Send this request to the API/server action and handle the response.
 			console.log(req);
 		},
 	});

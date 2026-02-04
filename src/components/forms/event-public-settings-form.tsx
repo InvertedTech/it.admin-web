@@ -36,6 +36,7 @@ export function EventPublicSettingsForm({
 			const { modifyEventsPublicSettings } = await import(
 				'@/app/actions/settings'
 			);
+			// TODO: Handle API response/errors and surface feedback to the user.
 			await modifyEventsPublicSettings({ Data: value } as any);
 			try { router.refresh(); } catch {}
 		},

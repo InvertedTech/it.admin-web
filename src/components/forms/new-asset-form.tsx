@@ -28,8 +28,8 @@ function slugify(input: string): string {
 export function NewAssetForm() {
 	const [tab, setTab] = useState<'image' | 'audio'>('image');
 	return (
-		<div className="space-y-6">
-			<div className="flex gap-2">
+		<div className='space-y-6'>
+			<div className='flex gap-2'>
 				<Button
 					variant={tab === 'image' ? 'default' : 'outline'}
 					onClick={() => setTab('image')}
@@ -93,15 +93,20 @@ function UploadArea({
 				if (f) onFile(f);
 			}}
 		>
-			<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+			<div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
 				<div>
-					<div className="text-sm font-medium">{label}</div>
-					{help && <div className="text-muted-foreground text-xs">{help}</div>}
+					<div className='text-sm font-medium'>{label}</div>
+					{help && (
+						<div className='text-muted-foreground text-xs'>
+							{help}
+						</div>
+					)}
 					{fileName && (
-						<div className="text-xs mt-1">
-							<span className="font-medium">Selected:</span> {fileName}
+						<div className='text-xs mt-1'>
+							<span className='font-medium'>Selected:</span>{' '}
+							{fileName}
 							{typeof fileSize === 'number' && (
-								<span className="text-muted-foreground">
+								<span className='text-muted-foreground'>
 									{' '}
 									• {formatBytes(fileSize)}
 								</span>
@@ -109,26 +114,26 @@ function UploadArea({
 						</div>
 					)}
 				</div>
-				<div className="flex gap-2">
+				<div className='flex gap-2'>
 					{fileName && onClear ? (
 						<Button
-							type="button"
-							variant="outline"
+							type='button'
+							variant='outline'
 							onClick={onClear}
 						>
 							Remove
 						</Button>
 					) : null}
 					<Button
-						type="button"
-						variant="outline"
+						type='button'
+						variant='outline'
 						onClick={() => inputRef.current?.click()}
 					>
 						Choose File
 					</Button>
 					<input
 						ref={inputRef}
-						type="file"
+						type='file'
 						accept={accept}
 						hidden
 						onChange={(e) => {
@@ -157,7 +162,10 @@ function AutoSlugger({
 				const title = (form.getFieldValue(titlePath) ?? '') as string;
 				const url = (form.getFieldValue(urlPath) ?? '') as string;
 				const desired = slugify(title);
-				if (desired !== url && typeof form?.setFieldValue === 'function') {
+				if (
+					desired !== url &&
+					typeof form?.setFieldValue === 'function'
+				) {
 					form.setFieldValue(urlPath, desired);
 				}
 				return null;
@@ -188,9 +196,8 @@ export function NewImageAssetForm() {
 					value: create(ImageAssetDataSchema, value),
 				},
 			});
-			console.log(req);
+			// TODO: Handle Response
 			const res = await createAsset(req);
-			console.log(res);
 		},
 	});
 
@@ -217,11 +224,11 @@ export function NewImageAssetForm() {
 			img.onload = () => {
 				form.setFieldValue(
 					'Public.Width',
-					(img as any).naturalWidth || img.width || 0
+					(img as any).naturalWidth || img.width || 0,
 				);
 				form.setFieldValue(
 					'Public.Height',
-					(img as any).naturalHeight || img.height || 0
+					(img as any).naturalHeight || img.height || 0,
 				);
 				// keep URL for preview, revoke on next select/unmount
 			};
@@ -231,8 +238,8 @@ export function NewImageAssetForm() {
 
 	return (
 		<FormCard
-			cardTitle="Create Image Asset"
-			cardDescription="Upload and describe an image."
+			cardTitle='Create Image Asset'
+			cardDescription='Upload and describe an image.'
 		>
 			<form
 				onSubmit={(e) => {
@@ -242,81 +249,93 @@ export function NewImageAssetForm() {
 			>
 				<form.AppForm>
 					{
-						<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+						<form.Subscribe
+							selector={(s: any) => s?.submitErrors ?? s?.errors}
+						>
 							{(errs: any) => <FormSubmitErrors errors={errs} />}
 						</form.Subscribe>
 					}
 					<AutoSlugger
 						form={form}
-						titlePath="Public.Title"
-						urlPath="Public.URL"
+						titlePath='Public.Title'
+						urlPath='Public.URL'
 					/>
 
-					<FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
-						<div className="md:col-span-2">
+					<FieldGroup className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+						<div className='md:col-span-2'>
 							<UploadArea
-								label="Upload Image"
-								help="PNG, JPEG, GIF supported. Drag and drop or choose file."
-								accept="image/*"
+								label='Upload Image'
+								help='PNG, JPEG, GIF supported. Drag and drop or choose file.'
+								accept='image/*'
 								onFile={onFileSelected}
-							fileName={fileMeta?.name}
-							fileSize={fileMeta?.size ?? null}
-							onClear={() => {
-								if (previewUrl) URL.revokeObjectURL(previewUrl);
-								setPreviewUrl(null);
-								setFileMeta(null);
-								form.setFieldValue('Public.Data', new Uint8Array());
-								form.setFieldValue('Public.MimeType', '');
-								form.setFieldValue('Public.Width', 0);
-								form.setFieldValue('Public.Height', 0);
-							}}
-						/>
-					</div>
-					{previewUrl && (
-						<div className="md:col-span-2">
-							<div className="rounded-md border p-3">
-								<div className="text-sm mb-2 font-medium">Preview</div>
-								<img
-									src={previewUrl}
-									alt="Selected image preview"
-									className="max-h-64 w-auto rounded"
-								/>
-							</div>
-						</div>
-					)}
-
-					<form.AppField
-						name="Public.Title"
-						children={(field) => <field.TextField label="Title" />}
-					/>
-					<form.AppField
-						name="Public.URL"
-						children={(field) => (
-							<field.TextField
-								label="URL"
-								disabled
+								fileName={fileMeta?.name}
+								fileSize={fileMeta?.size ?? null}
+								onClear={() => {
+									if (previewUrl)
+										URL.revokeObjectURL(previewUrl);
+									setPreviewUrl(null);
+									setFileMeta(null);
+									form.setFieldValue(
+										'Public.Data',
+										new Uint8Array(),
+									);
+									form.setFieldValue('Public.MimeType', '');
+									form.setFieldValue('Public.Width', 0);
+									form.setFieldValue('Public.Height', 0);
+								}}
 							/>
+						</div>
+						{previewUrl && (
+							<div className='md:col-span-2'>
+								<div className='rounded-md border p-3'>
+									<div className='text-sm mb-2 font-medium'>
+										Preview
+									</div>
+									<img
+										src={previewUrl}
+										alt='Selected image preview'
+										className='max-h-64 w-auto rounded'
+									/>
+								</div>
+							</div>
 						)}
-					/>
-					<div className="md:col-span-2">
-						<form.AppField
-							name="Public.Caption"
-							children={(field) => <field.TextField label="Caption" />}
-						/>
-					</div>
-					{/* Hidden/auto fields: Public.MimeType, Public.Width, Public.Height, Private.OldAssetID */}
 
-						<Field className="md:col-span-2 flex items-center justify-end">
+						<form.AppField
+							name='Public.Title'
+							children={(field) => (
+								<field.TextField label='Title' />
+							)}
+						/>
+						<form.AppField
+							name='Public.URL'
+							children={(field) => (
+								<field.TextField label='URL' disabled />
+							)}
+						/>
+						<div className='md:col-span-2'>
+							<form.AppField
+								name='Public.Caption'
+								children={(field) => (
+									<field.TextField label='Caption' />
+								)}
+							/>
+						</div>
+						{/* Hidden/auto fields: Public.MimeType, Public.Width, Public.Height, Private.OldAssetID */}
+
+						<Field className='md:col-span-2 flex items-center justify-end'>
 							{
-								<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+								<form.Subscribe
+									selector={(s: any) => !!s?.isSubmitting}
+								>
 									{(isSubmitting: boolean) => (
 										<Button
-											type="submit"
+											type='submit'
 											disabled={isSubmitting}
 										>
 											{isSubmitting ? (
 												<>
-													<Spinner className="mr-2" /> Validating...
+													<Spinner className='mr-2' />{' '}
+													Validating...
 												</>
 											) : (
 												'Validate'
@@ -348,12 +367,20 @@ export function NewAudioAssetForm() {
 			Private: { OldAssetID: '' },
 		},
 		onSubmitAsync: async ({ value }) => {
-			const req = { CreateAssetRequestOneof: { case: 'Audio', value } } as any;
+			const req = {
+				CreateAssetRequestOneof: { case: 'Audio', value },
+			} as any;
 			const res = await createAsset(req);
+
+			// TODO: Handle Response
 			if ((res as any)?.Record?.AssetID) {
-				toast('Audio uploaded', { description: (res as any)?.Record?.AssetID });
+				toast('Audio uploaded', {
+					description: (res as any)?.Record?.AssetID,
+				});
 			} else {
-				toast('Upload failed', { description: 'Could not create audio asset' });
+				toast('Upload failed', {
+					description: 'Could not create audio asset',
+				});
 			}
 		},
 	});
@@ -388,8 +415,8 @@ export function NewAudioAssetForm() {
 
 	return (
 		<FormCard
-			cardTitle="Create Audio Asset"
-			cardDescription="Upload and describe an audio file."
+			cardTitle='Create Audio Asset'
+			cardDescription='Upload and describe an audio file.'
 		>
 			<form
 				onSubmit={(e) => {
@@ -399,80 +426,95 @@ export function NewAudioAssetForm() {
 			>
 				<form.AppForm>
 					{
-						<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+						<form.Subscribe
+							selector={(s: any) => s?.submitErrors ?? s?.errors}
+						>
 							{(errs: any) => <FormSubmitErrors errors={errs} />}
 						</form.Subscribe>
 					}
 					<AutoSlugger
 						form={form}
-						titlePath="Public.Title"
-						urlPath="Public.URL"
+						titlePath='Public.Title'
+						urlPath='Public.URL'
 					/>
 
-					<FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
-						<div className="md:col-span-2">
+					<FieldGroup className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+						<div className='md:col-span-2'>
 							<UploadArea
-								label="Upload Audio"
-								help="MP3, WAV, AAC supported. Drag and drop or choose file."
-								accept="audio/*"
+								label='Upload Audio'
+								help='MP3, WAV, AAC supported. Drag and drop or choose file.'
+								accept='audio/*'
 								onFile={onFileSelected}
-							fileName={fileMeta?.name}
-							fileSize={fileMeta?.size ?? null}
-							onClear={() => {
-								if (previewUrl) URL.revokeObjectURL(previewUrl);
-								setPreviewUrl(null);
-								setFileMeta(null);
-								form.setFieldValue('Public.Data', new Uint8Array());
-								form.setFieldValue('Public.MimeType', '');
-								form.setFieldValue('Public.LengthSeconds', 0);
-							}}
-						/>
-					</div>
-					{previewUrl && (
-						<div className="md:col-span-2">
-							<div className="rounded-md border p-3">
-								<div className="text-sm mb-2 font-medium">Preview</div>
-								<audio
-									src={previewUrl}
-									controls
-									className="w-full"
-								/>
-							</div>
-						</div>
-					)}
-
-					<form.AppField
-						name="Public.Title"
-						children={(field) => <field.TextField label="Title" />}
-					/>
-					<form.AppField
-						name="Public.URL"
-						children={(field) => (
-							<field.TextField
-								label="URL"
-								disabled
+								fileName={fileMeta?.name}
+								fileSize={fileMeta?.size ?? null}
+								onClear={() => {
+									if (previewUrl)
+										URL.revokeObjectURL(previewUrl);
+									setPreviewUrl(null);
+									setFileMeta(null);
+									form.setFieldValue(
+										'Public.Data',
+										new Uint8Array(),
+									);
+									form.setFieldValue('Public.MimeType', '');
+									form.setFieldValue(
+										'Public.LengthSeconds',
+										0,
+									);
+								}}
 							/>
+						</div>
+						{previewUrl && (
+							<div className='md:col-span-2'>
+								<div className='rounded-md border p-3'>
+									<div className='text-sm mb-2 font-medium'>
+										Preview
+									</div>
+									<audio
+										src={previewUrl}
+										controls
+										className='w-full'
+									/>
+								</div>
+							</div>
 						)}
-					/>
-					<div className="md:col-span-2">
-						<form.AppField
-							name="Public.Caption"
-							children={(field) => <field.TextField label="Caption" />}
-						/>
-					</div>
-					{/* Hidden/auto fields: Public.MimeType, Public.LengthSeconds, Private.OldAssetID */}
 
-						<Field className="md:col-span-2 flex items-center justify-end">
+						<form.AppField
+							name='Public.Title'
+							children={(field) => (
+								<field.TextField label='Title' />
+							)}
+						/>
+						<form.AppField
+							name='Public.URL'
+							children={(field) => (
+								<field.TextField label='URL' disabled />
+							)}
+						/>
+						<div className='md:col-span-2'>
+							<form.AppField
+								name='Public.Caption'
+								children={(field) => (
+									<field.TextField label='Caption' />
+								)}
+							/>
+						</div>
+						{/* Hidden/auto fields: Public.MimeType, Public.LengthSeconds, Private.OldAssetID */}
+
+						<Field className='md:col-span-2 flex items-center justify-end'>
 							{
-								<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+								<form.Subscribe
+									selector={(s: any) => !!s?.isSubmitting}
+								>
 									{(isSubmitting: boolean) => (
 										<Button
-											type="submit"
+											type='submit'
 											disabled={isSubmitting}
 										>
 											{isSubmitting ? (
 												<>
-													<Spinner className="mr-2" /> Validating...
+													<Spinner className='mr-2' />{' '}
+													Validating...
 												</>
 											) : (
 												'Validate'

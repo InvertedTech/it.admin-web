@@ -91,3 +91,79 @@ export function calGroupEventsByDay(events: ContentEvent[]) {
 		return acc;
 	}, {});
 }
+
+export type MaybeTimestamp = unknown;
+
+export function tsToDate(value: MaybeTimestamp): Date | undefined {
+	if (!value) return undefined;
+	if (value instanceof Date) return value;
+	if (typeof value === 'string') {
+		const d = new Date(value);
+		return Number.isNaN(d.getTime()) ? undefined : d;
+	}
+	if (
+		typeof value === 'object' &&
+		value !== null &&
+		'toDate' in (value as any) &&
+		typeof (value as any).toDate === 'function'
+	) {
+		try {
+			const d = (value as any).toDate();
+			if (d instanceof Date && !Number.isNaN(d.getTime())) return d;
+		} catch {}
+	}
+	if (
+		typeof value === 'object' &&
+		value !== null &&
+		'seconds' in (value as any)
+	) {
+		const seconds = (value as any).seconds as unknown;
+		const nanos = (value as any).nanos as unknown;
+		const sNum =
+			typeof seconds === 'string'
+				? Number(seconds)
+				: typeof seconds === 'number'
+					? seconds
+					: typeof seconds === 'bigint'
+						? Number(seconds)
+						: undefined;
+		const nNum =
+			typeof nanos === 'string'
+				? Number(nanos)
+				: typeof nanos === 'number'
+					? nanos
+					: typeof nanos === 'bigint'
+						? Number(nanos)
+						: 0;
+		if (typeof sNum === 'number' && Number.isFinite(sNum)) {
+			const millis = sNum * 1000 + Math.floor(nNum / 1_000_000);
+			const d = new Date(millis);
+			return Number.isNaN(d.getTime()) ? undefined : d;
+		}
+	}
+	return undefined;
+}
+
+export function isoDate(d: Date) {
+	return d.toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+export function isoTime(d?: Date) {
+	if (!d) return undefined;
+	const hh = String(d.getHours()).padStart(2, '0');
+	const mm = String(d.getMinutes()).padStart(2, '0');
+	return `${hh}:${mm}`;
+}
+
+export function toIso(v: unknown): string | undefined {
+	if (!v) return;
+	if (typeof v === 'string') return v;
+	if (v instanceof Date) return v.toISOString();
+	if (typeof v === 'object' && v && 'seconds' in (v as any)) {
+		const sec = (v as any).seconds as number | bigint | string;
+		const s = typeof sec === 'bigint' ? Number(sec) : Number(sec ?? 0);
+		const n = Number((v as any).nanos ?? 0);
+		const d = new Date(s * 1000 + Math.floor(n / 1_000_000));
+		return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
+	}
+}

@@ -1,9 +1,7 @@
 import { announceContent } from '@/app/actions/content';
 import { useAppForm } from '@/hooks/app-form';
 import { create } from '@bufbuild/protobuf';
-import {
-	AnnounceContentRequestSchema,
-} from '@inverted-tech/fragments/Content';
+import { AnnounceContentRequestSchema } from '@inverted-tech/fragments/Content';
 
 export function AnnounceContentForm({ contentId }: { contentId?: string }) {
 	const form = useAppForm({
@@ -13,9 +11,13 @@ export function AnnounceContentForm({ contentId }: { contentId?: string }) {
 		} as Record<string, any>,
 		onSubmit: async ({ value }) => {
 			try {
-				const req = create(AnnounceContentRequestSchema as any, value as any);
+				const req = create(
+					AnnounceContentRequestSchema as any,
+					value as any,
+				);
 				const res = await announceContent(req as any);
 				// eslint-disable-next-line no-console
+				// TODO: Handle Response
 				console.log(res);
 			} catch (e) {
 				// eslint-disable-next-line no-console
@@ -26,14 +28,14 @@ export function AnnounceContentForm({ contentId }: { contentId?: string }) {
 
 	return (
 		<form
-			id="announce-content"
+			id='announce-content'
 			onSubmit={(e) => {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
 		>
 			<form.AppForm>
-				<form.AppField name="ContentID">
+				<form.AppField name='ContentID'>
 					{(f: any) => (
 						<f.TextField
 							label={'Content ID'}
@@ -43,10 +45,12 @@ export function AnnounceContentForm({ contentId }: { contentId?: string }) {
 					)}
 				</form.AppField>
 				<form.AppField
-					name="AnnounceOnUTC"
-					children={(f: any) => <f.DateTimeField label="Announce On" />}
+					name='AnnounceOnUTC'
+					children={(f: any) => (
+						<f.DateTimeField label='Announce On' />
+					)}
 				/>
-				<form.CreateButton label="Announce" />
+				<form.CreateButton label='Announce' />
 			</form.AppForm>
 		</form>
 	);
