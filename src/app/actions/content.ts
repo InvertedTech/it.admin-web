@@ -36,6 +36,10 @@ import {
 	UndeleteContentRequestSchema,
 	UndeleteContentResponse,
 	UndeleteContentResponseSchema,
+	ModifyContentRequest,
+	ModifyContentResponseSchema,
+	ModifyContentRequestSchema,
+	ModifyContentResponse,
 } from '@inverted-tech/fragments/Content';
 async function getToken() {
 	const session = await getSession();
@@ -518,15 +522,12 @@ export async function getOverviewActivity(args?: {
 		if (!pub) {
 			draftCount++;
 			if (drafts.length < limD)
-				drafts.push(
-					toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)),
-				);
+				drafts.push(toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)));
 			continue;
 		}
 		if (pub > now) {
 			scheduledCount++;
-			if (scheduled.length < limS)
-				scheduled.push(toItem(r, 'scheduled', pub));
+			if (scheduled.length < limS) scheduled.push(toItem(r, 'scheduled', pub));
 			continue;
 		}
 		// published in the past
@@ -550,4 +551,33 @@ export async function getOverviewActivity(args?: {
 	} as const;
 
 	return { drafts, scheduled, recent, stats: { ...stats } };
+}
+
+export async function modifyContent(req: ModifyContentRequest) {
+	try {
+		const token = await getToken();
+		if (!token || token === '') return create(ModifyContentResponseSchema, {});
+		console.log('here', token);
+		const url = API_BASE_URL.concat(`/cms/admin/content/${req.ContentID}`);
+		console.log(url);
+		const res = await fetch(url, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+			},
+			method: 'POST',
+			body: toJsonString(ModifyContentRequestSchema, req),
+		});
+
+		if (!res || !res.ok) {
+			console.log('not okay server action', res);
+			return create(ModifyContentResponseSchema, {});
+		}
+
+		const body: ModifyContentResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(ModifyContentResponseSchema, {});
+	}
 }
