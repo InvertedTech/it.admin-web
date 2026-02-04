@@ -2,7 +2,10 @@
 
 import { getSession } from '@/lib/session';
 import { create } from '@bufbuild/protobuf';
-import { GetSubscriptionRecordResponseSchema } from '@inverted-tech/fragments/Authorization/Payment/index';
+import {
+	GetSubscriptionRecordResponseSchema,
+	ListSubscriptionsResponseSchema,
+} from '@inverted-tech/fragments/Authorization/Payment/index';
 
 const API_BASE_URL = process.env.API_BASE_URL!;
 const API_BASE = `${API_BASE_URL}`;
@@ -54,12 +57,12 @@ export async function listSubscriptions(
 		});
 
 		if (!res) {
-			return create(GetSubscriptionRecordResponseSchema, {});
+			return create(ListSubscriptionsResponseSchema, {});
 		}
 		const body = await res.json();
-		return body;
+		return create(ListSubscriptionsResponseSchema, body);
 	} catch (error) {
 		console.error(error);
-		return create(GetSubscriptionRecordResponseSchema, {});
+		return create(ListSubscriptionsResponseSchema, {});
 	}
 }
