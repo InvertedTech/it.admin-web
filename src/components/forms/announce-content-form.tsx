@@ -7,7 +7,7 @@ export function AnnounceContentForm({ contentId }: { contentId?: string }) {
 	const form = useAppForm({
 		defaultValues: {
 			ContentID: contentId ?? '',
-			AnnounceOnUTC: { seconds: 0, nanos: 0 } as any,
+			AnnounceOnUTC: undefined,
 		} as Record<string, any>,
 		onSubmit: async ({ value }) => {
 			try {
@@ -47,7 +47,7 @@ export function AnnounceContentForm({ contentId }: { contentId?: string }) {
 				<form.AppField
 					name='AnnounceOnUTC'
 					children={(f: any) => (
-						<f.DateTimeField label='Announce On' />
+						<f.DateTimeField label='Announce On' defaultToNow />
 					)}
 				/>
 				<form.CreateButton label='Announce' />

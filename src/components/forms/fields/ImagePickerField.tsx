@@ -437,7 +437,7 @@ export function ImagePickerField({ label = 'Image' }: { label?: string }) {
 				return (
 					<UIField data-invalid={isInvalid}>
 						<FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-						<div className='flex items-center gap-3'>
+						<div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
 							<div className='h-10 w-10 overflow-hidden rounded border bg-muted'>
 								{directSrc || fallbackSrc ? (
 									// eslint-disable-next-line @next/next/no-img-element
@@ -454,162 +454,183 @@ export function ImagePickerField({ label = 'Image' }: { label?: string }) {
 									</div>
 								)}
 							</div>
-							<div className='text-sm'>
-								{field.state.value ?? 'No image selected'}
+							<div
+								className='min-w-0 flex-1 text-sm'
+								title={field.state.value ?? 'No image selected'}
+							>
+								<div className='truncate'>
+									{field.state.value ??
+										'No image selected'}
+								</div>
 							</div>
 
-							<Dialog open={open} onOpenChange={setOpen}>
-								<DialogTrigger asChild>
-									<Button
-										type='button'
-										variant='outline'
-										className='ml-auto'
-									>
-										Browse
-									</Button>
-								</DialogTrigger>
-								<DialogContent className='sm:max-w-4xl'>
-									<DialogTitle>Images</DialogTitle>
-									<div className='mb-3 flex items-center gap-2'>
+							<div className='flex flex-wrap items-center gap-2 sm:ml-auto'>
+								<Dialog open={open} onOpenChange={setOpen}>
+									<DialogTrigger asChild>
 										<Button
 											type='button'
-											variant={
-												mode === 'browse'
-													? 'default'
-													: 'outline'
-											}
-											onClick={() => setMode('browse')}
+											variant='outline'
 										>
 											Browse
 										</Button>
-										<Button
-											type='button'
-											variant={
-												mode === 'upload'
-													? 'default'
-													: 'outline'
-											}
-											onClick={() => setMode('upload')}
-										>
-											Upload
-										</Button>
-									</div>
-
-									{mode === 'upload' ? (
-										<div className='space-y-4'>
-											<UploadArea
-												label='Upload Image'
-												help='PNG, JPEG, GIF supported.'
-												accept='image/*'
-												onFile={onFileSelected}
-												fileName={fileMeta?.name}
-												fileSize={
-													fileMeta?.size ?? null
+									</DialogTrigger>
+									<DialogContent className='sm:max-w-4xl'>
+										<DialogTitle>Images</DialogTitle>
+										<div className='mb-3 flex items-center gap-2'>
+											<Button
+												type='button'
+												variant={
+													mode === 'browse'
+														? 'default'
+														: 'outline'
 												}
-												onClear={resetUploadState}
-											/>
-											{previewUrl && (
-												<div className='rounded-md border p-3'>
-													<div className='text-sm mb-2 font-medium'>
-														Preview
-													</div>
-													{/* eslint-disable-next-line @next/next/no-img-element */}
-													<img
-														src={previewUrl}
-														alt='Selected image preview'
-														className='max-h-64 w-auto rounded'
-													/>
-												</div>
-											)}
-											<div className='grid gap-3 sm:grid-cols-2'>
-												<div className='space-y-1'>
-													<div className='text-xs font-medium'>
-														Title
-													</div>
-													<Input
-														value={uploadTitle}
-														onChange={(e) =>
-															setUploadTitle(
-																e.target.value,
-															)
-														}
-														placeholder='Title'
-													/>
-												</div>
-												<div className='space-y-1 sm:col-span-2'>
-													<div className='text-xs font-medium'>
-														Caption (optional)
-													</div>
-													<Textarea
-														value={uploadCaption}
-														onChange={(e) =>
-															setUploadCaption(
-																e.target.value,
-															)
-														}
-														placeholder='Caption'
-													/>
-												</div>
-											</div>
-											{uploadError && (
-												<div className='text-destructive text-sm'>
-													{uploadError}
-												</div>
-											)}
-											<div className='flex justify-end gap-2'>
-												<Button
-													type='button'
-													variant='outline'
-													onClick={() =>
-														resetUploadState()
-													}
-													disabled={uploading}
-												>
-													Clear
-												</Button>
-												<Button
-													type='button'
-													onClick={submitUpload}
-													disabled={uploading}
-												>
-													{uploading
-														? 'Uploading...'
-														: 'Upload'}
-												</Button>
-											</div>
+												onClick={() =>
+													setMode('browse')
+												}
+											>
+												Browse
+											</Button>
+											<Button
+												type='button'
+												variant={
+													mode === 'upload'
+														? 'default'
+														: 'outline'
+												}
+												onClick={() =>
+													setMode('upload')
+												}
+											>
+												Upload
+											</Button>
 										</div>
-									) : loading ? (
-										<div className='text-muted-foreground text-sm'>
-											Loading...
-										</div>
-									) : (
-										<div className='grid max-h-[70vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 md:grid-cols-4'>
-											{images.map((img) => (
-												<ImageTile
-													key={
-														img.AssetID ??
-														Math.random()
+
+										{mode === 'upload' ? (
+											<div className='space-y-4'>
+												<UploadArea
+													label='Upload Image'
+													help='PNG, JPEG, GIF supported.'
+													accept='image/*'
+													onFile={onFileSelected}
+													fileName={fileMeta?.name}
+													fileSize={
+														fileMeta?.size ?? null
 													}
-													img={img}
-													onSelect={(id) => {
-														field.handleChange(id);
-														setOpen(false);
-													}}
+													onClear={resetUploadState}
 												/>
-											))}
-										</div>
-									)}
-								</DialogContent>
-							</Dialog>
-							{field.state.value && (
-								<Button
-									type='button'
-									variant='ghost'
-									onClick={() => field.handleChange('')}
-								>
-									Clear
-								</Button>
-							)}
+												{previewUrl && (
+													<div className='rounded-md border p-3'>
+														<div className='text-sm mb-2 font-medium'>
+															Preview
+														</div>
+														{/* eslint-disable-next-line @next/next/no-img-element */}
+														<img
+															src={previewUrl}
+															alt='Selected image preview'
+															className='max-h-64 w-auto rounded'
+														/>
+													</div>
+												)}
+												<div className='grid gap-3 sm:grid-cols-2'>
+													<div className='space-y-1'>
+														<div className='text-xs font-medium'>
+															Title
+														</div>
+														<Input
+															value={uploadTitle}
+															onChange={(e) =>
+																setUploadTitle(
+																	e.target
+																		.value,
+																)
+															}
+															placeholder='Title'
+														/>
+													</div>
+													<div className='space-y-1 sm:col-span-2'>
+														<div className='text-xs font-medium'>
+															Caption (optional)
+														</div>
+														<Textarea
+															value={
+																uploadCaption
+															}
+															onChange={(e) =>
+																setUploadCaption(
+																	e.target
+																		.value,
+																)
+															}
+															placeholder='Caption'
+														/>
+													</div>
+												</div>
+												{uploadError && (
+													<div className='text-destructive text-sm'>
+														{uploadError}
+													</div>
+												)}
+												<div className='flex justify-end gap-2'>
+													<Button
+														type='button'
+														variant='outline'
+														onClick={() =>
+															resetUploadState()
+														}
+														disabled={uploading}
+													>
+														Clear
+													</Button>
+													<Button
+														type='button'
+														onClick={
+															submitUpload
+														}
+														disabled={uploading}
+													>
+														{uploading
+															? 'Uploading...'
+															: 'Upload'}
+													</Button>
+												</div>
+											</div>
+										) : loading ? (
+											<div className='text-muted-foreground text-sm'>
+												Loading...
+											</div>
+										) : (
+											<div className='grid max-h-[70vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 md:grid-cols-4'>
+												{images.map((img) => (
+													<ImageTile
+														key={
+															img.AssetID ??
+															Math.random()
+														}
+														img={img}
+														onSelect={(id) => {
+															field.handleChange(
+																id,
+															);
+															setOpen(false);
+														}}
+													/>
+												))}
+											</div>
+										)}
+									</DialogContent>
+								</Dialog>
+								{field.state.value && (
+									<Button
+										type='button'
+										variant='ghost'
+										onClick={() =>
+											field.handleChange('')
+										}
+									>
+										Clear
+									</Button>
+								)}
+							</div>
 						</div>
 						{isInvalid && <FieldError errors={errors} />}
 					</UIField>

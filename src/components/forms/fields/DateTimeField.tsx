@@ -7,7 +7,11 @@ import {
 	FieldError,
 } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
+} from '@/components/ui/input-group';
 import {
 	Popover,
 	PopoverContent,
@@ -29,13 +33,14 @@ function toDate(v: any): Date | undefined {
 				? d
 				: undefined;
 		}
-		if (typeof v === 'object' && v.seconds != null) {
-			const s = Number(v.seconds ?? 0);
-			const n = Number(v.nanos ?? 0);
-			const ms = s * 1000 + Math.floor(n / 1_000_000);
-			const d = new Date(ms);
-			return !Number.isNaN(d.getTime()) ? d : undefined;
-		}
+	if (typeof v === 'object' && v.seconds != null) {
+		const s = Number(v.seconds ?? 0);
+		const n = Number(v.nanos ?? 0);
+		if (s === 0 && n === 0) return;
+		const ms = s * 1000 + Math.floor(n / 1_000_000);
+		const d = new Date(ms);
+		return !Number.isNaN(d.getTime()) ? d : undefined;
+	}
 	} catch {}
 	return;
 }
@@ -63,9 +68,11 @@ function timeValue(d?: Date) {
 export function DateTimeField({
 	label,
 	placeholder = 'Tomorrow or next week',
+	defaultToNow = false,
 }: {
 	label?: React.ReactNode;
 	placeholder?: string;
+	defaultToNow?: boolean;
 }) {
 	const field = useFieldContext<any>();
 	const form = useFormContext();
@@ -75,6 +82,18 @@ export function DateTimeField({
 	const [date, setDate] = React.useState<Date | undefined>(initial);
 	const [month, setMonth] = React.useState<Date | undefined>(initial);
 	const [text, setText] = React.useState<string>(fmtDate(initial));
+	const didInitRef = React.useRef(false);
+
+	React.useEffect(() => {
+		if (!defaultToNow || didInitRef.current) return;
+		if (date) return;
+		const d = new Date();
+		setDate(d);
+		setMonth(d);
+		setText(fmtDate(d));
+		commit(d);
+		didInitRef.current = true;
+	}, [defaultToNow, date]);
 
 	function commit(d?: Date) {
 		if (!d) return;
@@ -117,8 +136,8 @@ export function DateTimeField({
 							{label ?? field.name}
 						</FieldLabel>
 
-						<div className='relative flex gap-2'>
-							<Input
+						<InputGroup className='gap-0'>
+							<InputGroupInput
 								id={field.name}
 								name={field.name}
 								value={text}
@@ -143,16 +162,22 @@ export function DateTimeField({
 							/>
 							<Popover open={open} onOpenChange={setOpen}>
 								<PopoverTrigger asChild>
-									<Button
-										type='button'
-										variant='ghost'
-										className='absolute top-1/2 right-2 size-6 -translate-y-1/2'
+									<InputGroupAddon
+										align='inline-end'
+										className='border-l border-input px-2'
 									>
-										<CalendarIcon className='size-3.5' />
-										<span className='sr-only'>
-											Select date
-										</span>
-									</Button>
+										<Button
+											type='button'
+											variant='ghost'
+											size='icon'
+											className='size-7'
+										>
+											<CalendarIcon className='size-3.5' />
+											<span className='sr-only'>
+												Select date
+											</span>
+										</Button>
+									</InputGroupAddon>
 								</PopoverTrigger>
 								<PopoverContent
 									className='w-auto overflow-hidden p-0'
@@ -175,12 +200,10 @@ export function DateTimeField({
 									/>
 								</PopoverContent>
 							</Popover>
-						</div>
 
-						<div className='mt-2 flex items-center gap-2'>
-							<Input
+							<InputGroupInput
 								type='time'
-								className='w-[9rem]'
+								className='max-w-[8.5rem] border-l border-input'
 								value={timeValue(date)}
 								onChange={(e) => {
 									const [hh, mm] = e.target.value
@@ -200,69 +223,8 @@ export function DateTimeField({
 									commit(d);
 								}}
 							/>
-							<Button
-								type='button'
-								variant='outline'
-								size='sm'
-								onClick={() => {
-									const d = new Date();
-									setDate(d);
-									setMonth(d);
-									setText(fmtDate(d));
-									commit(d);
-								}}
-							>
-								Now
-							</Button>
-							<Button
-								type='button'
-								variant='outline'
-								size='sm'
-								onClick={() => {
-									const d = new Date();
-									d.setHours(d.getHours() + 1, 0, 0, 0);
-									setDate(d);
-									setMonth(d);
-									setText(fmtDate(d));
-									commit(d);
-								}}
-							>
-								+1 hour
-							</Button>
-							<Button
-								type='button'
-								variant='outline'
-								size='sm'
-								onClick={() => {
-									const d = new Date();
-									d.setDate(d.getDate() + 1);
-									d.setHours(9, 0, 0, 0);
-									setDate(d);
-									setMonth(d);
-									setText(fmtDate(d));
-									commit(d);
-								}}
-							>
-								Tomorrow 9:00
-							</Button>
-							<Button
-								type='button'
-								variant='outline'
-								size='sm'
-								onClick={() => {
-									const d = new Date();
-									const day = d.getDay();
-									const delta = (1 - day + 7) % 7 || 7;
-									d.setDate(d.getDate() + delta);
-									d.setHours(9, 0, 0, 0);
-									setDate(d);
-									setMonth(d);
-									setText(fmtDate(d));
-									commit(d);
-								}}
-							>
-								Next Mon 9:00
-							</Button>
+						</InputGroup>
+						<div className='mt-2'>
 							<Button
 								type='button'
 								variant='ghost'

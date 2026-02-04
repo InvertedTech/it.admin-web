@@ -13,7 +13,7 @@ export default async function EditContentPage({ params }: Props) {
 	const record = (res as any)?.Record;
 
 	return (
-		<div className='mx-auto max-w-5xl'>
+		<div className='mx-auto w-full max-w-6xl'>
 			<EditContentForm contentId={contentId} record={record} />
 		</div>
 	);

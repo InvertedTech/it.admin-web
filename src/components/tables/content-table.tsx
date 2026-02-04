@@ -3,12 +3,10 @@
 import * as React from 'react';
 import {
 	ColumnDef,
-	ColumnFiltersState,
 	SortingState,
 	VisibilityState,
 	flexRender,
 	getCoreRowModel,
-	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable,
@@ -19,8 +17,6 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { AnnounceContentForm } from '@/components/forms/announce-content-form';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -137,31 +133,6 @@ export function levelLabel(level: number) {
 }
 
 const columns: ColumnDef<ContentListRecord>[] = [
-	// Selection
-	{
-		id: 'select',
-		header: ({ table }) => (
-			<Checkbox
-				checked={
-					table.getIsAllPageRowsSelected() ||
-					(table.getIsSomePageRowsSelected() && 'indeterminate')
-				}
-				onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-				aria-label='Select all'
-			/>
-		),
-		cell: ({ row }) => (
-			<Checkbox
-				checked={row.getIsSelected()}
-				onCheckedChange={(v) => row.toggleSelected(!!v)}
-				aria-label='Select row'
-			/>
-		),
-		enableSorting: false,
-		enableHiding: false,
-		size: 32,
-	},
-
 	// Title
 	{
 		accessorKey: 'Title',
@@ -262,6 +233,16 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		enableHiding: true,
 	},
 	{
+		accessorKey: 'AnnounceOnUTC',
+		header: 'Announce',
+		cell: ({ row }) => (
+			<span className='whitespace-nowrap'>
+				{fmtDate((row.original as any)?.AnnounceOnUTC)}
+			</span>
+		),
+		enableHiding: true,
+	},
+	{
 		accessorKey: 'PinnedOnUTC',
 		header: 'Pinned',
 		cell: ({ row }) => (
@@ -272,48 +253,6 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		enableHiding: true,
 	},
 
-	// Flags
-	{
-		id: 'flags',
-		header: 'Flags',
-		cell: ({ row }) => {
-			const r = row.original;
-			const flags = [
-				r.IsLiveStream ? 'Livestream' : null,
-				r.IsLive ? 'Live' : null,
-				r.FeaturedImageAssetID ? 'Featured' : null,
-				r.PinnedOnUTC ? 'Pinned' : null,
-			].filter(Boolean) as string[];
-
-			return flags.length ? (
-				<div className='flex flex-wrap gap-1'>
-					{flags.map((f) => (
-						<Badge key={f} variant='outline' className='px-1.5'>
-							{f}
-						</Badge>
-					))}
-				</div>
-			) : (
-				<span className='text-muted-foreground'>—</span>
-			);
-		},
-	},
-
-	// Relations (counts)
-	{
-		id: 'relations',
-		header: 'Relations',
-		cell: ({ row }) => {
-			const cats = row.original.CategoryIds?.length || 0;
-			const chans = row.original.ChannelIds?.length || 0;
-			return (
-				<div className='text-sm text-muted-foreground'>
-					{cats} cat · {chans} ch
-				</div>
-			);
-		},
-		enableHiding: true,
-	},
 
 	// Actions
 	{
@@ -441,7 +380,7 @@ const columns: ColumnDef<ContentListRecord>[] = [
 					</DropdownMenuContent>
 					<Dialog open={announceOpen} onOpenChange={setAnnounceOpen}>
 						<DialogContent
-							className='sm:max-w-xl'
+							className='sm:max-w-xl max-h-[80vh] overflow-y-auto'
 							aria-describedby='announce-desc'
 						>
 							<DialogTitle>Announce Content</DialogTitle>
@@ -460,64 +399,42 @@ const columns: ColumnDef<ContentListRecord>[] = [
 	},
 ];
 
-export function ContentTable({ data }: { data: ContentListRecord[] }) {
+export function ContentTable({
+	data,
+	pageSize = 25,
+}: {
+	data: ContentListRecord[];
+	pageSize?: number;
+}) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] =
-		React.useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
-	const [rowSelection, setRowSelection] = React.useState({});
 
 	const table = useReactTable({
 		data,
 		columns,
 		getRowId: (row) => row.ContentID,
-		state: { sorting, columnFilters, columnVisibility, rowSelection },
+		state: { sorting, columnVisibility },
+		initialState: { pagination: { pageSize } },
 		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
 		onColumnVisibilityChange: setColumnVisibility,
-		onRowSelectionChange: setRowSelection,
 		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 	});
+	React.useEffect(() => {
+		if (pageSize && table.getState().pagination.pageSize !== pageSize) {
+			table.setPageSize(pageSize);
+		}
+	}, [pageSize, table]);
 
 	return (
 		<div>
-			{/* Filters + column toggle */}
-			<div className='flex flex-col gap-2 py-4 sm:flex-row sm:items-center'>
-				<Input
-					placeholder='Filter by title…'
-					className='max-w-xs'
-					value={
-						(table
-							.getColumn('Title')
-							?.getFilterValue() as string) ?? ''
-					}
-					onChange={(e) =>
-						table.getColumn('Title')?.setFilterValue(e.target.value)
-					}
-				/>
-				<Input
-					placeholder='Filter by author…'
-					className='max-w-xs sm:ml-2'
-					value={
-						(table
-							.getColumn('Author')
-							?.getFilterValue() as string) ?? ''
-					}
-					onChange={(e) =>
-						table
-							.getColumn('Author')
-							?.setFilterValue(e.target.value)
-					}
-				/>
+			{/* Column toggle (matches members table) */}
+			<div className='flex justify-end gap-2 py-2'>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant='outline' className='ml-auto'>
-							Columns
-						</Button>
+						<Button variant='outline'>Columns</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end'>
 						{table
@@ -562,12 +479,7 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 					<TableBody>
 						{table.getRowModel().rows.length ? (
 							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									data-state={
-										row.getIsSelected() && 'selected'
-									}
-								>
+								<TableRow key={row.id}>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
 											{flexRender(
@@ -595,8 +507,7 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 			{/* Footer */}
 			<div className='mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center'>
 				<div className='text-muted-foreground text-sm'>
-					{table.getFilteredSelectedRowModel().rows.length} of{' '}
-					{table.getFilteredRowModel().rows.length} selected.
+					{table.getRowModel().rows.length} shown.
 				</div>
 				<div className='flex gap-2'>
 					<Button
@@ -620,3 +531,4 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 		</div>
 	);
 }
+
