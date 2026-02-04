@@ -137,6 +137,7 @@ export default async function ViewUserPage({
 				disableTotpAction={disableTotpAction}
 			/>
 
+			{/* TODO: Wire cancelSubscriptionAction + userId into UserSubscriptions */}
 			<UserSubscriptions subscriptions={subs} />
 		</div>
 	);

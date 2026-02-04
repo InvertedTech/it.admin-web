@@ -8,13 +8,30 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
+import {
+	Empty,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyTitle,
+} from '@/components/ui/empty';
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
 } from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import {
 	PaymentStatus,
 	SubscriptionStatus,
@@ -74,9 +91,8 @@ function fmtDate(v?: MaybeTimestamp) {
 function subscriptionStatusMeta(status?: unknown) {
 	if (typeof status === 'string') {
 		return (
-			subscriptionStatusMap[
-				status as keyof typeof subscriptionStatusMap
-			] ?? subscriptionStatusMap.Subscription_Unknown
+			subscriptionStatusMap[status as keyof typeof subscriptionStatusMap] ??
+			subscriptionStatusMap.Subscription_Unknown
 		);
 	}
 	if (typeof status === 'number') {
@@ -128,9 +144,9 @@ function SummaryRow({
 	value: string | number | undefined;
 }) {
 	return (
-		<div className='flex items-start justify-between gap-4 border-b pb-2 text-sm last:border-b-0'>
-			<span className='text-muted-foreground'>{label}</span>
-			<span className='text-right'>{value ?? '-'}</span>
+		<div className="flex items-start justify-between gap-4 border-b pb-2 text-sm last:border-b-0">
+			<span className="text-muted-foreground">{label}</span>
+			<span className="text-right">{value ?? '-'}</span>
 		</div>
 	);
 }
@@ -138,7 +154,9 @@ function SummaryRow({
 type GenericSubscriptionLike = GenericSubscriptionFullRecord & {
 	SubscriptionRecord?: GenericSubscriptionFullRecord['SubscriptionRecord'] & {
 		Status?: unknown;
+		UserID?: string;
 	};
+	UserID?: string;
 	Payments?: (GenericPaymentRecord & { Status?: unknown })[];
 	LastPaidUTC?: unknown;
 	PaidThruUTC?: unknown;
@@ -153,43 +171,36 @@ function PaymentCard({
 	const status = paymentStatusMeta(payment.Status);
 	return (
 		<Card>
-			<CardContent className='space-y-3 pt-4'>
-				<div className='flex flex-wrap items-center justify-between gap-3'>
+			<CardContent className="space-y-3 pt-4">
+				<div className="flex flex-wrap items-center justify-between gap-3">
 					<div>
-						<div className='text-sm font-medium'>
+						<div className="text-sm font-medium">
 							{payment.InternalPaymentID || 'Payment'}
 						</div>
-						<div className='text-xs text-muted-foreground'>
+						<div className="text-xs text-muted-foreground">
 							{fmtDate(payment.CreatedOnUTC)}
 						</div>
 					</div>
 					<Badge variant={status.variant}>{status.label}</Badge>
 				</div>
-				<div className='grid grid-cols-1 gap-3 text-sm sm:grid-cols-3'>
+				<div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
 					<div>
-						<div className='text-xs text-muted-foreground'>
-							Amount
-						</div>
+						<div className="text-xs text-muted-foreground">Amount</div>
 						<div>{centsToCurrency(payment.AmountCents)}</div>
 					</div>
 					<div>
-						<div className='text-xs text-muted-foreground'>Tax</div>
+						<div className="text-xs text-muted-foreground">Tax</div>
 						<div>{centsToCurrency(payment.TaxCents)}</div>
 					</div>
 					<div>
-						<div className='text-xs text-muted-foreground'>
-							Total
-						</div>
+						<div className="text-xs text-muted-foreground">Total</div>
 						<div>{centsToCurrency(payment.TotalCents)}</div>
 					</div>
 				</div>
-				<div className='grid grid-cols-1 gap-3 text-xs text-muted-foreground sm:grid-cols-2'>
+				<div className="grid grid-cols-1 gap-3 text-xs text-muted-foreground sm:grid-cols-2">
 					<div>Paid: {fmtDate(payment.PaidOnUTC)}</div>
 					<div>Paid Thru: {fmtDate(payment.PaidThruUTC)}</div>
-					<div>
-						Processor Payment ID:{' '}
-						{payment.ProcessorPaymentID || '-'}
-					</div>
+					<div>Processor Payment ID: {payment.ProcessorPaymentID || '-'}</div>
 					<div>Created By: {payment.CreatedBy || '-'}</div>
 				</div>
 			</CardContent>
@@ -200,22 +211,34 @@ function PaymentCard({
 function SubscriptionItem({
 	item,
 	index,
+	userId,
+	cancelSubscriptionAction,
 }: {
 	item: GenericSubscriptionLike;
 	index: number;
+	userId?: string;
+	cancelSubscriptionAction?: (formData: FormData) => Promise<void>;
 }) {
 	const record = item.SubscriptionRecord;
 	const status = subscriptionStatusMeta(record?.Status);
 	const payments = item.Payments ?? [];
 	const title = record?.InternalSubscriptionID || `Subscription ${index + 1}`;
+	const internalSubscriptionId = record?.InternalSubscriptionID ?? '';
+	const cancelUserId = record?.UserID || item.UserID || userId || '';
+	const canCancel =
+		Boolean(cancelSubscriptionAction) &&
+		Boolean(cancelUserId) &&
+		Boolean(internalSubscriptionId);
+	const isCanceled = Boolean(record?.CanceledOnUTC);
 
+	// TODO: Add Reconcile Subscription Button
 	return (
 		<AccordionItem value={`sub-${index}`}>
 			<AccordionTrigger>
-				<div className='flex flex-1 flex-wrap items-start justify-between gap-4'>
-					<div className='space-y-1'>
-						<div className='text-sm font-medium'>{title}</div>
-						<div className='text-xs text-muted-foreground'>
+				<div className="flex flex-1 flex-wrap items-start justify-between gap-4">
+					<div className="space-y-1">
+						<div className="text-sm font-medium">{title}</div>
+						<div className="text-xs text-muted-foreground">
 							{record?.ProcessorName || '-'} �{' '}
 							{centsToCurrency(record?.AmountCents)}
 						</div>
@@ -224,69 +247,117 @@ function SubscriptionItem({
 				</div>
 			</AccordionTrigger>
 			<AccordionContent>
-				<div className='space-y-6'>
-					<div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-						<div className='space-y-2 rounded-lg border p-4'>
-							<div className='text-sm font-medium'>
-								Subscription Details
-							</div>
+				<div className="space-y-6">
+					<div className="flex flex-wrap items-center justify-end gap-2">
+						{!isCanceled && internalSubscriptionId ? (
+							canCancel ? (
+								<form action={cancelSubscriptionAction}>
+									<input
+										type="hidden"
+										name="userId"
+										value={cancelUserId}
+									/>
+									<input
+										type="hidden"
+										name="internalSubscriptionId"
+										value={internalSubscriptionId}
+									/>
+									<input
+										type="hidden"
+										name="reason"
+										value="Canceled via admin portal"
+									/>
+									<AlertDialog>
+										<AlertDialogTrigger asChild>
+											<Button variant="destructive" size="sm">
+												Cancel Subscription
+											</Button>
+										</AlertDialogTrigger>
+										<AlertDialogContent>
+											<AlertDialogHeader>
+												<AlertDialogTitle>
+													Cancel subscription?
+												</AlertDialogTitle>
+												<AlertDialogDescription>
+													This will cancel the subscription immediately and stop future renewals.
+												</AlertDialogDescription>
+											</AlertDialogHeader>
+											<AlertDialogFooter>
+												<AlertDialogCancel>Cancel</AlertDialogCancel>
+												<AlertDialogAction asChild>
+													<Button variant="destructive" size="sm" type="submit">
+														Cancel Subscription
+													</Button>
+												</AlertDialogAction>
+											</AlertDialogFooter>
+										</AlertDialogContent>
+									</AlertDialog>
+								</form>
+							) : (
+								<Button variant="destructive" size="sm" disabled>
+									Cancel Subscription
+								</Button>
+							)
+						) : null}
+					</div>
+					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+						<div className="space-y-2 rounded-lg border p-4">
+							<div className="text-sm font-medium">Subscription Details</div>
 							<SummaryRow
-								label='Processor Customer ID'
+								label="Processor Customer ID"
 								value={record?.ProcessorCustomerID || '-'}
 							/>
 							<SummaryRow
-								label='Processor Subscription ID'
+								label="Processor Subscription ID"
 								value={record?.ProcessorSubscriptionID || '-'}
 							/>
 							<SummaryRow
-								label='Total'
+								label="Total"
 								value={centsToCurrency(record?.TotalCents)}
 							/>
 							<SummaryRow
-								label='Tax'
+								label="Tax"
 								value={centsToCurrency(record?.TaxCents)}
 							/>
 							<SummaryRow
-								label='Created'
+								label="Created"
 								value={fmtDate(record?.CreatedOnUTC)}
 							/>
 							<SummaryRow
-								label='Modified'
+								label="Modified"
 								value={fmtDate(record?.ModifiedOnUTC)}
 							/>
 							<SummaryRow
-								label='Canceled'
+								label="Canceled"
 								value={fmtDate(record?.CanceledOnUTC)}
 							/>
 						</div>
-						<div className='space-y-2 rounded-lg border p-4'>
-							<div className='text-sm font-medium'>
-								Billing Timeline
-							</div>
+						<div className="space-y-2 rounded-lg border p-4">
+							<div className="text-sm font-medium">Billing Timeline</div>
 							<SummaryRow
-								label='Last Paid'
+								label="Last Paid"
 								value={fmtDate(item.LastPaidUTC)}
 							/>
 							<SummaryRow
-								label='Paid Thru'
+								label="Paid Thru"
 								value={fmtDate(item.PaidThruUTC)}
 							/>
 							<SummaryRow
-								label='Renews On'
+								label="Renews On"
 								value={fmtDate(item.RenewsOnUTC)}
 							/>
 						</div>
 					</div>
 
-					<div className='space-y-3'>
-						<div className='flex items-center justify-between'>
-							<div className='text-sm font-medium'>Payments</div>
-							<div className='text-xs text-muted-foreground'>
+					<div className="space-y-3">
+						<div className="flex items-center justify-between">
+							<div className="text-sm font-medium">Payments</div>
+							<div className="text-xs text-muted-foreground">
 								{payments.length} total
 							</div>
 						</div>
 						{payments.length ? (
-							<div className='space-y-3'>
+							<div className="space-y-3">
 								{payments.map((payment, idx) => (
 									<PaymentCard
 										key={`${payment.InternalPaymentID}-${idx}`}
@@ -295,7 +366,7 @@ function SubscriptionItem({
 								))}
 							</div>
 						) : (
-							<div className='text-sm text-muted-foreground'>
+							<div className="text-sm text-muted-foreground">
 								No payments recorded.
 							</div>
 						)}
@@ -308,12 +379,14 @@ function SubscriptionItem({
 
 export function UserSubscriptions({
 	subscriptions,
+	userId,
+	cancelSubscriptionAction,
 }: {
 	subscriptions?: {
-		Generic?:
-			| GenericSubscriptionFullRecord[]
-			| GenericSubscriptionFullRecord;
+		Generic?: GenericSubscriptionFullRecord[] | GenericSubscriptionFullRecord;
 	};
+	userId?: string;
+	cancelSubscriptionAction?: (formData: FormData) => Promise<void>;
 }) {
 	const genericList = Array.isArray(subscriptions?.Generic)
 		? (subscriptions?.Generic as GenericSubscriptionLike[])
@@ -329,7 +402,7 @@ export function UserSubscriptions({
 					<CardDescription>Generic subscription records</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<Empty className='border'>
+					<Empty className="border">
 						<EmptyHeader>
 							<EmptyTitle>No subscriptions</EmptyTitle>
 							<EmptyDescription>
@@ -349,12 +422,17 @@ export function UserSubscriptions({
 				<CardDescription>Generic subscription records</CardDescription>
 			</CardHeader>
 			<CardContent>
-				<Accordion type='multiple' className='space-y-2'>
+				<Accordion
+					type="multiple"
+					className="space-y-2"
+				>
 					{genericList.map((item, index) => (
 						<SubscriptionItem
 							key={`sub-${index}`}
 							item={item}
 							index={index}
+							userId={userId}
+							cancelSubscriptionAction={cancelSubscriptionAction}
 						/>
 					))}
 				</Accordion>
@@ -362,7 +440,3 @@ export function UserSubscriptions({
 		</Card>
 	);
 }
-
-
-
-
