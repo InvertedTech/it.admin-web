@@ -11,17 +11,6 @@ import { Youtube } from 'lucide-react';
 import { normalizeFieldErrors } from '@/hooks/use-proto-validation';
 import { matchFieldErrors } from './utils';
 
-function extractYouTubeId(url: string): string | null {
-	try {
-		const u = new URL(url);
-		if (u.hostname.includes('youtube.com')) return u.searchParams.get('v');
-		if (u.hostname.includes('youtu.be')) return u.pathname.slice(1);
-		return null;
-	} catch {
-		return null;
-	}
-}
-
 export function YoutubeLinkField({ label }: { label?: React.ReactNode }) {
 	const field = useFieldContext<string | undefined>();
 	const form = useFormContext();
@@ -66,13 +55,11 @@ export function YoutubeLinkField({ label }: { label?: React.ReactNode }) {
 							<Input
 								id={field.name}
 								name={field.name}
-								type='url'
+								type='text'
 								placeholder='https://www.youtube.com/watch?v=xxxxxxx'
 								value={currentVal}
 								onChange={(e) => {
-									const url = e.target.value;
-									const id = extractYouTubeId(url);
-									field.handleChange(id ?? url);
+									field.handleChange(e.target.value);
 								}}
 								onBlur={field.handleBlur}
 								aria-invalid={isInvalid}
@@ -82,7 +69,7 @@ export function YoutubeLinkField({ label }: { label?: React.ReactNode }) {
 						{isInvalid && <FieldError errors={errors} />}
 						{currentVal && (
 							<p className='text-xs text-muted-foreground mt-1'>
-								Extracted ID:{' '}
+								Value:{' '}
 								<span className='font-mono'>{currentVal}</span>
 							</p>
 						)}

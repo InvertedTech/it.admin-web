@@ -74,6 +74,7 @@ export async function getImages() {
 
 export async function searchAssets(
 	req?: Partial<SearchAssetRequest> & { AssetType?: number | string },
+	opts?: { noCache?: boolean },
 ) {
 	try {
 		const base = `${API_BASE_URL}/cms/admin/asset/search`;
@@ -94,14 +95,20 @@ export async function searchAssets(
 		}
 
 		const token = await getToken();
-		const res = await fetch(url.toString(), {
+		const fetchOptions: RequestInit = {
 			method: 'GET',
 			headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-			next: {
+		};
+		if (opts?.noCache) {
+			fetchOptions.cache = 'no-store';
+		} else {
+			(fetchOptions as any).next = {
 				tags: [ADMIN_ASSETS_TAG],
 				revalidate: 30,
-			},
-		});
+			};
+		}
+
+		const res = await fetch(url.toString(), fetchOptions);
 
 		if (!res) return create(SearchAssetResponseSchema);
 		const body: SearchAssetResponse = await res.json();

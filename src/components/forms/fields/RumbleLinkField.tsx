@@ -11,18 +11,6 @@ import { Rss } from 'lucide-react';
 import { normalizeFieldErrors } from '@/hooks/use-proto-validation';
 import { matchFieldErrors } from './utils';
 
-function extractRumbleId(url: string): string | null {
-	try {
-		const u = new URL(url);
-		if (!u.hostname.includes('rumble.com')) return null;
-		const parts = u.pathname.split('/');
-		const candidate = parts.find((p) => /^v[a-zA-Z0-9]+/.test(p));
-		return candidate ?? null;
-	} catch {
-		return null;
-	}
-}
-
 export function RumbleLinkField({ label }: { label?: React.ReactNode }) {
 	const field = useFieldContext<string | undefined>();
 	const form = useFormContext();
@@ -67,13 +55,11 @@ export function RumbleLinkField({ label }: { label?: React.ReactNode }) {
 							<Input
 								id={field.name}
 								name={field.name}
-								type='url'
+								type='text'
 								placeholder='https://rumble.com/embed/vxxxxxx/'
 								value={currentVal}
 								onChange={(e) => {
-									const url = e.target.value;
-									const id = extractRumbleId(url);
-									field.handleChange(id ?? url);
+									field.handleChange(e.target.value);
 								}}
 								onBlur={field.handleBlur}
 								aria-invalid={isInvalid}
@@ -83,7 +69,7 @@ export function RumbleLinkField({ label }: { label?: React.ReactNode }) {
 						{isInvalid && <FieldError errors={errors} />}
 						{currentVal && (
 							<p className='text-xs text-muted-foreground mt-1'>
-								Extracted ID:{' '}
+								Value:{' '}
 								<span className='font-mono'>{currentVal}</span>
 							</p>
 						)}

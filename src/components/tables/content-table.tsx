@@ -39,9 +39,7 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import {
-	ContentListRecord,
-} from '@inverted-tech/fragments/Content';
+import { ContentListRecord } from '@inverted-tech/fragments/Content';
 export const ContentTypeLabels: Record<
 	ContentListRecord['ContentType'],
 	string
@@ -56,6 +54,12 @@ export const ContentTypeLabels: Record<
 // Accepts ISO strings or protobuf Timestamp-like values
 // and returns a localized datetime string or an em dash.
 type MaybeTimestamp = unknown;
+
+function getPublishOnUTC(r: any) {
+	return (
+		r?.PublishOnUTC ?? r?.PublishOnUtc ?? r?.publishOnUtc ?? r?.publishOnUTC
+	);
+}
 
 function toJsDate(value: MaybeTimestamp): Date | undefined {
 	if (!value) return undefined;
@@ -95,19 +99,19 @@ function toJsDate(value: MaybeTimestamp): Date | undefined {
 			typeof seconds === 'string'
 				? Number(seconds)
 				: typeof seconds === 'number'
-				? seconds
-				: typeof seconds === 'bigint'
-				? Number(seconds)
-				: undefined;
+					? seconds
+					: typeof seconds === 'bigint'
+						? Number(seconds)
+						: undefined;
 
 		const nNum =
 			typeof nanos === 'string'
 				? Number(nanos)
 				: typeof nanos === 'number'
-				? nanos
-				: typeof nanos === 'bigint'
-				? Number(nanos)
-				: 0;
+					? nanos
+					: typeof nanos === 'bigint'
+						? Number(nanos)
+						: 0;
 
 		if (typeof sNum === 'number' && Number.isFinite(sNum)) {
 			const millis = sNum * 1000 + Math.floor(nNum / 1_000_000);
@@ -143,14 +147,14 @@ const columns: ColumnDef<ContentListRecord>[] = [
 					(table.getIsSomePageRowsSelected() && 'indeterminate')
 				}
 				onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-				aria-label="Select all"
+				aria-label='Select all'
 			/>
 		),
 		cell: ({ row }) => (
 			<Checkbox
 				checked={row.getIsSelected()}
 				onCheckedChange={(v) => row.toggleSelected(!!v)}
-				aria-label="Select row"
+				aria-label='Select row'
 			/>
 		),
 		enableSorting: false,
@@ -163,26 +167,28 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		accessorKey: 'Title',
 		header: ({ column }) => (
 			<Button
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				variant='ghost'
+				onClick={() =>
+					column.toggleSorting(column.getIsSorted() === 'asc')
+				}
 			>
-				Title <ArrowUpDown className="ml-2 h-4 w-4" />
+				Title <ArrowUpDown className='ml-2 h-4 w-4' />
 			</Button>
 		),
 		cell: ({ row }) => {
 			const r = row.original;
 			const title = r.Title;
 			return (
-				<div className="flex items-center gap-2">
+				<div className='flex items-center gap-2'>
 					<a
 						href={`/content/${r.ContentID}`}
-						className="underline underline-offset-2"
+						className='underline underline-offset-2'
 					>
 						{title}
 					</a>
 					<a
 						href={`/content/${r.ContentID}/edit`}
-						className="text-muted-foreground hover:text-foreground text-xs underline underline-offset-2"
+						className='text-muted-foreground hover:text-foreground text-xs underline underline-offset-2'
 					>
 						Edit
 					</a>
@@ -196,10 +202,12 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		accessorKey: 'Author',
 		header: ({ column }) => (
 			<Button
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				variant='ghost'
+				onClick={() =>
+					column.toggleSorting(column.getIsSorted() === 'asc')
+				}
 			>
-				Author <ArrowUpDown className="ml-2 h-4 w-4" />
+				Author <ArrowUpDown className='ml-2 h-4 w-4' />
 			</Button>
 		),
 	},
@@ -210,7 +218,7 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		header: 'Type',
 		cell: ({ row }) => {
 			const t = row.original.ContentType;
-			return <Badge variant="secondary">{ContentTypeLabels[t]}</Badge>;
+			return <Badge variant='secondary'>{ContentTypeLabels[t]}</Badge>;
 		},
 	},
 
@@ -228,14 +236,16 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		accessorKey: 'CreatedOnUTC',
 		header: ({ column }) => (
 			<Button
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				variant='ghost'
+				onClick={() =>
+					column.toggleSorting(column.getIsSorted() === 'asc')
+				}
 			>
-				Created <ArrowUpDown className="ml-2 h-4 w-4" />
+				Created <ArrowUpDown className='ml-2 h-4 w-4' />
 			</Button>
 		),
 		cell: ({ row }) => (
-			<span className="whitespace-nowrap">
+			<span className='whitespace-nowrap'>
 				{fmtDate(row.original.CreatedOnUTC)}
 			</span>
 		),
@@ -245,8 +255,8 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		accessorKey: 'PublishOnUTC',
 		header: 'Publish',
 		cell: ({ row }) => (
-			<span className="whitespace-nowrap">
-				{fmtDate(row.original.PublishOnUTC)}
+			<span className='whitespace-nowrap'>
+				{fmtDate(getPublishOnUTC(row.original))}
 			</span>
 		),
 		enableHiding: true,
@@ -255,7 +265,7 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		accessorKey: 'PinnedOnUTC',
 		header: 'Pinned',
 		cell: ({ row }) => (
-			<span className="whitespace-nowrap">
+			<span className='whitespace-nowrap'>
 				{fmtDate(row.original.PinnedOnUTC)}
 			</span>
 		),
@@ -276,19 +286,15 @@ const columns: ColumnDef<ContentListRecord>[] = [
 			].filter(Boolean) as string[];
 
 			return flags.length ? (
-				<div className="flex flex-wrap gap-1">
+				<div className='flex flex-wrap gap-1'>
 					{flags.map((f) => (
-						<Badge
-							key={f}
-							variant="outline"
-							className="px-1.5"
-						>
+						<Badge key={f} variant='outline' className='px-1.5'>
 							{f}
 						</Badge>
 					))}
 				</div>
 			) : (
-				<span className="text-muted-foreground">—</span>
+				<span className='text-muted-foreground'>—</span>
 			);
 		},
 	},
@@ -301,7 +307,7 @@ const columns: ColumnDef<ContentListRecord>[] = [
 			const cats = row.original.CategoryIds?.length || 0;
 			const chans = row.original.ChannelIds?.length || 0;
 			return (
-				<div className="text-sm text-muted-foreground">
+				<div className='text-sm text-muted-foreground'>
 					{cats} cat · {chans} ch
 				</div>
 			);
@@ -319,9 +325,12 @@ const columns: ColumnDef<ContentListRecord>[] = [
 
 			async function doPublish() {
 				try {
-					const res = await fetch(`/api/admin/content/${r.ContentID}/publish`, {
-						method: 'POST',
-					});
+					const res = await fetch(
+						`/api/admin/content/${r.ContentID}/publish`,
+						{
+							method: 'POST',
+						},
+					);
 					if (!res.ok) throw new Error('Request failed');
 					toast.success('Publish requested');
 					router.refresh();
@@ -334,7 +343,7 @@ const columns: ColumnDef<ContentListRecord>[] = [
 				try {
 					const res = await fetch(
 						`/api/admin/content/${r.ContentID}/unpublish`,
-						{ method: 'POST' }
+						{ method: 'POST' },
 					);
 					if (!res.ok) throw new Error('Request failed');
 					toast.success('Unpublish requested');
@@ -347,9 +356,12 @@ const columns: ColumnDef<ContentListRecord>[] = [
 			async function doDelete() {
 				try {
 					if (!window.confirm('Delete this content?')) return;
-					const res = await fetch(`/api/admin/content/${r.ContentID}/delete`, {
-						method: 'POST',
-					});
+					const res = await fetch(
+						`/api/admin/content/${r.ContentID}/delete`,
+						{
+							method: 'POST',
+						},
+					);
 					if (!res.ok) throw new Error('Request failed');
 					toast.success('Delete requested');
 					router.refresh();
@@ -361,21 +373,17 @@ const columns: ColumnDef<ContentListRecord>[] = [
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button
-							variant="ghost"
-							className="h-8 w-8 p-0"
-						>
-							<span className="sr-only">Open menu</span>
-							<MoreHorizontal className="h-4 w-4" />
+						<Button variant='ghost' className='h-8 w-8 p-0'>
+							<span className='sr-only'>Open menu</span>
+							<MoreHorizontal className='h-4 w-4' />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent
-						align="end"
-						className="w-40"
-					>
+					<DropdownMenuContent align='end' className='w-40'>
 						<DropdownMenuLabel>Actions</DropdownMenuLabel>
 						<DropdownMenuItem
-							onClick={() => navigator.clipboard.writeText(r.ContentID)}
+							onClick={() =>
+								navigator.clipboard.writeText(r.ContentID)
+							}
 						>
 							Copy ID
 						</DropdownMenuItem>
@@ -386,58 +394,66 @@ const columns: ColumnDef<ContentListRecord>[] = [
 						<DropdownMenuItem asChild>
 							<a href={`/content/${r.ContentID}/edit`}>Edit</a>
 						</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    {Boolean((r as any)?.AnnounceOnUTC) ? (
-                        <DropdownMenuItem
-                            onClick={async () => {
-                                try {
-                                    const res = await fetch(
-                                        `/api/admin/content/${r.ContentID}/unannounce`,
-                                        { method: 'POST' }
-                                    );
-                                    if (!res.ok) throw new Error('Request failed');
-                                    toast.success('Unannounce requested');
-                                    router.refresh();
-                                } catch {
-                                    toast.error('Failed to unannounce');
-                                }
-                            }}
-                        >
-                            Unannounce
-                        </DropdownMenuItem>
-                    ) : (
-                        <DropdownMenuItem onClick={() => setAnnounceOpen(true)}>
-                            Announce…
-                        </DropdownMenuItem>
-                    )}
 						<DropdownMenuSeparator />
-						{r.PublishOnUTC ? (
+						{Boolean((r as any)?.AnnounceOnUTC) ? (
+							<DropdownMenuItem
+								onClick={async () => {
+									try {
+										const res = await fetch(
+											`/api/admin/content/${r.ContentID}/unannounce`,
+											{ method: 'POST' },
+										);
+										if (!res.ok)
+											throw new Error('Request failed');
+										toast.success('Unannounce requested');
+										router.refresh();
+									} catch {
+										toast.error('Failed to unannounce');
+									}
+								}}
+							>
+								Unannounce
+							</DropdownMenuItem>
+						) : (
+							<DropdownMenuItem
+								onClick={() => setAnnounceOpen(true)}
+							>
+								Announce…
+							</DropdownMenuItem>
+						)}
+						<DropdownMenuSeparator />
+						{getPublishOnUTC(r) ? (
 							<DropdownMenuItem onClick={doUnpublish}>
 								Unpublish
 							</DropdownMenuItem>
 						) : (
-							<DropdownMenuItem onClick={doPublish}>Publish</DropdownMenuItem>
+							<DropdownMenuItem onClick={doPublish}>
+								Publish
+							</DropdownMenuItem>
 						)}
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
-							className="text-destructive"
+							className='text-destructive'
 							onClick={doDelete}
 						>
 							Delete
 						</DropdownMenuItem>
 					</DropdownMenuContent>
-						<Dialog
-							open={announceOpen}
-							onOpenChange={setAnnounceOpen}
+					<Dialog open={announceOpen} onOpenChange={setAnnounceOpen}>
+						<DialogContent
+							className='sm:max-w-xl'
+							aria-describedby='announce-desc'
 						>
-							<DialogContent className="sm:max-w-xl" aria-describedby="announce-desc">
-								<DialogTitle>Announce Content</DialogTitle>
-								<p id="announce-desc" className="text-muted-foreground text-sm">
-									Choose a date and time to announce this content.
-								</p>
-								<AnnounceContentForm contentId={r.ContentID} />
-							</DialogContent>
-						</Dialog>
+							<DialogTitle>Announce Content</DialogTitle>
+							<p
+								id='announce-desc'
+								className='text-muted-foreground text-sm'
+							>
+								Choose a date and time to announce this content.
+							</p>
+							<AnnounceContentForm contentId={r.ContentID} />
+						</DialogContent>
+					</Dialog>
 				</DropdownMenu>
 			);
 		},
@@ -446,9 +462,8 @@ const columns: ColumnDef<ContentListRecord>[] = [
 
 export function ContentTable({ data }: { data: ContentListRecord[] }) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-		[]
-	);
+	const [columnFilters, setColumnFilters] =
+		React.useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = React.useState({});
@@ -471,33 +486,40 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 	return (
 		<div>
 			{/* Filters + column toggle */}
-			<div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center">
+			<div className='flex flex-col gap-2 py-4 sm:flex-row sm:items-center'>
 				<Input
-					placeholder="Filter by title…"
-					className="max-w-xs"
-					value={(table.getColumn('Title')?.getFilterValue() as string) ?? ''}
+					placeholder='Filter by title…'
+					className='max-w-xs'
+					value={
+						(table
+							.getColumn('Title')
+							?.getFilterValue() as string) ?? ''
+					}
 					onChange={(e) =>
 						table.getColumn('Title')?.setFilterValue(e.target.value)
 					}
 				/>
 				<Input
-					placeholder="Filter by author…"
-					className="max-w-xs sm:ml-2"
-					value={(table.getColumn('Author')?.getFilterValue() as string) ?? ''}
+					placeholder='Filter by author…'
+					className='max-w-xs sm:ml-2'
+					value={
+						(table
+							.getColumn('Author')
+							?.getFilterValue() as string) ?? ''
+					}
 					onChange={(e) =>
-						table.getColumn('Author')?.setFilterValue(e.target.value)
+						table
+							.getColumn('Author')
+							?.setFilterValue(e.target.value)
 					}
 				/>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button
-							variant="outline"
-							className="ml-auto"
-						>
+						<Button variant='outline' className='ml-auto'>
 							Columns
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
+					<DropdownMenuContent align='end'>
 						{table
 							.getAllColumns()
 							.filter((c) => c.getCanHide())
@@ -505,8 +527,10 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 								<DropdownMenuCheckboxItem
 									key={c.id}
 									checked={c.getIsVisible()}
-									onCheckedChange={(v) => c.toggleVisibility(!!v)}
-									className="capitalize"
+									onCheckedChange={(v) =>
+										c.toggleVisibility(!!v)
+									}
+									className='capitalize'
 								>
 									{c.id}
 								</DropdownMenuCheckboxItem>
@@ -516,7 +540,7 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 			</div>
 
 			{/* Table */}
-			<div className="overflow-hidden rounded-md border">
+			<div className='overflow-hidden rounded-md border'>
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((hg) => (
@@ -526,9 +550,10 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 										{header.isPlaceholder
 											? null
 											: flexRender(
-													header.column.columnDef.header,
-													header.getContext()
-											  )}
+													header.column.columnDef
+														.header,
+													header.getContext(),
+												)}
 									</TableHead>
 								))}
 							</TableRow>
@@ -539,13 +564,15 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
-									data-state={row.getIsSelected() && 'selected'}
+									data-state={
+										row.getIsSelected() && 'selected'
+									}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
 											{flexRender(
 												cell.column.columnDef.cell,
-												cell.getContext()
+												cell.getContext(),
 											)}
 										</TableCell>
 									))}
@@ -555,7 +582,7 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 							<TableRow>
 								<TableCell
 									colSpan={columns.length}
-									className="h-24 text-center"
+									className='h-24 text-center'
 								>
 									No results.
 								</TableCell>
@@ -566,23 +593,23 @@ export function ContentTable({ data }: { data: ContentListRecord[] }) {
 			</div>
 
 			{/* Footer */}
-			<div className="mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
-				<div className="text-muted-foreground text-sm">
+			<div className='mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center'>
+				<div className='text-muted-foreground text-sm'>
 					{table.getFilteredSelectedRowModel().rows.length} of{' '}
 					{table.getFilteredRowModel().rows.length} selected.
 				</div>
-				<div className="flex gap-2">
+				<div className='flex gap-2'>
 					<Button
-						variant="outline"
-						size="sm"
+						variant='outline'
+						size='sm'
 						onClick={() => table.previousPage()}
 						disabled={!table.getCanPreviousPage()}
 					>
 						Previous
 					</Button>
 					<Button
-						variant="outline"
-						size="sm"
+						variant='outline'
+						size='sm'
 						onClick={() => table.nextPage()}
 						disabled={!table.getCanNextPage()}
 					>

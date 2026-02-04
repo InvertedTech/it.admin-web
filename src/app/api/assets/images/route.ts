@@ -4,7 +4,10 @@ import { AssetType } from '@inverted-tech/fragments/Content/AssetInterface_pb';
 
 export async function GET() {
   try {
-    const res = await searchAssets({ AssetType: AssetType.AssetImage, PageSize: 60, PageOffset: 0 });
+    const res = await searchAssets(
+      { AssetType: AssetType.AssetImage, PageSize: 60, PageOffset: 0 },
+      { noCache: true },
+    );
     return NextResponse.json(res);
   } catch (e) {
     return NextResponse.json({ Records: [] }, { status: 200 });

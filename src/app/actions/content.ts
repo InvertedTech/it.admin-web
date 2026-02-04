@@ -89,7 +89,6 @@ export async function getContent() {
 		const res = await fetch(API_BASE, {
 			headers: head,
 			method: 'GET',
-			next: { tags: [ADMIN_CONTENT_TAG], revalidate: 30 },
 		});
 
 		if (!res) return create(GetAllContentAdminResponseSchema);
@@ -581,12 +580,15 @@ export async function getOverviewActivity(args?: {
 		if (!pub) {
 			draftCount++;
 			if (drafts.length < limD)
-				drafts.push(toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)));
+				drafts.push(
+					toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)),
+				);
 			continue;
 		}
 		if (pub > now) {
 			scheduledCount++;
-			if (scheduled.length < limS) scheduled.push(toItem(r, 'scheduled', pub));
+			if (scheduled.length < limS)
+				scheduled.push(toItem(r, 'scheduled', pub));
 			continue;
 		}
 		// published in the past

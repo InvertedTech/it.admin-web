@@ -7,6 +7,8 @@ import {
 	FieldError,
 } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
 	Dialog,
 	DialogContent,
@@ -15,6 +17,11 @@ import {
 } from '@/components/ui/dialog';
 import { normalizeFieldErrors } from '@/hooks/use-proto-validation';
 import { matchFieldErrors } from './utils';
+import { toast } from 'sonner';
+import { createAsset } from '@/app/actions/assets';
+import { create } from '@bufbuild/protobuf';
+import { CreateAssetRequestSchema } from '@inverted-tech/fragments/Content';
+import { ImageAssetDataSchema } from '@inverted-tech/fragments/Content/ImageAssetRecord_pb';
 
 type ImageRecord = {
 	AssetID?: string;
@@ -26,6 +33,17 @@ type ImageRecord = {
 	Data?: { URL?: string; MimeType?: string; Data?: string };
 };
 
+function slugify(input: string): string {
+	return (input ?? '')
+		.toLowerCase()
+		.trim()
+		.replace(/[']/g, '')
+		.replace(/\//g, '-')
+		.replace(/[^a-z0-9\s-]/g, '')
+		.replace(/\s+/g, '-')
+		.replace(/-+/g, '-');
+}
+
 function srcFromImageRecord(r: ImageRecord): string | null {
 	const direct = r?.URL || r?.Public?.Data?.URL || r?.Data?.URL;
 	if (direct) return direct;
@@ -35,6 +53,105 @@ function srcFromImageRecord(r: ImageRecord): string | null {
 	if (r?.AssetID)
 		return `http://localhost:8081/api/cms/asset/image/${r.AssetID}/data`;
 	return null;
+}
+
+function formatBytes(bytes?: number | null) {
+	if (!bytes || bytes <= 0) return '-';
+	const i = Math.floor(Math.log(bytes) / Math.log(1024));
+	const sizes = ['B', 'KB', 'MB', 'GB'];
+	return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+}
+
+function UploadArea({
+	label,
+	help,
+	accept,
+	onFile,
+	fileName,
+	fileSize,
+	onClear,
+}: {
+	label: string;
+	help?: string;
+	accept: string;
+	onFile: (file: File) => void;
+	fileName?: string | null;
+	fileSize?: number | null;
+	onClear?: () => void;
+}) {
+	const inputRef = React.useRef<HTMLInputElement | null>(null);
+	const [isOver, setIsOver] = React.useState(false);
+
+	return (
+		<div
+			className={
+				'rounded-md border p-4 transition-colors ' +
+				(isOver ? 'bg-accent/30 border-primary' : 'bg-background')
+			}
+			onDragOver={(e) => {
+				e.preventDefault();
+				setIsOver(true);
+			}}
+			onDragLeave={() => setIsOver(false)}
+			onDrop={(e) => {
+				e.preventDefault();
+				setIsOver(false);
+				const f = e.dataTransfer.files?.[0];
+				if (f) onFile(f);
+			}}
+		>
+			<div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+				<div>
+					<div className='text-sm font-medium'>{label}</div>
+					{help && (
+						<div className='text-muted-foreground text-xs'>
+							{help}
+						</div>
+					)}
+					{fileName && (
+						<div className='text-xs mt-1'>
+							<span className='font-medium'>Selected:</span>{' '}
+							{fileName}
+							{typeof fileSize === 'number' && (
+								<span className='text-muted-foreground'>
+									{' '}
+									- {formatBytes(fileSize)}
+								</span>
+							)}
+						</div>
+					)}
+				</div>
+				<div className='flex gap-2'>
+					{fileName && onClear ? (
+						<Button
+							type='button'
+							variant='outline'
+							onClick={onClear}
+						>
+							Remove
+						</Button>
+					) : null}
+					<Button
+						type='button'
+						variant='outline'
+						onClick={() => inputRef.current?.click()}
+					>
+						Choose File
+					</Button>
+					<input
+						ref={inputRef}
+						type='file'
+						accept={accept}
+						hidden
+						onChange={(e) => {
+							const f = e.target.files?.[0];
+							if (f) onFile(f);
+						}}
+					/>
+				</div>
+			</div>
+		</div>
+	);
 }
 
 function ImageTile({
@@ -73,7 +190,7 @@ function ImageTile({
 						setSrc(`data:${mime};base64,${b64}`);
 					else
 						setSrc(
-							`http://localhost:8081/api/cms/asset/image/${img.AssetID}/data`
+							`http://localhost:8081/api/cms/asset/image/${img.AssetID}/data`,
 						);
 				})
 				.catch(() => setSrc(null));
@@ -112,20 +229,39 @@ export function ImagePickerField({ label = 'Image' }: { label?: string }) {
 	const [open, setOpen] = React.useState(false);
 	const [images, setImages] = React.useState<ImageRecord[]>([]);
 	const [loading, setLoading] = React.useState(false);
+	const [mode, setMode] = React.useState<'browse' | 'upload'>('browse');
 
-	React.useEffect(() => {
-		if (!open || images.length) return;
+	const [uploading, setUploading] = React.useState(false);
+	const [uploadError, setUploadError] = React.useState<string | null>(null);
+	const [fileMeta, setFileMeta] = React.useState<{
+		name: string;
+		size: number;
+	} | null>(null);
+	const [uploadMime, setUploadMime] = React.useState('');
+	const [uploadTitle, setUploadTitle] = React.useState('');
+	const [uploadCaption, setUploadCaption] = React.useState('');
+	const [uploadWidth, setUploadWidth] = React.useState(0);
+	const [uploadHeight, setUploadHeight] = React.useState(0);
+	const [uploadData, setUploadData] = React.useState<Uint8Array | null>(null);
+	const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+
+	const loadImages = React.useCallback(() => {
 		setLoading(true);
-		fetch('/api/assets/images')
+		return fetch('/api/assets/images')
 			.then((r) => r.json())
 			.then((j) => setImages((j?.Records as ImageRecord[]) ?? []))
 			.finally(() => setLoading(false));
-	}, [open, images.length]);
+	}, []);
+
+	React.useEffect(() => {
+		if (!open || images.length) return;
+		void loadImages();
+	}, [open, images.length, loadImages]);
 
 	const [fallbackSrc, setFallbackSrc] = React.useState<string | null>(null);
 	const selected = React.useMemo(
 		() => images.find((i) => i.AssetID === field.state.value),
-		[images, field.state.value]
+		[images, field.state.value],
 	);
 	const directSrc = selected ? srcFromImageRecord(selected) : undefined;
 
@@ -159,6 +295,116 @@ export function ImagePickerField({ label = 'Image' }: { label?: string }) {
 			.catch(() => {});
 	}, [field.state.value, directSrc]);
 
+	React.useEffect(() => {
+		return () => {
+			if (previewUrl) URL.revokeObjectURL(previewUrl);
+		};
+	}, [previewUrl]);
+
+	async function onFileSelected(file: File) {
+		setUploadError(null);
+		const buffer = new Uint8Array(await file.arrayBuffer());
+		setUploadMime(file.type || '');
+		setUploadData(buffer);
+		setFileMeta({ name: file.name, size: file.size });
+		if (!uploadTitle) {
+			const baseName = file.name.replace(/\.[^.]+$/, '');
+			setUploadTitle(baseName);
+		}
+		try {
+			const url = URL.createObjectURL(file);
+			if (previewUrl) URL.revokeObjectURL(previewUrl);
+			setPreviewUrl(url);
+			const img = new Image();
+			img.onload = () => {
+				setUploadWidth((img as any).naturalWidth || img.width || 0);
+				setUploadHeight((img as any).naturalHeight || img.height || 0);
+			};
+			img.src = url;
+		} catch {}
+	}
+
+	function resetUploadState() {
+		if (previewUrl) URL.revokeObjectURL(previewUrl);
+		setPreviewUrl(null);
+		setFileMeta(null);
+		setUploadMime('');
+		setUploadTitle('');
+		setUploadCaption('');
+		setUploadWidth(0);
+		setUploadHeight(0);
+		setUploadData(null);
+		setUploadError(null);
+	}
+
+	async function submitUpload() {
+		setUploadError(null);
+		if (!uploadData || uploadData.length === 0) {
+			setUploadError('Please choose a file to upload.');
+			return;
+		}
+		if (!uploadTitle.trim()) {
+			setUploadError('Please enter a title.');
+			return;
+		}
+		setUploading(true);
+		try {
+			const req = create(CreateAssetRequestSchema, {
+				CreateAssetRequestOneof: {
+					case: 'Image',
+					value: create(ImageAssetDataSchema, {
+						Public: {
+							Title: uploadTitle.trim(),
+							Caption: uploadCaption.trim(),
+							URL: slugify(uploadTitle.trim()),
+							MimeType: uploadMime || 'image/png',
+							Height: uploadHeight || 0,
+							Width: uploadWidth || 0,
+							Data: uploadData,
+						},
+						Private: { OldAssetID: '' },
+					}),
+				},
+			});
+			const res = await createAsset(req);
+			const rec = (res as any)?.Record ?? (res as any)?.record ?? res;
+			const assetId =
+				rec?.AssetID ??
+				rec?.assetId ??
+				rec?.assetID ??
+				rec?.Image?.AssetID ??
+				rec?.image?.assetId ??
+				rec?.Image?.Public?.AssetID ??
+				rec?.image?.public?.assetId ??
+				rec?.Image?.Public?.AssetId ??
+				rec?.image?.public?.assetId;
+			if (!assetId) {
+				toast('Upload failed', {
+					description: 'Could not read the new asset ID.',
+				});
+				setUploadError(
+					'Upload completed but no asset ID was returned.',
+				);
+				return;
+			}
+
+			await loadImages();
+			field.handleChange(assetId);
+			setMode('browse');
+			setOpen(false);
+			toast('Image uploaded', { description: assetId });
+			resetUploadState();
+		} catch (err) {
+			console.error(err);
+			setUploadError('Upload failed. Please try again.');
+			toast('Upload failed', {
+				description: 'Could not create image asset.',
+			});
+		} finally {
+			setUploading(false);
+		}
+	}
+
 	return (
 		<form.Subscribe
 			selector={(s: any) => ({
@@ -170,12 +416,12 @@ export function ImagePickerField({ label = 'Image' }: { label?: string }) {
 				const submitField =
 					matchFieldErrors(
 						errState?.submit?.fields as any,
-						field.name
+						field.name,
 					) ?? [];
 				const syncField =
 					matchFieldErrors(
 						errState?.sync?.fields as any,
-						field.name
+						field.name,
 					) ?? [];
 				const base = Array.isArray(field.state.meta.errors)
 					? (field.state.meta.errors as any)
@@ -223,10 +469,118 @@ export function ImagePickerField({ label = 'Image' }: { label?: string }) {
 									</Button>
 								</DialogTrigger>
 								<DialogContent className='sm:max-w-4xl'>
-									<DialogTitle>Select Image</DialogTitle>
-									{loading ? (
+									<DialogTitle>Images</DialogTitle>
+									<div className='mb-3 flex items-center gap-2'>
+										<Button
+											type='button'
+											variant={
+												mode === 'browse'
+													? 'default'
+													: 'outline'
+											}
+											onClick={() => setMode('browse')}
+										>
+											Browse
+										</Button>
+										<Button
+											type='button'
+											variant={
+												mode === 'upload'
+													? 'default'
+													: 'outline'
+											}
+											onClick={() => setMode('upload')}
+										>
+											Upload
+										</Button>
+									</div>
+
+									{mode === 'upload' ? (
+										<div className='space-y-4'>
+											<UploadArea
+												label='Upload Image'
+												help='PNG, JPEG, GIF supported.'
+												accept='image/*'
+												onFile={onFileSelected}
+												fileName={fileMeta?.name}
+												fileSize={
+													fileMeta?.size ?? null
+												}
+												onClear={resetUploadState}
+											/>
+											{previewUrl && (
+												<div className='rounded-md border p-3'>
+													<div className='text-sm mb-2 font-medium'>
+														Preview
+													</div>
+													{/* eslint-disable-next-line @next/next/no-img-element */}
+													<img
+														src={previewUrl}
+														alt='Selected image preview'
+														className='max-h-64 w-auto rounded'
+													/>
+												</div>
+											)}
+											<div className='grid gap-3 sm:grid-cols-2'>
+												<div className='space-y-1'>
+													<div className='text-xs font-medium'>
+														Title
+													</div>
+													<Input
+														value={uploadTitle}
+														onChange={(e) =>
+															setUploadTitle(
+																e.target.value,
+															)
+														}
+														placeholder='Title'
+													/>
+												</div>
+												<div className='space-y-1 sm:col-span-2'>
+													<div className='text-xs font-medium'>
+														Caption (optional)
+													</div>
+													<Textarea
+														value={uploadCaption}
+														onChange={(e) =>
+															setUploadCaption(
+																e.target.value,
+															)
+														}
+														placeholder='Caption'
+													/>
+												</div>
+											</div>
+											{uploadError && (
+												<div className='text-destructive text-sm'>
+													{uploadError}
+												</div>
+											)}
+											<div className='flex justify-end gap-2'>
+												<Button
+													type='button'
+													variant='outline'
+													onClick={() =>
+														resetUploadState()
+													}
+													disabled={uploading}
+												>
+													Clear
+												</Button>
+												<Button
+													type='button'
+													onClick={submitUpload}
+													disabled={uploading}
+												>
+													{uploading
+														? 'Uploading...'
+														: 'Upload'}
+												</Button>
+											</div>
+										</div>
+									) : loading ? (
 										<div className='text-muted-foreground text-sm'>
-											Loading…
+											Loading...
 										</div>
 									) : (
 										<div className='grid max-h-[70vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 md:grid-cols-4'>
