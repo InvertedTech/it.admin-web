@@ -56,11 +56,6 @@ const data = {
 					url: '/content/assets/upload',
 				},
 				{
-					title: 'All Content',
-					icon: FilesIcon,
-					url: '/content/all',
-				},
-				{
 					title: 'Create',
 					icon: GalleryVerticalEnd,
 					url: '/content/create',
@@ -101,16 +96,6 @@ const data = {
 			url: '/users',
 			items: [
 				{
-					title: 'Staff (Admins)',
-					icon: UserIcon,
-					url: '/users/list?role=admin',
-				},
-				{
-					title: 'Search',
-					icon: UserIcon,
-					url: '/users/search',
-				},
-				{
 					title: 'Subscriptions',
 					icon: IconMoneybag,
 					url: '/users/subscriptions',
@@ -127,26 +112,6 @@ const data = {
 			icon: SettingsIcon,
 			url: '/settings',
 			items: [
-				// {
-				// 	title: 'Subscriptions',
-				// 	icon: CreditCard,
-				// 	url: '/settings/subscriptions',
-				// },
-				// {
-				// 	title: 'Comments Settings',
-				// 	icon: MessageSquare,
-				// 	url: '/settings/comments',
-				// },
-				// {
-				// 	title: 'Content Settings',
-				// 	icon: FilesIcon,
-				// 	url: '/settings/content',
-				// },
-				// {
-				// 	title: 'Events (future)',
-				// 	icon: CalendarDays,
-				// 	url: '/settings/events',
-				// },
 				{
 					title: 'Personalization',
 					icon: Palette,
@@ -188,19 +153,20 @@ export function AppSidebar({
 	sessionEmail?: string;
 }) {
 	return (
-		<Sidebar collapsible='offcanvas' {...props}>
+		<Sidebar
+			collapsible="offcanvas"
+			{...props}
+		>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							asChild
-							className='data-[slot=sidebar-menu-button]:!p-1.5'
+							className="data-[slot=sidebar-menu-button]:!p-1.5"
 						>
-							<a href='/'>
-								<IconInnerShadowTop className='!size-5' />
-								<span className='text-base font-semibold'>
-									{headerTitle}
-								</span>
+							<a href="/">
+								<IconInnerShadowTop className="!size-5" />
+								<span className="text-base font-semibold">{headerTitle}</span>
 							</a>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
@@ -210,7 +176,10 @@ export function AppSidebar({
 				<NavQuick items={data.navQuick} />
 				<Separator />
 				<NavMain items={data.navMain} />
-				<NavSecondary items={data.navSecondary} className='mt-auto' />
+				<NavSecondary
+					items={data.navSecondary}
+					className="mt-auto"
+				/>
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser
