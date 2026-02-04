@@ -28,6 +28,7 @@ import {
 	Field as UIField,
 	FieldError,
 	FieldLabel,
+	FieldGroup,
 } from '@/components/ui/field';
 import { useFieldContext, useFormContext } from '@/hooks/form-context';
 import { cn } from '@/lib/utils';
@@ -157,69 +158,93 @@ const ContentDetailsFields = withFieldGroup({
 
 		// Slug preview next to Title
 		return (
-			<>
-				<group.AppField name='Title'>
-					{(f) => (
-						<div>
-							<f.TextField label={'Title'} />
-							<group.Subscribe
-								selector={(s: any) => s?.values?.Title}
-							>
-								{(title: string) => {
-									const slug = slugify(title ?? '');
-									return (
-										<div className='text-muted-foreground mt-1 text-xs'>
-											URL: /{slug}
-										</div>
-									);
-								}}
-							</group.Subscribe>
-						</div>
-					)}
-				</group.AppField>
-				<group.AppField name='Description'>
-					{(f) => <f.TextField label={'Description'} />}
-				</group.AppField>
-				<group.AppField name='Author'>
-					{() => (
-						<AuthorSearchField
-							label='Author'
-							loading={loadingAuthors}
-							options={authorOptions}
-						/>
-					)}
-				</group.AppField>
-				{/* URL field hidden; preview is shown under Title */}
-				<group.AppField name='FeaturedImageAssetID'>
-					{(f) => <f.ImagePickerField label={'Featured Image'} />}
-				</group.AppField>
-				<group.AppField name='SubscriptionLevel'>
-					{(f) => (
-						<f.SubscriptionTierField label={'Subscription Tier'} />
-					)}
-				</group.AppField>
-				<group.AppField name='Tags'>
-					{(f) => <f.MultiSelectField label={'Tags'} />}
-				</group.AppField>
-				<group.AppField name='ChannelIds'>
-					{(f) => (
-						<f.ChannelMultiSelectField
-							label={'Channels'}
-							options={channelOptions}
-							loading={loadingChannels}
-						/>
-					)}
-				</group.AppField>
-				<group.AppField name='CategoryIds'>
-					{(f) => (
-						<f.CategoryMultiSelectField
-							label={'Categories'}
-							options={categoryOptions}
-							loading={loadingCategories}
-						/>
-					)}
-				</group.AppField>
-			</>
+			<div className='grid gap-8 lg:grid-cols-12'>
+				<div className='space-y-4 lg:col-span-7'>
+					<div>
+						<h3 className='text-base font-semibold'>Details</h3>
+						<p className='text-muted-foreground text-sm'>
+							Title, description, and author information.
+						</p>
+					</div>
+					<FieldGroup className='grid gap-6'>
+						<group.AppField name='Title'>
+							{(f) => (
+								<div>
+									<f.TextField label={'Title'} />
+									<group.Subscribe
+										selector={(s: any) => s?.values?.Title}
+									>
+										{(title: string) => {
+											const slug = slugify(title ?? '');
+											return (
+												<div className='text-muted-foreground mt-1 text-xs'>
+													URL: /{slug}
+												</div>
+											);
+										}}
+									</group.Subscribe>
+								</div>
+							)}
+						</group.AppField>
+						<group.AppField name='Description'>
+							{(f) => <f.TextField label={'Description'} />}
+						</group.AppField>
+						<group.AppField name='Author'>
+							{() => (
+								<AuthorSearchField
+									label='Author'
+									loading={loadingAuthors}
+									options={authorOptions}
+								/>
+							)}
+						</group.AppField>
+					</FieldGroup>
+				</div>
+				<div className='space-y-4 lg:col-span-5'>
+					<div>
+						<h3 className='text-base font-semibold'>Metadata</h3>
+						<p className='text-muted-foreground text-sm'>
+							Images, access level, and organization.
+						</p>
+					</div>
+					<FieldGroup className='grid gap-6'>
+						{/* URL field hidden; preview is shown under Title */}
+						<group.AppField name='FeaturedImageAssetID'>
+							{(f) => (
+								<f.ImagePickerField label={'Featured Image'} />
+							)}
+						</group.AppField>
+						<group.AppField name='SubscriptionLevel'>
+							{(f) => (
+								<f.SubscriptionTierField
+									label={'Subscription Tier'}
+								/>
+							)}
+						</group.AppField>
+						<group.AppField name='Tags'>
+							{(f) => <f.MultiSelectField label={'Tags'} />}
+						</group.AppField>
+						<group.AppField name='ChannelIds'>
+							{(f) => (
+								<f.ChannelMultiSelectField
+									label={'Channels'}
+									options={channelOptions}
+									loading={loadingChannels}
+								/>
+							)}
+						</group.AppField>
+						<group.AppField name='CategoryIds'>
+							{(f) => (
+								<f.CategoryMultiSelectField
+									label={'Categories'}
+									options={categoryOptions}
+									loading={loadingCategories}
+								/>
+							)}
+						</group.AppField>
+					</FieldGroup>
+				</div>
+			</div>
 		);
 	},
 });

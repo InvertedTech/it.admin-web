@@ -14,6 +14,7 @@ import ContentDetailsFields from './groups/content/content-details-fields';
 import { FormCard } from './form-card';
 import { createContent } from '@/app/actions/content';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Separator } from '@/components/ui/separator';
 import { useRouter } from 'next/navigation';
 
 export function CreateContentForm() {
@@ -76,7 +77,10 @@ export function CreateContentForm() {
 	} as const;
 
 	return (
-		<FormCard cardTitle='Create Content'>
+		<FormCard
+			cardTitle='Create Content'
+			cardDescription='Set the details, metadata, and body for your content.'
+		>
 			<form
 				id='create-content'
 				onSubmit={(e) => {
@@ -84,180 +88,201 @@ export function CreateContentForm() {
 					form.handleSubmit();
 				}}
 			>
-				{' '}
 				<form.AppForm>
 					<AutoContentSlugger form={form} />
-					<ContentDetailsFields
-						form={form}
-						fields={detailsFields as any}
-					/>
+					<div className='space-y-8'>
+						<section className='space-y-4'>
+							<ContentDetailsFields
+								form={form}
+								fields={detailsFields as any}
+							/>
+						</section>
 
-					<form.Subscribe
-						selector={(s: any) =>
-							s.values?.Public?.ContentDataOneof?.case as
-								| 'Video'
-								| 'Written'
-								| 'Audio'
-								| 'Picture'
-								| undefined
+						<Separator />
+
+						<section className='space-y-4'>
+							<div className='space-y-1'>
+								<h3 className='text-base font-semibold'>
+									Content Type
+								</h3>
+								<p className='text-muted-foreground text-sm'>
+									Choose how this content should render.
+								</p>
+							</div>
+							<form.Subscribe
+								selector={(s: any) =>
+									s.values?.Public?.ContentDataOneof?.case as
+										| 'Video'
+										| 'Written'
+										| 'Audio'
+										| 'Picture'
+										| undefined
+								}
+							>
+								{(current) => {
+									const selected = (current as any) ?? 'Video';
+									return (
+										<div className='space-y-6'>
+											<ToggleGroup
+												type='single'
+												value={selected}
+												onValueChange={(v) => {
+													if (!v) return;
+													if (v === 'Video') {
+														form.setFieldValue(
+															'Public.ContentDataOneof',
+															{
+																case: 'Video',
+																value: create(
+																	VideoContentPublicDataSchema,
+																) as any,
+															} as any,
+														);
+														form.setFieldValue(
+															'Private.ContentDataOneof',
+															{
+																case: 'Video',
+																value: {},
+															} as any,
+														);
+													} else if (v === 'Written') {
+														form.setFieldValue(
+															'Public.ContentDataOneof',
+															{
+																case: 'Written',
+																value: create(
+																	WrittenContentPublicDataSchema,
+																) as any,
+															} as any,
+														);
+														form.setFieldValue(
+															'Private.ContentDataOneof',
+															{
+																case: 'Written',
+																value: {},
+															} as any,
+														);
+													} else if (v === 'Audio') {
+														form.setFieldValue(
+															'Public.ContentDataOneof',
+															{
+																case: 'Audio',
+																value: create(
+																	AudioContentPublicDataSchema,
+																) as any,
+															} as any,
+														);
+														form.setFieldValue(
+															'Private.ContentDataOneof',
+															{
+																case: 'Audio',
+																value: {},
+															} as any,
+														);
+													} else if (v === 'Picture') {
+														form.setFieldValue(
+															'Public.ContentDataOneof',
+															{
+																case: 'Picture',
+																value: create(
+																	PictureContentPublicDataSchema,
+																) as any,
+															} as any,
+														);
+														form.setFieldValue(
+															'Private.ContentDataOneof',
+															{
+																case: 'Picture',
+																value: {},
+															} as any,
+														);
+													}
+												}}
+												className='flex w-fit flex-wrap gap-2'
+												variant='outline'
+												size='lg'
+											>
+												<ToggleGroupItem value='Video'>
+													Video
+												</ToggleGroupItem>
+												<ToggleGroupItem value='Written'>
+													Written
+												</ToggleGroupItem>
+												<ToggleGroupItem value='Audio'>
+													Audio
+												</ToggleGroupItem>
+												<ToggleGroupItem value='Picture'>
+													Picture
+												</ToggleGroupItem>
+											</ToggleGroup>
+
+											<div className='rounded-lg border bg-muted/20 p-4'>
+												{selected === 'Video' && (
+													<ContentPublicDataFieldGroups.VideoContentPublicDataFields
+														title='Video'
+														form={form}
+														fields={videoFields as any}
+													/>
+												)}
+												{selected === 'Written' && (
+													<ContentPublicDataFieldGroups.WrittenContentPublicDataFields
+														title='Written'
+														form={form}
+														fields={writtenFields as any}
+													/>
+												)}
+												{selected === 'Audio' && (
+													<ContentPublicDataFieldGroups.AudioContentPublicDataFields
+														title='Audio'
+														form={form}
+														fields={audioFields as any}
+													/>
+												)}
+												{selected === 'Picture' && (
+													<ContentPublicDataFieldGroups.PictureContentPublicDataFields
+														title='Picture'
+														form={form}
+														fields={pictureFields as any}
+													/>
+												)}
+											</div>
+										</div>
+									);
+								}}
+							</form.Subscribe>
+						</section>
+
+						{/* Show any validation/submit errors */}
+						<form.SubmitErrors />
+						{
+							// Debug subscriptions to verify submitErrors and errors
 						}
-					>
-						{(current) => {
-							const selected = (current as any) ?? 'Video';
-							return (
-								<div className='space-y-4'>
-									<ToggleGroup
-										type='single'
-										value={selected}
-										onValueChange={(v) => {
-											if (!v) return;
-											if (v === 'Video') {
-												form.setFieldValue(
-													'Public.ContentDataOneof',
-													{
-														case: 'Video',
-														value: create(
-															VideoContentPublicDataSchema,
-														) as any,
-													} as any,
-												);
-												form.setFieldValue(
-													'Private.ContentDataOneof',
-													{
-														case: 'Video',
-														value: {},
-													} as any,
-												);
-											} else if (v === 'Written') {
-												form.setFieldValue(
-													'Public.ContentDataOneof',
-													{
-														case: 'Written',
-														value: create(
-															WrittenContentPublicDataSchema,
-														) as any,
-													} as any,
-												);
-												form.setFieldValue(
-													'Private.ContentDataOneof',
-													{
-														case: 'Written',
-														value: {},
-													} as any,
-												);
-											} else if (v === 'Audio') {
-												form.setFieldValue(
-													'Public.ContentDataOneof',
-													{
-														case: 'Audio',
-														value: create(
-															AudioContentPublicDataSchema,
-														) as any,
-													} as any,
-												);
-												form.setFieldValue(
-													'Private.ContentDataOneof',
-													{
-														case: 'Audio',
-														value: {},
-													} as any,
-												);
-											} else if (v === 'Picture') {
-												form.setFieldValue(
-													'Public.ContentDataOneof',
-													{
-														case: 'Picture',
-														value: create(
-															PictureContentPublicDataSchema,
-														) as any,
-													} as any,
-												);
-												form.setFieldValue(
-													'Private.ContentDataOneof',
-													{
-														case: 'Picture',
-														value: {},
-													} as any,
-												);
-											}
-										}}
-										className='w-fit'
-										variant='outline'
-										size='lg'
-									>
-										<ToggleGroupItem value='Video'>
-											Video
-										</ToggleGroupItem>
-										<ToggleGroupItem value='Written'>
-											Written
-										</ToggleGroupItem>
-										<ToggleGroupItem value='Audio'>
-											Audio
-										</ToggleGroupItem>
-										<ToggleGroupItem value='Picture'>
-											Picture
-										</ToggleGroupItem>
-									</ToggleGroup>
+						<form.Subscribe selector={(s: any) => s?.submitErrors}>
+							{(se: any) => {
+								try {
+									// eslint-disable-next-line no-console
+									console.log(
+										'[CreateContentForm] submitErrors',
+										se,
+									);
+								} catch {}
+								return null;
+							}}
+						</form.Subscribe>
+						<form.Subscribe selector={(s: any) => s?.errors}>
+							{(e: any) => {
+								try {
+									// eslint-disable-next-line no-console
+									console.log('[CreateContentForm] errors', e);
+								} catch {}
+								return null;
+							}}
+						</form.Subscribe>
 
-									{selected === 'Video' && (
-										<ContentPublicDataFieldGroups.VideoContentPublicDataFields
-											title='Video'
-											form={form}
-											fields={videoFields as any}
-										/>
-									)}
-									{selected === 'Written' && (
-										<ContentPublicDataFieldGroups.WrittenContentPublicDataFields
-											title='Written'
-											form={form}
-											fields={writtenFields as any}
-										/>
-									)}
-									{selected === 'Audio' && (
-										<ContentPublicDataFieldGroups.AudioContentPublicDataFields
-											title='Audio'
-											form={form}
-											fields={audioFields as any}
-										/>
-									)}
-									{selected === 'Picture' && (
-										<ContentPublicDataFieldGroups.PictureContentPublicDataFields
-											title='Picture'
-											form={form}
-											fields={pictureFields as any}
-										/>
-									)}
-								</div>
-							);
-						}}
-					</form.Subscribe>
-					{/* Show any validation/submit errors */}
-					<form.SubmitErrors />
-					{
-						// Debug subscriptions to verify submitErrors and errors
-					}
-					<form.Subscribe selector={(s: any) => s?.submitErrors}>
-						{(se: any) => {
-							try {
-								// eslint-disable-next-line no-console
-								console.log(
-									'[CreateContentForm] submitErrors',
-									se,
-								);
-							} catch {}
-							return null;
-						}}
-					</form.Subscribe>
-					<form.Subscribe selector={(s: any) => s?.errors}>
-						{(e: any) => {
-							try {
-								// eslint-disable-next-line no-console
-								console.log('[CreateContentForm] errors', e);
-							} catch {}
-							return null;
-						}}
-					</form.Subscribe>
-					<form.CreateButton label='Create' />
+						<div className='flex items-center justify-end pt-2'>
+							<form.CreateButton label='Create' />
+						</div>
+					</div>
 				</form.AppForm>
 			</form>
 		</FormCard>
