@@ -229,7 +229,11 @@ function SubscriptionItem({
 		Boolean(cancelSubscriptionAction) &&
 		Boolean(cancelUserId) &&
 		Boolean(internalSubscriptionId);
-	const isCanceled = Boolean(record?.CanceledOnUTC);
+	const canceledAt =
+		toJsDate((record as { CancelOnUTC?: unknown } | undefined)?.CancelOnUTC) ??
+		toJsDate(record?.CanceledOnUTC);
+	const isCanceled = Boolean(canceledAt && canceledAt.getTime() > 0);
+	const cancelFormId = `cancel-subscription-${internalSubscriptionId || index}`;
 
 	// TODO: Add Reconcile Subscription Button
 	return (
@@ -251,7 +255,10 @@ function SubscriptionItem({
 					<div className="flex flex-wrap items-center justify-end gap-2">
 						{!isCanceled && internalSubscriptionId ? (
 							canCancel ? (
-								<form action={cancelSubscriptionAction}>
+								<form
+									id={cancelFormId}
+									action={cancelSubscriptionAction}
+								>
 									<input
 										type="hidden"
 										name="userId"
@@ -269,7 +276,10 @@ function SubscriptionItem({
 									/>
 									<AlertDialog>
 										<AlertDialogTrigger asChild>
-											<Button variant="destructive" size="sm">
+											<Button
+												variant="destructive"
+												size="sm"
+											>
 												Cancel Subscription
 											</Button>
 										</AlertDialogTrigger>
@@ -279,13 +289,19 @@ function SubscriptionItem({
 													Cancel subscription?
 												</AlertDialogTitle>
 												<AlertDialogDescription>
-													This will cancel the subscription immediately and stop future renewals.
+													This will cancel the subscription immediately and stop
+													future renewals.
 												</AlertDialogDescription>
 											</AlertDialogHeader>
 											<AlertDialogFooter>
 												<AlertDialogCancel>Cancel</AlertDialogCancel>
 												<AlertDialogAction asChild>
-													<Button variant="destructive" size="sm" type="submit">
+													<Button
+														variant="destructive"
+														size="sm"
+														form={cancelFormId}
+														type="submit"
+													>
 														Cancel Subscription
 													</Button>
 												</AlertDialogAction>
@@ -294,7 +310,11 @@ function SubscriptionItem({
 									</AlertDialog>
 								</form>
 							) : (
-								<Button variant="destructive" size="sm" disabled>
+								<Button
+									variant="destructive"
+									size="sm"
+									disabled
+								>
 									Cancel Subscription
 								</Button>
 							)

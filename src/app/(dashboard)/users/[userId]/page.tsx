@@ -19,16 +19,17 @@ import {
 	DisableEnableOtherUserRequestSchema,
 	DisableOtherTotpRequestSchema,
 } from '@inverted-tech/fragments/Authentication';
-import { getSubscriptionsForUser } from '@/app/actions/payment';
+import {
+	getSubscriptionsForUser,
+	cancelSubscribition,
+} from '@/app/actions/payment';
 import { requireRole } from '@/lib/rbac';
 import { isAdminOrHigher } from '@/lib/roleHelpers';
 import { getSession } from '@/lib/session';
 
 function pick<T = unknown>(obj: any, paths: string[], fb?: T): T | undefined {
 	for (const p of paths) {
-		const v = p
-			.split('.')
-			.reduce<any>((o, k) => (o ? o[k] : undefined), obj);
+		const v = p.split('.').reduce<any>((o, k) => (o ? o[k] : undefined), obj);
 		if (v !== undefined && v !== null && v !== '') return v as T;
 	}
 	return fb;
@@ -49,8 +50,7 @@ export default async function ViewUserPage({
 	if (!user) notFound();
 
 	// inferred fields across Public/Private shapes
-	const id =
-		pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
+	const id = pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
 	const displayName = pick<string>(
 		user,
 		['Public.Data.DisplayName', 'DisplayName'],
@@ -58,8 +58,7 @@ export default async function ViewUserPage({
 	)!;
 	const userName =
 		pick<string>(user, ['Public.Data.UserName', 'UserName'], '') || '—';
-	const email =
-		pick<string>(user, ['Private.Data.Email', 'Email'], '') || '—';
+	const email = pick<string>(user, ['Private.Data.Email', 'Email'], '') || '—';
 	const bio = pick<string>(user, ['Public.Data.Bio', 'Bio'], '') || '—';
 	const createdOn = pick(user, ['Public.CreatedOnUTC', 'CreatedOnUTC']);
 	const modifiedOn = pick(user, ['Public.ModifiedOnUTC', 'ModifiedOnUTC']);
@@ -116,39 +115,53 @@ export default async function ViewUserPage({
 		revalidatePath(`/users/${id}`);
 	}
 
+	async function cancelSubscriptionAction(formData: FormData) {
+		'use server';
+		await cancelSubscribition(formData);
+		revalidatePath(`/users/${id}`);
+	}
+
 	return (
 		<div>
-			<UserHeaderCard
-				id={id}
-				displayName={displayName}
-				userName={userName}
-				email={email}
-				roles={roles}
-				profilePng={profilePng}
-				disabled={Boolean(disabledOn)}
-				grantRolesAction={grantRolesAction}
-				enableUserAction={enableUserAction}
-				disableUserAction={disableUserAction}
-			/>
-			<UserTimeline
-				createdOn={createdOn}
-				modifiedOn={modifiedOn}
-				disabledOn={disabledOn}
-			/>
-
-			<UserDetails
-				id={id}
-				email={email}
-				bio={bio}
-				userName={userName}
-				displayName={displayName}
-				totpDevices={totpDevices}
-				disableTotpAction={disableTotpAction}
-				roles={roles}
-			/>
-
-			{/* TODO: Wire cancelSubscriptionAction + userId into UserSubscriptions */}
-			<UserSubscriptions subscriptions={subs} />
+			<div className="mb-6">
+				<UserHeaderCard
+					id={id}
+					displayName={displayName}
+					userName={userName}
+					email={email}
+					roles={roles}
+					profilePng={profilePng}
+					disabled={Boolean(disabledOn)}
+					grantRolesAction={grantRolesAction}
+					enableUserAction={enableUserAction}
+					disableUserAction={disableUserAction}
+				/>
+			</div>
+			<div className="mb-4">
+				<UserTimeline
+					createdOn={createdOn}
+					modifiedOn={modifiedOn}
+					disabledOn={disabledOn}
+				/>
+			</div>
+			<div className="mb-4">
+				<UserDetails
+					id={id}
+					email={email}
+					bio={bio}
+					userName={userName}
+					displayName={displayName}
+					totpDevices={totpDevices}
+					disableTotpAction={disableTotpAction}
+					roles={roles}
+				/>
+			</div>
+			<div className="mb-4">
+				<UserSubscriptions
+					subscriptions={subs}
+					cancelSubscriptionAction={cancelSubscriptionAction}
+				/>
+			</div>
 		</div>
 	);
 }
