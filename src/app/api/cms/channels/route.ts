@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getAdminSettings } from '@/app/actions/settings';
+import { getChannels } from '@/app/actions/settings';
 
 export async function GET() {
 	try {
-		// TODO: Replace with call to Channels api
-		const { Public } = await getAdminSettings();
-		const list = (Public as any)?.CMS?.Channels ?? [];
-		return NextResponse.json({ Records: list });
+		const channels = await getChannels();
+		return NextResponse.json({ Records: channels });
 	} catch (e) {
 		return NextResponse.json({ Records: [] }, { status: 200 });
 	}

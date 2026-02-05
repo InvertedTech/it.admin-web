@@ -42,6 +42,8 @@ import {
 	ModifyNotificationOwnerDataRequestSchema,
 	ModifyNotificationOwnerDataResponse,
 	ModifyNotificationOwnerDataResponseSchema,
+	GetPublicDataResponseSchema,
+	GetPublicDataResponse,
 } from '@inverted-tech/fragments/Settings';
 
 async function getToken() {
@@ -73,7 +75,6 @@ const _getAdminSettings = cache(async (token?: string) => {
 		}
 
 		const body: GetAdminDataResponse = await res.json();
-		console.log(body.Public?.Events);
 		return body;
 	} catch (error) {
 		console.error(error);
@@ -113,6 +114,26 @@ const _getOwnerSettings = cache(async (token?: string) => {
 		});
 	}
 });
+
+export async function getPublicSettings() {
+	try {
+		const url = `${API_BASE_URL}/settings/public`;
+		const res = await fetch(url, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+
+		const body: GetPublicDataResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(GetPublicDataResponseSchema, {
+			Public: {},
+		});
+	}
+}
 
 export async function getAdminSettings() {
 	const session = await getSession();
@@ -162,6 +183,25 @@ export async function createChannel(req: ChannelRecord) {
 	} catch (error) {
 		console.error(error);
 		return false;
+	}
+}
+
+export async function getChannels() {
+	try {
+		const token = await getToken();
+		const url = `${API_BASE_URL}/settings/channel`;
+		const res = await fetch(url, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		const body: ChannelRecord[] = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return [];
 	}
 }
 
@@ -313,10 +353,7 @@ export async function modifyNotificationsOwnerSettings(
 	try {
 		const token = await getToken();
 		const url = `${API_BASE_URL}/settings/notifications/owner`;
-		const msg = create(
-			ModifyNotificationOwnerDataRequestSchema,
-			req as any,
-		);
+		const msg = create(ModifyNotificationOwnerDataRequestSchema, req as any);
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
@@ -367,13 +404,9 @@ export async function modifyEventsPublicSettings(
 			Data: req?.Data
 				? {
 						...dropMeta(req.Data as any),
-						TicketClasses: Array.isArray(
-							(req.Data as any)?.TicketClasses,
-						)
+						TicketClasses: Array.isArray((req.Data as any)?.TicketClasses)
 							? (req.Data as any).TicketClasses.map((tc: any) => {
-									const { TicketClassId, ...rest } = dropMeta(
-										tc ?? {},
-									);
+									const { TicketClassId, ...rest } = dropMeta(tc ?? {});
 									return dropMeta(rest);
 								})
 							: undefined,
