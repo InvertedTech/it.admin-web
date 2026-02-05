@@ -8,6 +8,8 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { requireRole } from '@/lib/rbac';
+import { isAdminOrHigher } from '@/lib/roleHelpers';
 
 const sections = [
 	{
@@ -42,7 +44,8 @@ const sections = [
 	},
 ];
 
-export default function SettingsOverviewPage() {
+export default async function SettingsOverviewPage() {
+	await requireRole(isAdminOrHigher);
 	return (
 		<div>
 			<div className="mb-8">

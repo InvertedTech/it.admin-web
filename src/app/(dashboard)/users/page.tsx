@@ -187,7 +187,10 @@
 'use server';
 
 import { UsersSearchView } from '@/components/admin/user-search-view';
+import { requireRole } from '@/lib/rbac';
+import { isAdminOrHigher } from '@/lib/roleHelpers';
 
 export default async function UsersSearchPage() {
+	await requireRole(isAdminOrHigher);
 	return <UsersSearchView />;
 }

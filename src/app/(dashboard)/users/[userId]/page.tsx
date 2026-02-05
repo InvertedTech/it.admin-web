@@ -20,10 +20,15 @@ import {
 	DisableOtherTotpRequestSchema,
 } from '@inverted-tech/fragments/Authentication';
 import { getSubscriptionsForUser } from '@/app/actions/payment';
+import { requireRole } from '@/lib/rbac';
+import { isAdminOrHigher } from '@/lib/roleHelpers';
+import { getSession } from '@/lib/session';
 
 function pick<T = unknown>(obj: any, paths: string[], fb?: T): T | undefined {
 	for (const p of paths) {
-		const v = p.split('.').reduce<any>((o, k) => (o ? o[k] : undefined), obj);
+		const v = p
+			.split('.')
+			.reduce<any>((o, k) => (o ? o[k] : undefined), obj);
 		if (v !== undefined && v !== null && v !== '') return v as T;
 	}
 	return fb;
@@ -34,6 +39,9 @@ export default async function ViewUserPage({
 }: {
 	params: { userId: string };
 }) {
+	await requireRole(isAdminOrHigher);
+	const session = await getSession();
+	const roles = session.roles ?? [];
 	const { userId } = await params;
 	const subs = await getSubscriptionsForUser(userId);
 	const res = await adminGetUser(userId);
@@ -41,7 +49,8 @@ export default async function ViewUserPage({
 	if (!user) notFound();
 
 	// inferred fields across Public/Private shapes
-	const id = pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
+	const id =
+		pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
 	const displayName = pick<string>(
 		user,
 		['Public.Data.DisplayName', 'DisplayName'],
@@ -49,9 +58,9 @@ export default async function ViewUserPage({
 	)!;
 	const userName =
 		pick<string>(user, ['Public.Data.UserName', 'UserName'], '') || '—';
-	const email = pick<string>(user, ['Private.Data.Email', 'Email'], '') || '—';
+	const email =
+		pick<string>(user, ['Private.Data.Email', 'Email'], '') || '—';
 	const bio = pick<string>(user, ['Public.Data.Bio', 'Bio'], '') || '—';
-	const roles = pick<string[]>(user, ['Private.Roles', 'Roles'], []) ?? [];
 	const createdOn = pick(user, ['Public.CreatedOnUTC', 'CreatedOnUTC']);
 	const modifiedOn = pick(user, ['Public.ModifiedOnUTC', 'ModifiedOnUTC']);
 	const disabledOn = pick(user, ['Private.DisabledOnUTC', 'DisabledOnUTC']);
@@ -121,7 +130,6 @@ export default async function ViewUserPage({
 				enableUserAction={enableUserAction}
 				disableUserAction={disableUserAction}
 			/>
-
 			<UserTimeline
 				createdOn={createdOn}
 				modifiedOn={modifiedOn}
@@ -133,8 +141,10 @@ export default async function ViewUserPage({
 				email={email}
 				bio={bio}
 				userName={userName}
+				displayName={displayName}
 				totpDevices={totpDevices}
 				disableTotpAction={disableTotpAction}
+				roles={roles}
 			/>
 
 			{/* TODO: Wire cancelSubscriptionAction + userId into UserSubscriptions */}

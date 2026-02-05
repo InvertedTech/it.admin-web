@@ -26,6 +26,7 @@ import {
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import type { TOTPDeviceLimited } from '@inverted-tech/fragments/protos/Authentication/UserInterface_pb';
+import { EditOtherUserDialog } from '@/components/users/edit-user/edit-other-user-dialog';
 
 // small row renderer
 function Row({
@@ -62,24 +63,38 @@ function Row({
 export function UserDetails({
 	id,
 	userName,
+	displayName,
 	email,
 	bio,
 	totpDevices,
 	disableTotpAction,
+	roles,
 }: {
 	id: string;
 	userName: string;
+	displayName: string;
 	email?: string;
 	bio?: string;
 	totpDevices?: TOTPDeviceLimited[];
 	disableTotpAction?: (formData: FormData) => void | Promise<void>;
+	roles?: string[];
 }) {
 	const devices = totpDevices ?? [];
 	return (
 		<Card>
-			<CardHeader>
-				<CardTitle>Profile</CardTitle>
-				<CardDescription>Public information</CardDescription>
+			<CardHeader className="flex flex-row items-start justify-between gap-4">
+				<div className="space-y-1">
+					<CardTitle>Profile</CardTitle>
+					<CardDescription>Public information</CardDescription>
+				</div>
+				<EditOtherUserDialog
+					userId={id}
+					userName={userName}
+					displayName={displayName}
+					email={email ?? ''}
+					bio={bio ?? ''}
+					roles={roles ?? []}
+				/>
 			</CardHeader>
 			<CardContent className="space-y-3">
 				<Row

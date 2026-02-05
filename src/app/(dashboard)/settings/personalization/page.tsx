@@ -3,8 +3,11 @@
 import { getAdminSettings } from '@/app/actions/settings';
 import { PersonalizationPublicForm } from '@/components/forms/personalization-public-settings-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { requireRole } from '@/lib/rbac';
+import { isAdminOrHigher } from '@/lib/roleHelpers';
 
 export default async function SettingsGeneralPersonalizationPage() {
+	await requireRole(isAdminOrHigher);
 	const { Public } = await getAdminSettings();
 
 	return (

@@ -4,8 +4,11 @@ import { getAdminSettings } from '@/app/actions/settings';
 import { LayoutEnum } from '@inverted-tech/fragments/Content';
 import { CmsPublicSettingsForm } from '@/components/forms/cms-public-settings-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { requireRole } from '@/lib/rbac';
+import { isAdminOrHigher } from '@/lib/roleHelpers';
 
 export default async function ContentSettingsPage() {
+	await requireRole(isAdminOrHigher);
 	const { Public } = await getAdminSettings();
 	const cms = Public?.CMS;
 	console.log(JSON.stringify(cms?.Channels));

@@ -4,7 +4,7 @@ import { create } from '@bufbuild/protobuf';
 import {
 	ChangeOtherPasswordRequestSchema,
 	ModifyOtherUserRequestSchema,
-} from '@inverted-tech/fragments/protos/Authentication/UserInterface_pb';
+} from '@inverted-tech/fragments/Authentication/index';
 
 export const AdminEditOtherUserFieldGroups = withFieldGroup({
 	defaultValues: create(ModifyOtherUserRequestSchema),

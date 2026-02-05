@@ -29,6 +29,7 @@ type Props = {
 	publishOn?: MaybeTimestamp;
 	pinnedOn?: MaybeTimestamp;
 	announceOn?: MaybeTimestamp;
+	canPublish?: boolean;
 };
 
 export function ContentTimeline({
@@ -37,6 +38,7 @@ export function ContentTimeline({
 	publishOn,
 	announceOn,
 	pinnedOn,
+	canPublish = true,
 }: Props) {
 	const router = useRouter();
     const [isUnpublishing, setUnpublishing] = useState(false);
@@ -122,16 +124,18 @@ export function ContentTimeline({
 						{hasPublish ? (
 							<div className="flex items-center gap-2">
 								<span>{fmtDate(publishOn)}</span>
-								<Button
-									variant="outline"
-									size="sm"
-									disabled={isUnpublishing}
-									onClick={doUnpublish}
-								>
-									Unpublish
-								</Button>
+								{canPublish ? (
+									<Button
+										variant="outline"
+										size="sm"
+										disabled={isUnpublishing}
+										onClick={doUnpublish}
+									>
+										Unpublish
+									</Button>
+								) : null}
 							</div>
-						) : (
+						) : canPublish ? (
 							<Dialog>
 								<DialogTrigger asChild>
 									<Button size="sm">Set publish date</Button>
@@ -143,6 +147,8 @@ export function ContentTimeline({
 									<PublishContentForm contentId={contentId} />
 								</DialogContent>
 							</Dialog>
+						) : (
+							<span className="text-muted-foreground">Not scheduled</span>
 						)}
 						</div>
 					</div>
@@ -158,16 +164,18 @@ export function ContentTimeline({
                             {hasAnnounce ? (
                                 <div className="flex items-center gap-2">
                                     <span>{fmtDate(announceOn)}</span>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        disabled={isUnannouncing}
-                                        onClick={doUnannounce}
-                                    >
-                                        Unannounce
-                                    </Button>
+                                    {canPublish ? (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={isUnannouncing}
+                                            onClick={doUnannounce}
+                                        >
+                                            Unannounce
+                                        </Button>
+                                    ) : null}
                                 </div>
-                            ) : (
+                            ) : canPublish ? (
                                 <Dialog>
                                     <DialogTrigger asChild>
                                         <Button size="sm">Set announce date</Button>
@@ -179,6 +187,8 @@ export function ContentTimeline({
                                         <AnnounceContentForm contentId={contentId} />
                                     </DialogContent>
                                 </Dialog>
+                            ) : (
+                                <span className="text-muted-foreground">Not scheduled</span>
                             )}
                         </div>
                     </div>

@@ -1,6 +1,9 @@
 import { CreateContentForm } from '@/components/forms/create-content-form';
+import { requireRole } from '@/lib/rbac';
+import { canCreateContent } from '@/lib/roleHelpers';
 
-export default function CreateContentPage() {
+export default async function CreateContentPage() {
+	await requireRole(canCreateContent);
 	return (
 		<div className="space-y-6">
 			<div className="space-y-1">

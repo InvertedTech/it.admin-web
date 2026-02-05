@@ -4,6 +4,9 @@ import { ContentDetails } from '@/components/content/content-details';
 import { ContentEmpty } from '@/components/content/content-empty';
 import { ContentTimeline } from '@/components/content/content-timeline';
 import { ViewContentHeader } from '@/components/content/view-content-header';
+import { requireRole } from '@/lib/rbac';
+import { isPublisherOrHigher, isWriterOrHigher } from '@/lib/roleHelpers';
+import { getSession } from '@/lib/session';
 
 // Simple asset URL helper
 function getAssetUrl(assetId?: string): string | undefined {
@@ -18,7 +21,10 @@ export default async function ViewContentPage({
 }: {
 	params: { contentId: string };
 }) {
+	await requireRole(isWriterOrHigher);
 	const { contentId } = await params;
+	const session = await getSession();
+	const canPublish = isPublisherOrHigher(session.roles ?? []);
 	const res = await adminGetContent(contentId);
 	const record = (res as any)?.Record;
 	if (!record) {
@@ -50,34 +56,33 @@ export default async function ViewContentPage({
 
 	return (
 		<div>
-			<div className="mb-6">
+			<div className='mb-6'>
 				<ViewContentHeader
-				id={id}
-				title={pubData?.Title}
-				description={pubData?.Description}
-				featuredUrl={featuredUrl}
-				coarseTypeLabel={coarseTypeLabel}
-				subscriptionLevel={subscriptionLevel}
-				publishOn={publishOn}
-			/>
+					id={id}
+					title={pubData?.Title}
+					description={pubData?.Description}
+					featuredUrl={featuredUrl}
+					coarseTypeLabel={coarseTypeLabel}
+					subscriptionLevel={subscriptionLevel}
+					publishOn={publishOn}
+				/>
 			</div>
-			<ContentDetails
-				id={id}
-				pubData={pubData}
-			/>
-
-			<ContentTimeline
-				contentId={id}
-				createdOn={createdOn}
-				pinnedOn={pinnedOn}
-				publishOn={publishOn}
-				announceOn={announceOn}
-			/>
-
-			<ContentData
-				pubData={pubData}
-				privData={privData}
-			/>
+			<div className='mb-4'>
+				<ContentDetails id={id} pubData={pubData} />
+			</div>
+			<div className='mb-4'>
+				<ContentTimeline
+					contentId={id}
+					createdOn={createdOn}
+					pinnedOn={pinnedOn}
+					publishOn={publishOn}
+					announceOn={announceOn}
+					canPublish={canPublish}
+				/>
+			</div>
+			<div className='mb-4'>
+				<ContentData pubData={pubData} privData={privData} />
+			</div>
 		</div>
 	);
 }

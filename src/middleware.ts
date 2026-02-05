@@ -4,8 +4,6 @@ import { unsealData } from 'iron-session';
 
 const AUTH_COOKIE = 'it.admin.session';
 const PUBLIC_PATHS = ['/login', '/unauthorized'];
-const ALLOWED_ROLES = ['owner', 'admin'];
-
 type SessionData = {
 	roles?: string[];
 };
@@ -47,8 +45,7 @@ export async function middleware(request: NextRequest) {
 			password: getSessionPassword(),
 		});
 		const roles = session?.roles ?? [];
-		const isAllowed = roles.some((r) => ALLOWED_ROLES.includes(r));
-		if (!isAllowed) {
+		if (roles.length === 0) {
 			const unauthorizedUrl = request.nextUrl.clone();
 			unauthorizedUrl.pathname = '/unauthorized';
 			return NextResponse.redirect(unauthorizedUrl);

@@ -13,8 +13,9 @@ type DashboardLayoutProps = {
  * Shared chrome for dashboard pages: sidebar navigation and top header.
  */
 export default async function DashboardLayout({ children }: DashboardLayoutProps) {
-    const s = await getSession();
-    const userName = s.userName ?? undefined;
+	const s = await getSession();
+	const userName = s.userName ?? undefined;
+	const roles = s.roles ?? [];
     return (
 		<SidebarProvider
 			style={
@@ -24,7 +25,11 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
 				} as CSSProperties
 			}
 		>
-            <AppSidebar variant="inset" sessionUserName={userName} />
+			<AppSidebar
+				variant="inset"
+				sessionUserName={userName}
+				sessionRoles={roles}
+			/>
 			<SidebarInset>
 				<SiteHeader />
 				<div className="flex flex-1 flex-col">

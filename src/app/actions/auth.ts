@@ -6,7 +6,12 @@ import {
 	AuthenticateUserRequest,
 	AuthenticateUserResponseSchema,
 	AuthErrorReason,
+	AuthErrorReasonSchema,
 	AuthErrorSchema,
+	ChangeOtherPasswordRequest,
+	ChangeOtherPasswordRequestSchema,
+	ChangeOtherPasswordResponse,
+	ChangeOtherPasswordResponseSchema,
 	DisableEnableOtherUserRequest,
 	DisableEnableOtherUserRequestSchema,
 	DisableEnableOtherUserResponse,
@@ -20,6 +25,10 @@ import {
 	GetOtherTotpListResponseSchema,
 	GetOtherUserResponse,
 	GetOtherUserResponseSchema,
+	ModifyOtherUserRequest,
+	ModifyOtherUserRequestSchema,
+	ModifyOtherUserResponse,
+	ModifyOtherUserResponseSchema,
 	ModifyOtherUserRolesRequest,
 	ModifyOtherUserRolesRequestSchema,
 	ModifyOtherUserRolesResponse,
@@ -34,6 +43,8 @@ import {
 } from '@inverted-tech/fragments/Authentication';
 import { getSession } from '@/lib/session';
 import { toIso } from '@/lib/utils';
+import { isAdminOrHigher } from '@/lib/roleHelpers';
+import { ValidationIssueSchema } from '@inverted-tech/fragments/protos/index';
 async function getToken() {
 	const session = await getSession();
 	return session.token;
@@ -105,7 +116,8 @@ export async function loginAction(
 			}
 
 			if (body.UserRecord?.Public?.Data?.ProfileImagePNG) {
-				session.profileImageId = body.UserRecord.Public.Data.ProfileImagePNG;
+				session.profileImageId =
+					body.UserRecord.Public.Data.ProfileImagePNG;
 			}
 
 			if (
@@ -149,13 +161,15 @@ export async function listUsers(
 			`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`;
 
 		if (req.PageSize != null) parts.push(enc('PageSize', req.PageSize));
-		if (req.PageOffset != null) parts.push(enc('PageOffset', req.PageOffset));
+		if (req.PageOffset != null)
+			parts.push(enc('PageOffset', req.PageOffset));
 		if (req.SearchString?.trim())
 			parts.push(enc('SearchString', req.SearchString.trim()));
 		if (Array.isArray(req.Roles))
 			for (const r of req.Roles) if (r) parts.push(enc('Roles', r));
 		if (Array.isArray(req.UserIDs))
-			for (const id of req.UserIDs) if (id) parts.push(enc('UserIDs', id));
+			for (const id of req.UserIDs)
+				if (id) parts.push(enc('UserIDs', id));
 		const ca = toIso((req as any)?.CreatedAfter);
 		const cb = toIso((req as any)?.CreatedBefore);
 		if (ca) parts.push(enc('CreatedAfter', ca));
@@ -366,5 +380,116 @@ export async function adminDisableOtherTotp(req: DisableOtherTotpRequest) {
 	} catch (error) {
 		console.error(error);
 		return create(DisableOtherTotpResponseSchema, {});
+	}
+}
+
+export async function adminEditOtherUserPassword(
+	req: ChangeOtherPasswordRequest,
+) {
+	try {
+		const token = await getToken();
+		if (!token || token === '')
+			return create(ChangeOtherPasswordResponseSchema, {
+				Error: create(AuthErrorSchema, {
+					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+					Message: 'Not Logged In',
+					Validation: [],
+				}),
+			});
+
+		const roles = (await getSession()).roles;
+		if (!roles || roles.length < 0)
+			return create(ChangeOtherPasswordResponseSchema, {
+				Error: create(AuthErrorSchema, {
+					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+					Message: 'Not Logged In',
+					Validation: [],
+				}),
+			});
+
+		if (!isAdminOrHigher(roles))
+			return create(ChangeOtherPasswordResponseSchema, {
+				Error: create(AuthErrorSchema, {
+					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+					Message: 'User Does Not Have Required Role',
+					Validation: [],
+				}),
+			});
+
+		const res = await fetch(ADMIN_API_BASE.concat('/password'), {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+			},
+			body: toJsonString(ChangeOtherPasswordRequestSchema, req),
+		});
+
+		const body: ChangeOtherPasswordResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(ChangeOtherPasswordResponseSchema, {
+			Error: create(AuthErrorSchema, {
+				Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNKNOWN,
+				Message: 'An Error Has Occured Changing A Users Password',
+				Validation: [],
+			}),
+		});
+	}
+}
+
+export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
+	try {
+		const token = await getToken();
+		if (!token || token === '')
+			return create(ModifyOtherUserResponseSchema, {
+				Error: create(AuthErrorSchema, {
+					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+					Message: 'Not Logged In',
+					Validation: [],
+				}),
+			});
+
+		const roles = (await getSession()).roles;
+		if (!roles || roles.length < 0)
+			return create(ModifyOtherUserResponseSchema, {
+				Error: create(AuthErrorSchema, {
+					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+					Message: 'Not Logged In',
+					Validation: [],
+				}),
+			});
+
+		if (!isAdminOrHigher(roles))
+			return create(ModifyOtherUserResponseSchema, {
+				Error: create(AuthErrorSchema, {
+					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+					Message: 'User Does Not Have Required Role',
+					Validation: [],
+				}),
+			});
+
+		const res = await fetch(ADMIN_API_BASE.concat('/user'), {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+			},
+			body: toJsonString(ModifyOtherUserRequestSchema, req),
+		});
+
+		const body: ModifyOtherUserResponse = await res.json();
+
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(ModifyOtherUserResponseSchema, {
+			Error: create(AuthErrorSchema, {
+				Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNKNOWN,
+				Message: 'An Error Ocurred While Trying To Modify Other User',
+				Validation: [],
+			}),
+		});
 	}
 }

@@ -17,10 +17,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Roles as AllRoles, RoleCategories, RoleMeta } from '@/lib/types';
-import * as React from 'react';
-import { toast } from 'sonner';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -32,6 +28,11 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Roles as AllRoles, RoleCategories, RoleMeta } from '@/lib/types';
+import * as React from 'react';
+import { toast } from 'sonner';
+import { ChangeOtherPasswordDialog } from '@/components/users/edit-user/change-other-password-dialog';
 
 type Props = {
     id: string;
@@ -168,7 +169,7 @@ export function UserHeaderCard({
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>Disable user?</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            This will disable the user’s account. They will not be able to sign in until re-enabled.
+                                            This will disable the userâ€™s account. They will not be able to sign in until re-enabled.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
@@ -191,17 +192,11 @@ export function UserHeaderCard({
                             </AlertDialog>
                         )
                     ) : null}
-                    <Button
-                        asChild
-                        variant="outline"
-                    >
-                        <a href={`/users/${id}/edit`}>Edit</a>
-                    </Button>
-                    {grantRolesAction ? (
-                        <Dialog open={open} onOpenChange={setOpen}>
-                            <DialogTrigger asChild>
-                                <Button variant="outline">Grant Roles</Button>
-                            </DialogTrigger>
+					{grantRolesAction ? (
+						<Dialog open={open} onOpenChange={setOpen}>
+							<DialogTrigger asChild>
+								<Button variant="outline">Grant Roles</Button>
+							</DialogTrigger>
                             <DialogContent>
                                 <DialogHeader>
                                     <DialogTitle>Grant Roles</DialogTitle>
@@ -229,14 +224,13 @@ export function UserHeaderCard({
                                         <Button type="submit">Save</Button>
                                     </DialogFooter>
                                 </form>
-                            </DialogContent>
-                        </Dialog>
-                    ) : null}
-					<Button asChild>
-						<a href={`/users/${id}`}>Refresh</a>
-					</Button>
+							</DialogContent>
+						</Dialog>
+					) : null}
+					<ChangeOtherPasswordDialog userId={id} roles={roles} />
 				</div>
 			</CardHeader>
 		</Card>
 	);
 }
+

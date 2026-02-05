@@ -26,7 +26,8 @@ function getSessionOptions() {
 
 	return {
 		cookieName: 'it.admin.session',
-		password: pwd ?? 'dev-only-insecure-please-change-this-at-least-32-chars',
+		password:
+			pwd ?? 'dev-only-insecure-please-change-this-at-least-32-chars',
 		cookieOptions: {
 			secure: inProd,
 			sameSite: 'lax',

@@ -31,8 +31,10 @@ const accessOptions = [
 
 export function ContentSearchView({
 	data,
+	roles,
 }: {
 	data: ContentListRecord[];
+	roles: string[];
 }) {
 	const [titleQuery, setTitleQuery] = React.useState('');
 	const [authorQuery, setAuthorQuery] = React.useState('');
@@ -96,7 +98,9 @@ export function ContentSearchView({
 									className='flex items-center gap-2 text-sm'
 								>
 									<Checkbox
-										checked={typeFilters.includes(opt.value)}
+										checked={typeFilters.includes(
+											opt.value,
+										)}
 										onCheckedChange={(v) => {
 											setTypeFilters((prev) =>
 												Boolean(v)
@@ -104,8 +108,9 @@ export function ContentSearchView({
 														? prev
 														: [...prev, opt.value]
 													: prev.filter(
-															(x) => x !== opt.value,
-													  ),
+															(x) =>
+																x !== opt.value,
+														),
 											);
 										}}
 									/>
@@ -123,7 +128,9 @@ export function ContentSearchView({
 									className='flex items-center gap-2 text-sm'
 								>
 									<Checkbox
-										checked={accessFilters.includes(opt.value)}
+										checked={accessFilters.includes(
+											opt.value,
+										)}
 										onCheckedChange={(v) => {
 											setAccessFilters((prev) =>
 												Boolean(v)
@@ -131,8 +138,9 @@ export function ContentSearchView({
 														? prev
 														: [...prev, opt.value]
 													: prev.filter(
-															(x) => x !== opt.value,
-													  ),
+															(x) =>
+																x !== opt.value,
+														),
 											);
 										}}
 									/>
@@ -173,7 +181,7 @@ export function ContentSearchView({
 				</div>
 			</div>
 
-			<ContentTable data={filtered} pageSize={pageSize} />
+			<ContentTable data={filtered} pageSize={pageSize} roles={roles} />
 		</form>
 	);
 }

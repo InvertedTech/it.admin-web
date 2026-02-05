@@ -10,12 +10,15 @@ import type {
 } from '@inverted-tech/fragments/Content/ImageAssetRecord_pb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AudioPlayer } from '@/components/assets/audio-player';
+import { requireRole } from '@/lib/rbac';
+import { isWriterOrHigher } from '@/lib/roleHelpers';
 
 export default async function AssetIndexPage({
 	searchParams,
 }: {
 	searchParams: Promise<{ tab?: string }>;
 }) {
+	await requireRole(isWriterOrHigher);
 	const sp = await searchParams;
 	const tab = (sp?.tab ?? 'images').toLowerCase();
 

@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ContentListRecord } from '@inverted-tech/fragments/Content';
+import roleHelpers from '@/lib/roleHelpers';
 export const ContentTypeLabels: Record<
 	ContentListRecord['ContentType'],
 	string
@@ -132,7 +133,10 @@ export function levelLabel(level: number) {
 	return `Level ${level}`;
 }
 
-const columns: ColumnDef<ContentListRecord>[] = [
+function getColumns(
+	isPublisherOrHigher: boolean,
+): ColumnDef<ContentListRecord>[] {
+	return [
 	// Title
 	{
 		accessorKey: 'Title',
@@ -253,7 +257,6 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		enableHiding: true,
 	},
 
-
 	// Actions
 	{
 		id: 'actions',
@@ -334,6 +337,8 @@ const columns: ColumnDef<ContentListRecord>[] = [
 							<a href={`/content/${r.ContentID}/edit`}>Edit</a>
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
+						{isPublisherOrHigher && (
+							<>
 						{Boolean((r as any)?.AnnounceOnUTC) ? (
 							<DropdownMenuItem
 								onClick={async () => {
@@ -377,6 +382,8 @@ const columns: ColumnDef<ContentListRecord>[] = [
 						>
 							Delete
 						</DropdownMenuItem>
+							</>
+						)}
 					</DropdownMenuContent>
 					<Dialog open={announceOpen} onOpenChange={setAnnounceOpen}>
 						<DialogContent
@@ -398,18 +405,25 @@ const columns: ColumnDef<ContentListRecord>[] = [
 		},
 	},
 ];
+}
 
 export function ContentTable({
 	data,
+	roles,
 	pageSize = 25,
 }: {
 	data: ContentListRecord[];
+	roles: string[];
 	pageSize?: number;
 }) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
-
+	const isPublisherOrHigher = roleHelpers.isPublisherOrHigher(roles);
+	const columns = React.useMemo(
+		() => getColumns(isPublisherOrHigher),
+		[isPublisherOrHigher],
+	);
 	const table = useReactTable({
 		data,
 		columns,
@@ -531,4 +545,5 @@ export function ContentTable({
 		</div>
 	);
 }
+
 
