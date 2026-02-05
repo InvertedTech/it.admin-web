@@ -32,7 +32,7 @@ export function NavMain({ items }: { items: NavNode[] }) {
 			<SidebarGroupLabel>Platform</SidebarGroupLabel>
 			<SidebarMenu>
 				{items.map((item) => (
-					<TopRow
+					<NavRow
 						key={item.title}
 						item={item}
 					/>
@@ -42,7 +42,7 @@ export function NavMain({ items }: { items: NavNode[] }) {
 	);
 }
 
-function TopRow({ item }: { item: NavNode }) {
+function NavRow({ item }: { item: NavNode }) {
 	const pathname = usePathname();
 	const Icon = item.icon;
 	const hasChildren = !!item.items?.length;
@@ -120,103 +120,29 @@ function TopRow({ item }: { item: NavNode }) {
 
 				<CollapsibleContent>
 					<SidebarMenuSub>
-						{item.items!.map((sub) => (
-							<SubRow
-								key={sub.title}
-								node={sub}
-								here={here}
-							/>
-						))}
+						{item.items!.map((sub) => {
+							const subMe = norm(sub.url);
+							const active = here === subMe || here.startsWith(subMe + '/');
+							return (
+								<SidebarMenuSubItem key={sub.title}>
+									<SidebarMenuSubButton
+										asChild
+										isActive={active}
+									>
+										<a
+											href={sub.url}
+											className="flex items-center gap-2"
+										>
+											{sub.icon && <sub.icon className="size-3.5" />}
+											<span>{sub.title}</span>
+										</a>
+									</SidebarMenuSubButton>
+								</SidebarMenuSubItem>
+							);
+						})}
 					</SidebarMenuSub>
 				</CollapsibleContent>
 			</SidebarMenuItem>
 		</Collapsible>
-	);
-}
-
-function SubRow({ node, here }: { node: NavNode; here: string }) {
-	const Icon = node.icon;
-	const norm = (p: string) =>
-		p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p;
-	const me = norm(node.url);
-	const hasChildren = !!node.items?.length;
-
-	const anyChildMatch = !!node.items?.some((s) => {
-		const c = norm(s.url);
-		return here === c || here.startsWith(c + '/');
-	});
-
-	const openByPath = here === me || here.startsWith(me + '/') || anyChildMatch;
-	const active = here === me || !!node.isActive;
-
-	const [open, setOpen] = React.useState<boolean>(openByPath);
-	React.useEffect(() => setOpen(openByPath), [openByPath]);
-
-	// leaf
-	if (!hasChildren) {
-		return (
-			<SidebarMenuSubItem>
-				<SidebarMenuSubButton
-					asChild
-					isActive={active}
-				>
-					<a
-						href={node.url}
-						className="flex items-center gap-2"
-					>
-						{Icon && <Icon className="size-3.5" />}
-						<span>{node.title}</span>
-					</a>
-				</SidebarMenuSubButton>
-			</SidebarMenuSubItem>
-		);
-	}
-
-	// nested group
-	return (
-		<SidebarMenuSubItem>
-			<div className="flex w-full items-center">
-				<SidebarMenuSubButton
-					asChild
-					isActive={active}
-					className="flex-1"
-				>
-					<a
-						href={node.url}
-						className="flex items-center gap-2"
-					>
-						{Icon && <Icon className="size-3.5" />}
-						<span>{node.title}</span>
-					</a>
-				</SidebarMenuSubButton>
-				<Button
-					type="button"
-					size="icon"
-					variant="ghost"
-					onClick={() => setOpen((v) => !v)}
-					className={cn(
-						'ml-1 h-6 w-6 p-0 text-muted-foreground hover:text-foreground',
-						open && 'text-foreground'
-					)}
-					aria-label={open ? 'Collapse subsection' : 'Expand subsection'}
-				>
-					<ChevronRight
-						className={cn('size-3.5 transition-transform', open && 'rotate-90')}
-					/>
-				</Button>
-			</div>
-
-			{open && (
-				<SidebarMenuSub className="pl-4">
-					{node.items!.map((child) => (
-						<SubRow
-							key={child.title}
-							node={child}
-							here={here}
-						/>
-					))}
-				</SidebarMenuSub>
-			)}
-		</SidebarMenuSubItem>
 	);
 }

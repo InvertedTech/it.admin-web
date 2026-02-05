@@ -23,11 +23,14 @@ import {
 import {
 	Bell,
 	CreditCard,
+	FileText,
 	FilesIcon,
-	GalleryVerticalEnd,
+	Images,
 	MessageSquare,
 	Palette,
+	PlusSquare,
 	Settings as SettingsIcon,
+	Upload,
 	UserIcon,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -50,25 +53,23 @@ const data = {
 	navMain: [
 		{
 			title: 'Content',
-			icon: GalleryVerticalEnd,
+			icon: FileText,
 			url: '/content',
-			items: [
-				{
-					title: 'Assets',
-					icon: GalleryVerticalEnd,
-					url: '/content/assets',
-				},
-				{
-					title: 'Upload Asset',
-					icon: GalleryVerticalEnd,
-					url: '/content/assets/upload',
-				},
-				{
-					title: 'Create',
-					icon: GalleryVerticalEnd,
-					url: '/content/create',
-				},
-			],
+		},
+		{
+			title: 'Assets',
+			icon: Images,
+			url: '/content/assets',
+		},
+		{
+			title: 'Upload Asset',
+			icon: Upload,
+			url: '/content/assets/upload',
+		},
+		{
+			title: 'Create',
+			icon: PlusSquare,
+			url: '/content/create',
 		},
 		// {
 		// 	title: 'Events',
@@ -92,7 +93,6 @@ const data = {
 			title: 'Members',
 			icon: UserIcon,
 			url: '/users',
-			items: [],
 		},
 		{
 			title: 'Settings',
@@ -176,7 +176,6 @@ function filterNavItems(items: NavItem[], roles: string[]): NavItem[] {
 		.filter(Boolean) as NavItem[];
 }
 
-// TODO: Flatten Navs
 // TODO: Add Favorited Pages Section Stored In A Cookie
 export function AppSidebar({
 	headerTitle = 'Inverted CMS',
@@ -193,26 +192,27 @@ export function AppSidebar({
 	const roles = sessionRoles ?? [];
 	const navMain = filterNavItems(data.navMain as NavItem[], roles);
 	return (
-		<Sidebar collapsible='offcanvas' {...props}>
+		<Sidebar
+			collapsible="offcanvas"
+			{...props}
+		>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							asChild
-							className='data-[slot=sidebar-menu-button]:!p-1.5'
+							className="data-[slot=sidebar-menu-button]:!p-1.5"
 						>
-							<a href='/'>
-								<IconInnerShadowTop className='!size-5' />
-								<span className='text-base font-semibold'>
-									{headerTitle}
-								</span>
+							<a href="/">
+								<IconInnerShadowTop className="!size-5" />
+								<span className="text-base font-semibold">{headerTitle}</span>
 							</a>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavQuick items={data.navQuick} />
+				{/* <NavQuick items={data.navQuick} /> */}
 				<Separator />
 				<NavMain items={navMain} />
 				{/* <NavSecondary items={data.navSecondary} className='mt-auto' /> */}
