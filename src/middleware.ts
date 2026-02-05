@@ -1,17 +1,27 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { unsealData } from 'iron-session';
 
 const AUTH_COOKIE = 'it.admin.session';
-const PUBLIC_PATHS = ['/login'];
+const PUBLIC_PATHS = ['/login', '/unauthorized'];
+const ALLOWED_ROLES = ['owner', 'admin'];
 
-/**
- * Require a `token` cookie for dashboard routes. Redirect unauthenticated users
- */
-export function middleware(request: NextRequest) {
+type SessionData = {
+	roles?: string[];
+};
+
+function getSessionPassword() {
+	return (
+		process.env.IRON_SESSION_PASSWORD ??
+		'dev-only-insecure-please-change-this-at-least-32-chars'
+	);
+}
+
+export async function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 
 	const isPublicPath = PUBLIC_PATHS.some(
-		(path) => pathname === path || pathname.startsWith(`${path}/`)
+		(path) => pathname === path || pathname.startsWith(`${path}/`),
 	);
 
 	if (
@@ -32,7 +42,24 @@ export function middleware(request: NextRequest) {
 		return NextResponse.redirect(loginUrl);
 	}
 
-	return NextResponse.next();
+	try {
+		const session = await unsealData<SessionData>(token, {
+			password: getSessionPassword(),
+		});
+		const roles = session?.roles ?? [];
+		const isAllowed = roles.some((r) => ALLOWED_ROLES.includes(r));
+		if (!isAllowed) {
+			const unauthorizedUrl = request.nextUrl.clone();
+			unauthorizedUrl.pathname = '/unauthorized';
+			return NextResponse.redirect(unauthorizedUrl);
+		}
+		return NextResponse.next();
+	} catch {
+		const loginUrl = request.nextUrl.clone();
+		loginUrl.pathname = '/login';
+		loginUrl.searchParams.set('from', pathname);
+		return NextResponse.redirect(loginUrl);
+	}
 }
 
 export const config = {
