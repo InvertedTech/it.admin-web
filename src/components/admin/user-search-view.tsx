@@ -14,6 +14,7 @@ import { UsersTable } from '../tables/users-table';
 import { listUsers } from '@/app/actions/auth';
 
 export function UsersSearchView() {
+	const [loading, setLoading] = React.useState(false);
 	const form = useProtoAppForm({
 		schema: SearchUsersAdminRequestSchema,
 		defaultValues: create(SearchUsersAdminRequestSchema, {
@@ -21,11 +22,16 @@ export function UsersSearchView() {
 			PageOffset: 0,
 		}),
 		onValidSubmit: async ({ value }) => {
-			const res = await listUsers(value);
-			setData(res.Records ?? []);
-			setTotal(res.PageTotalItems ?? res.Records?.length ?? 0);
-			setOffset(res.PageOffsetStart ?? value.PageOffset ?? 0);
-			setSize(value.PageSize ?? 25);
+			setLoading(true);
+			try {
+				const res = await listUsers(value);
+				setData(res.Records ?? []);
+				setTotal(res.PageTotalItems ?? res.Records?.length ?? 0);
+				setOffset(res.PageOffsetStart ?? value.PageOffset ?? 0);
+				setSize(value.PageSize ?? 25);
+			} finally {
+				setLoading(false);
+			}
 		},
 	});
 
@@ -128,6 +134,8 @@ export function UsersSearchView() {
 
 				<UsersTable
 					data={data}
+					loading={loading}
+					skeletonRows={size}
 					onPrevPage={prevPage}
 					onNextPage={nextPage}
 					hasPrev={canPrev}

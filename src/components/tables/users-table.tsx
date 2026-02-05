@@ -45,6 +45,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 import type {
 	SearchUsersAdminResponse,
 	UserSearchRecord,
@@ -292,6 +293,8 @@ export function UsersTable({
 	hasNext,
 	clientSort = true, // set false if server-sorting
 	showColumnPicker = true,
+	loading = false,
+	skeletonRows = 8,
 }: {
 	data: UserSearchRecord[];
 	onPrevPage?: () => void;
@@ -300,6 +303,8 @@ export function UsersTable({
 	hasNext?: boolean;
 	clientSort?: boolean;
 	showColumnPicker?: boolean;
+	loading?: boolean;
+	skeletonRows?: number;
 }) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<
@@ -531,7 +536,33 @@ export function UsersTable({
 						))}
 					</TableHeader>
 					<TableBody>
-						{table.getRowModel().rows.length ? (
+						{loading ? (
+							Array.from({ length: skeletonRows }).map((_, rowIdx) => (
+								<TableRow key={`skeleton-${rowIdx}`}>
+									{table.getVisibleLeafColumns().map((col, colIdx) => (
+										<TableCell key={`${col.id}-${colIdx}`}>
+											{colIdx === 0 ? (
+												<div className="flex min-w-0 flex-col gap-1">
+													<Skeleton className="h-4 w-32" />
+													<Skeleton className="h-3 w-24" />
+												</div>
+											) : colIdx === 1 ? (
+												<Skeleton className="h-4 w-44" />
+											) : colIdx === 2 ? (
+												<div className="flex flex-wrap gap-1">
+													<Skeleton className="h-4 w-14 rounded-full" />
+													<Skeleton className="h-4 w-12 rounded-full" />
+												</div>
+											) : colIdx === 3 ? (
+												<Skeleton className="h-5 w-14 rounded-full" />
+											) : (
+												<Skeleton className="h-4 w-6" />
+											)}
+										</TableCell>
+									))}
+								</TableRow>
+							))
+						) : table.getRowModel().rows.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
@@ -563,14 +594,14 @@ export function UsersTable({
 
 			<div className="mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
 				<div className="text-muted-foreground text-sm">
-					{data.length} shown.
+					{loading ? 'Loading…' : `${data.length} shown.`}
 				</div>
 				<div className="flex gap-2">
 					<Button
 						variant="outline"
 						size="sm"
 						onClick={onPrevPage}
-						disabled={!hasPrev}
+						disabled={!hasPrev || loading}
 					>
 						Previous
 					</Button>
@@ -578,7 +609,7 @@ export function UsersTable({
 						variant="outline"
 						size="sm"
 						onClick={onNextPage}
-						disabled={!hasNext}
+						disabled={!hasNext || loading}
 					>
 						Next
 					</Button>
