@@ -44,7 +44,10 @@ export async function middleware(request: NextRequest) {
 		const session = await unsealData<SessionData>(token, {
 			password: getSessionPassword(),
 		});
-		const roles = session?.roles ?? [];
+		const raw = session?.roles as unknown;
+		const roles = (Array.isArray(raw) ? raw : raw ? [String(raw)] : []).filter(
+			(r) => typeof r === 'string' && r.trim().length > 0,
+		);
 		if (roles.length === 0) {
 			const unauthorizedUrl = request.nextUrl.clone();
 			unauthorizedUrl.pathname = '/unauthorized';

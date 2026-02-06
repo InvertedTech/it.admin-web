@@ -182,15 +182,14 @@
 //       <CardContent>{accent === 'success' ? <Badge variant='secondary'>Healthy</Badge> : accent === 'warning' ? <Badge variant='outline'>Attention</Badge> : <div className='h-6' />}</CardContent>
 //     </Card>
 //   );
-// }
-// src/app/(dashboard)/users/search/page.tsx
+//
 'use server';
 
 import { UsersSearchView } from '@/components/admin/user-search-view';
 import { requireRole } from '@/lib/rbac';
-import { isAdminOrHigher } from '@/lib/roleHelpers';
+import { isMemberManagerOrHigher } from '@/lib/roleHelpers';
 
 export default async function UsersSearchPage() {
-	await requireRole(isAdminOrHigher);
+	await requireRole(isMemberManagerOrHigher);
 	return <UsersSearchView />;
 }

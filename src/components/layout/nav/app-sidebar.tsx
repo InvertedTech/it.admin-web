@@ -33,6 +33,8 @@ import {
 	isAdminOrHigher,
 	isCommentModeratorOrHigher,
 	isOwner,
+	isMemberManagerOrHigher,
+	isSubscriptionManagerOrHigher,
 	isWriterOrHigher,
 } from '@/lib/roleHelpers';
 
@@ -147,7 +149,9 @@ function canAccessRoute(url: string, roles: string[]) {
 	if (url.startsWith('/content')) return isWriterOrHigher(roles);
 	if (url.startsWith('/comments')) return isCommentModeratorOrHigher(roles);
 	if (url.startsWith('/events')) return canModerateEvent(roles);
-	if (url.startsWith('/users')) return isAdminOrHigher(roles);
+	if (url.startsWith('/users/subscriptions'))
+		return isSubscriptionManagerOrHigher(roles);
+	if (url.startsWith('/users')) return isMemberManagerOrHigher(roles);
 	if (url.startsWith('/settings/notifications')) return isOwner(roles);
 	if (url.startsWith('/settings')) return isAdminOrHigher(roles);
 	return roles.length > 0;

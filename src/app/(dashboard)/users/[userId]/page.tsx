@@ -10,6 +10,7 @@ import { UserTimeline } from '@/components/users/view-user/user-timeline';
 import { UserDetails } from '@/components/users/view-user/user-details';
 import { UserHeaderCard } from '@/components/users/view-user/user-header';
 import { UserSubscriptions } from '@/components/users/view-user/user-subscriptions';
+import { UserTotpDevices } from '@/components/users/view-user/user-totp-devices';
 import { notFound } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { grantRolesToUser, enableUser, disableUser } from '@/app/actions/auth';
@@ -24,7 +25,11 @@ import {
 	cancelSubscribition,
 } from '@/app/actions/payment';
 import { requireRole } from '@/lib/rbac';
-import { isAdminOrHigher } from '@/lib/roleHelpers';
+import {
+	isMemberManagerOrHigher,
+	isSubscriptionManagerOrHigher,
+	isAdminOrHigher,
+} from '@/lib/roleHelpers';
 import { getSession } from '@/lib/session';
 
 function pick<T = unknown>(obj: any, paths: string[], fb?: T): T | undefined {
@@ -40,11 +45,18 @@ export default async function ViewUserPage({
 }: {
 	params: { userId: string };
 }) {
-	await requireRole(isAdminOrHigher);
+	await requireRole(isMemberManagerOrHigher);
 	const session = await getSession();
-	const roles = session.roles ?? [];
+	const sessionRoles = session.roles ?? [];
+	const canViewSubscriptions = isSubscriptionManagerOrHigher(sessionRoles);
+	const canGrantRoles = isAdminOrHigher(sessionRoles);
+	const canEditProfile = isMemberManagerOrHigher(sessionRoles);
+	const canToggleUser = isAdminOrHigher(sessionRoles);
+	const canViewTotp = isAdminOrHigher(sessionRoles);
 	const { userId } = await params;
-	const subs = await getSubscriptionsForUser(userId);
+	const subs = canViewSubscriptions
+		? await getSubscriptionsForUser(userId)
+		: undefined;
 	const res = await adminGetUser(userId);
 	const user: UserNormalRecord | undefined = res?.Record;
 	if (!user) notFound();
@@ -69,6 +81,8 @@ export default async function ViewUserPage({
 		'',
 	);
 	const totpDevices = (await adminGetUserTotpDevices(userId)).Devices ?? [];
+	const userRoles =
+		pick<string[]>(user, ['Private.Roles', 'Roles'], []) ?? [];
 	async function grantRolesAction(formData: FormData) {
 		'use server';
 		const selected = formData.getAll('roles')?.map((v) => String(v)) ?? [];
@@ -129,12 +143,14 @@ export default async function ViewUserPage({
 					displayName={displayName}
 					userName={userName}
 					email={email}
-					roles={roles}
+					roles={userRoles}
 					profilePng={profilePng}
 					disabled={Boolean(disabledOn)}
 					grantRolesAction={grantRolesAction}
-					enableUserAction={enableUserAction}
-					disableUserAction={disableUserAction}
+					canGrantRoles={canGrantRoles}
+					canEditProfile={canEditProfile}
+					enableUserAction={canToggleUser ? enableUserAction : undefined}
+					disableUserAction={canToggleUser ? disableUserAction : undefined}
 				/>
 			</div>
 			<div className="mb-4">
@@ -151,17 +167,27 @@ export default async function ViewUserPage({
 					bio={bio}
 					userName={userName}
 					displayName={displayName}
-					totpDevices={totpDevices}
-					disableTotpAction={disableTotpAction}
-					roles={roles}
+					roles={userRoles}
+					canEditProfile={canEditProfile}
 				/>
 			</div>
-			<div className="mb-4">
-				<UserSubscriptions
-					subscriptions={subs}
-					cancelSubscriptionAction={cancelSubscriptionAction}
-				/>
-			</div>
+			{canViewTotp ? (
+				<div className="mb-4">
+					<UserTotpDevices
+						totpDevices={totpDevices}
+						disableTotpAction={disableTotpAction}
+						canViewTotp={canViewTotp}
+					/>
+				</div>
+			) : null}
+			{canViewSubscriptions ? (
+				<div className="mb-4">
+					<UserSubscriptions
+						subscriptions={subs}
+						cancelSubscriptionAction={cancelSubscriptionAction}
+					/>
+				</div>
+			) : null}
 		</div>
 	);
 }

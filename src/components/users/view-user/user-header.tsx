@@ -43,6 +43,8 @@ type Props = {
     profilePng?: string;
     disabled?: boolean;
     grantRolesAction?: (formData: FormData) => Promise<void>;
+    canGrantRoles?: boolean;
+    canEditProfile?: boolean;
     enableUserAction?: () => Promise<void>;
     disableUserAction?: () => Promise<void>;
 };
@@ -65,6 +67,8 @@ export function UserHeaderCard({
     profilePng,
     disabled,
     grantRolesAction,
+    canGrantRoles,
+    canEditProfile,
     enableUserAction,
     disableUserAction,
 }: Props) {
@@ -76,11 +80,17 @@ export function UserHeaderCard({
     );
 
     const [open, setOpen] = React.useState(false);
+    const [selectedRoles, setSelectedRoles] = React.useState<string[]>(roles);
+
+    React.useEffect(() => {
+        setSelectedRoles(roles);
+    }, [roles]);
 
     async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         if (!grantRolesAction) return;
-        const fd = new FormData(e.currentTarget);
+        const fd = new FormData();
+        for (const r of selectedRoles) fd.append('roles', r);
         try {
             await grantRolesAction(fd);
             setOpen(false);
@@ -192,19 +202,22 @@ export function UserHeaderCard({
                             </AlertDialog>
                         )
                     ) : null}
-					{grantRolesAction ? (
+					{canGrantRoles && grantRolesAction ? (
 						<Dialog open={open} onOpenChange={setOpen}>
 							<DialogTrigger asChild>
 								<Button variant="outline">Grant Roles</Button>
 							</DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Grant Roles</DialogTitle>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Grant Roles</DialogTitle>
                                     <DialogDescription>
                                         Select roles to grant to this user.
                                     </DialogDescription>
                                 </DialogHeader>
-                                <form onSubmit={onSubmit} className="space-y-4">
+                                <form
+                                    onSubmit={onSubmit}
+                                    className="space-y-4"
+                                >
                                     <div className="space-y-3">
                                         {RoleCategories.map((cat) => (
                                             <div key={cat} className="space-y-2">
@@ -212,7 +225,16 @@ export function UserHeaderCard({
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                     {AllRoles.filter((r) => RoleMeta[r].category === cat).map((r) => (
                                                         <label key={r} className="flex items-center gap-2">
-                                                            <Checkbox name="roles" value={r} defaultChecked={roles?.includes(r)} />
+                                                            <Checkbox
+                                                                checked={selectedRoles.includes(r)}
+                                                                onCheckedChange={(v) => {
+                                                                    const isChecked = v === true;
+                                                                    setSelectedRoles((prev) => {
+                                                                        if (isChecked) return Array.from(new Set([...prev, r]));
+                                                                        return prev.filter((x) => x !== r);
+                                                                    });
+                                                                }}
+                                                            />
                                                             <span className="text-sm">{RoleMeta[r].label}</span>
                                                         </label>
                                                     ))}
@@ -227,7 +249,12 @@ export function UserHeaderCard({
 							</DialogContent>
 						</Dialog>
 					) : null}
-					<ChangeOtherPasswordDialog userId={id} roles={roles} />
+					{canEditProfile ? (
+						<ChangeOtherPasswordDialog
+							userId={id}
+							canOpen={canEditProfile}
+						/>
+					) : null}
 				</div>
 			</CardHeader>
 		</Card>

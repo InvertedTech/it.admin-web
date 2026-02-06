@@ -10,7 +10,9 @@ export type Role =
     | 'com_appellate'
     | 'bot_verification'
     | 'evt_creator'
-    | 'evt_moderator';
+    | 'evt_moderator'
+    | 'member_manager'
+    | 'sub_manager';
 
 export const Roles: Role[] = [
     'owner',
@@ -25,6 +27,8 @@ export const Roles: Role[] = [
     'bot_verification',
     'evt_creator',
     'evt_moderator',
+    'member_manager',
+    'sub_manager',
 ];
 
 // Human-friendly labeling and categories for display
@@ -33,7 +37,9 @@ export type RoleCategory =
     | 'Content'
     | 'Comments'
     | 'Event'
-    | 'Bots';
+    | 'Bots'
+    | 'Members'
+    | 'Subscriptions';
 
 export const RoleMeta: Record<Role, { label: string; category: RoleCategory }> = {
     owner: { label: 'Owner', category: 'Administration' },
@@ -48,6 +54,8 @@ export const RoleMeta: Record<Role, { label: string; category: RoleCategory }> =
     bot_verification: { label: 'Bot Verification', category: 'Bots' },
     evt_creator: { label: 'Event Creator', category: 'Event' },
     evt_moderator: { label: 'Event Moderator', category: 'Event' },
+    member_manager: { label: 'Member Manager', category: 'Members' },
+    sub_manager: { label: 'Subscription Manager', category: 'Subscriptions' },
 };
 
 export const RoleCategories: RoleCategory[] = [
@@ -56,4 +64,6 @@ export const RoleCategories: RoleCategory[] = [
     'Comments',
     'Event',
     'Bots',
+    'Members',
+    'Subscriptions',
 ];

@@ -43,7 +43,7 @@ import {
 } from '@inverted-tech/fragments/Authentication';
 import { getSession } from '@/lib/session';
 import { toIso } from '@/lib/utils';
-import { isAdminOrHigher } from '@/lib/roleHelpers';
+import { isAdminOrHigher, isMemberManagerOrHigher } from '@/lib/roleHelpers';
 import { ValidationIssueSchema } from '@inverted-tech/fragments/protos/index';
 async function getToken() {
 	const session = await getSession();
@@ -116,8 +116,7 @@ export async function loginAction(
 			}
 
 			if (body.UserRecord?.Public?.Data?.ProfileImagePNG) {
-				session.profileImageId =
-					body.UserRecord.Public.Data.ProfileImagePNG;
+				session.profileImageId = body.UserRecord.Public.Data.ProfileImagePNG;
 			}
 
 			if (
@@ -161,15 +160,13 @@ export async function listUsers(
 			`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`;
 
 		if (req.PageSize != null) parts.push(enc('PageSize', req.PageSize));
-		if (req.PageOffset != null)
-			parts.push(enc('PageOffset', req.PageOffset));
+		if (req.PageOffset != null) parts.push(enc('PageOffset', req.PageOffset));
 		if (req.SearchString?.trim())
 			parts.push(enc('SearchString', req.SearchString.trim()));
 		if (Array.isArray(req.Roles))
 			for (const r of req.Roles) if (r) parts.push(enc('Roles', r));
 		if (Array.isArray(req.UserIDs))
-			for (const id of req.UserIDs)
-				if (id) parts.push(enc('UserIDs', id));
+			for (const id of req.UserIDs) if (id) parts.push(enc('UserIDs', id));
 		const ca = toIso((req as any)?.CreatedAfter);
 		const cb = toIso((req as any)?.CreatedBefore);
 		if (ca) parts.push(enc('CreatedAfter', ca));
@@ -340,6 +337,10 @@ export async function getSessionUser() {
 
 export async function adminGetUserTotpDevices(userId: string) {
 	try {
+		const roles = (await getSession()).roles ?? [];
+		if (!isAdminOrHigher(roles)) {
+			return create(GetOtherTotpListResponseSchema, {});
+		}
 		const token = await getToken();
 		if (!token || token === '')
 			return create(GetOtherTotpListResponseSchema, {});
@@ -407,7 +408,7 @@ export async function adminEditOtherUserPassword(
 				}),
 			});
 
-		if (!isAdminOrHigher(roles))
+		if (!isMemberManagerOrHigher(roles))
 			return create(ChangeOtherPasswordResponseSchema, {
 				Error: create(AuthErrorSchema, {
 					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
@@ -424,7 +425,6 @@ export async function adminEditOtherUserPassword(
 			},
 			body: toJsonString(ChangeOtherPasswordRequestSchema, req),
 		});
-
 		const body: ChangeOtherPasswordResponse = await res.json();
 		return body;
 	} catch (error) {
@@ -461,7 +461,7 @@ export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
 				}),
 			});
 
-		if (!isAdminOrHigher(roles))
+		if (!isMemberManagerOrHigher(roles))
 			return create(ModifyOtherUserResponseSchema, {
 				Error: create(AuthErrorSchema, {
 					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,

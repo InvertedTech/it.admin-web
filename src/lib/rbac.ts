@@ -8,7 +8,10 @@ export async function requireRole(
 	redirectTo = '/unauthorized',
 ) {
 	const session = await getSession();
-	const roles = session.roles ?? [];
+	const raw = session.roles as unknown;
+	const roles = (Array.isArray(raw) ? raw : raw ? [String(raw)] : []).filter(
+		(r) => typeof r === 'string' && r.trim().length > 0,
+	);
 	if (roles.length === 0 || !check(roles)) {
 		redirect(redirectTo);
 	}

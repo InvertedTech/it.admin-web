@@ -11,16 +11,14 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog';
 import { AdminChangeOtherPasswordForm } from '@/components/forms/admin-change-other-password-form';
-import { isAdminOrHigher } from '@/lib/roleHelpers';
 
 export function ChangeOtherPasswordDialog({
 	userId,
-	roles = [],
+	canOpen = false,
 }: {
 	userId: string;
-	roles?: string[];
+	canOpen?: boolean;
 }) {
-	const canOpen = isAdminOrHigher(roles);
 	if (!canOpen) return null;
 
 	return (

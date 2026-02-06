@@ -10,7 +10,6 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog';
 import { AdminEditOtherUserForm } from '@/components/forms/admin-edit-other-user-form';
-import { isAdminOrHigher } from '@/lib/roleHelpers';
 
 export function EditOtherUserDialog({
 	userId,
@@ -18,16 +17,15 @@ export function EditOtherUserDialog({
 	displayName,
 	email,
 	bio,
-	roles = [],
+	canOpen = false,
 }: {
 	userId: string;
 	userName: string;
 	displayName: string;
 	email: string;
 	bio: string;
-	roles?: string[];
+	canOpen?: boolean;
 }) {
-	const canOpen = isAdminOrHigher(roles);
 	if (!canOpen) return null;
 
 	return (
