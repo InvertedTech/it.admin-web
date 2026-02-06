@@ -46,7 +46,6 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 			const res = await createContent(req);
 			if (res.Record && res.Record.Public?.ContentID !== '')
 				router.push(`/content/${res.Record.Public?.ContentID}`);
-			// TODO: Display Error
 		},
 	});
 

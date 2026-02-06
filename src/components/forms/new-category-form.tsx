@@ -111,7 +111,7 @@ export function NewCategoryForm({
 					} as CSSProperties,
 				});
 
-				// TODO: Handle Response
+				form.reset();
 				return;
 			},
 		},

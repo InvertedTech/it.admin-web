@@ -1,15 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import {
-	IconHelp,
-	IconInnerShadowTop,
-	IconMoneybag,
-	IconSearch,
-} from '@tabler/icons-react';
+import { IconHelp, IconInnerShadowTop, IconSearch } from '@tabler/icons-react';
 
-import { NavQuick } from '@/components/layout/nav/nav-quick';
-import { NavSecondary } from '@/components/layout/nav/nav-secondary';
 import { NavUser } from '@/components/layout/nav/nav-user';
 import {
 	Sidebar,
@@ -43,7 +36,6 @@ import {
 	isWriterOrHigher,
 } from '@/lib/roleHelpers';
 
-// TODO: Look Into Generate Via API Route and return the navs users can use
 const data = {
 	user: {
 		name: 'shadcn',
@@ -52,12 +44,17 @@ const data = {
 	},
 	navMain: [
 		{
-			title: 'Content',
+			title: 'New Post',
+			icon: PlusSquare,
+			url: '/content/create',
+		},
+		{
+			title: 'All Posts',
 			icon: FileText,
 			url: '/content',
 		},
 		{
-			title: 'Assets',
+			title: 'Asset Library',
 			icon: Images,
 			url: '/content/assets',
 		},
@@ -65,11 +62,6 @@ const data = {
 			title: 'Upload Asset',
 			icon: Upload,
 			url: '/content/assets/upload',
-		},
-		{
-			title: 'Create',
-			icon: PlusSquare,
-			url: '/content/create',
 		},
 		// {
 		// 	title: 'Events',

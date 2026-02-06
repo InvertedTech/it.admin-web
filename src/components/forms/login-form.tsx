@@ -15,6 +15,12 @@ import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 import { AuthenticateUserRequestSchema } from '@inverted-tech/fragments/Authentication';
 import { FormSubmitErrors } from '@/components/ui/form-submit-errors';
 import { Spinner } from '@/components/ui/spinner';
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Info } from 'lucide-react';
 
 type Props = { from?: string };
 
@@ -80,16 +86,33 @@ export function LoginForm({ from }: Props) {
 								</div>
 							)}
 						/>
-
 						<div className="flex items-center gap-2">
 							<Switch
 								id="use-mfa"
 								checked={useMfa}
 								onCheckedChange={setUseMfa}
 							/>
-							<Label htmlFor="use-mfa">Use MFA</Label>
+							<Label htmlFor="use-mfa">MFA Enabled?</Label>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<button
+										type="button"
+										aria-label="About MFA"
+										className="inline-flex h-5 w-5 items-center justify-center rounded"
+										tabIndex={-1}
+									>
+										<Info
+											className="h-4 w-4 text-muted-foreground"
+											aria-hidden="true"
+										/>
+									</button>
+								</TooltipTrigger>
+								<TooltipContent side="top" align="start">
+									Enable if your account requires an authenticator code.
+								</TooltipContent>
+							</Tooltip>
 						</div>
-						{/* TODO: add shadcn tooltip for MFA guidance */}
+
 						{useMfa ? (
 							<form.AppField
 								name="MFACode"

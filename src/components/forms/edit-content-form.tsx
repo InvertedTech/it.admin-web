@@ -21,8 +21,6 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Separator } from '@/components/ui/separator';
 import { modifyContent } from '@/app/actions/content';
 import { useRouter } from 'next/navigation';
-
-// TODO: Handle error response
 export function EditContentForm({
 	contentId,
 	initial,
@@ -120,7 +118,7 @@ export function EditContentForm({
 	const form = useProtoAppForm({
 		schema: ModifyContentRequestSchema,
 		defaultInit: resolvedInit,
-		onValidSubmit: async ({ value }) => {
+		onValidSubmit: async ({ value, formApi }) => {
 			try {
 				const nextValue = { ...(value as any) } as any;
 				const selectedCase =
@@ -153,6 +151,69 @@ export function EditContentForm({
 				console.log('Payload', payload);
 				const res = await modifyContent(payload);
 				console.log('RES', res);
+				const err = (res as any)?.Error ?? (res as any)?.error;
+				const errorMessage =
+					err?.Message ??
+					err?.message ??
+					(err as any)?.Errors ??
+					(err as any)?.errors ??
+					(res as any)?.Error?.Errors ??
+					(res as any)?.Error?.errors ??
+					(res as any)?.message ??
+					(res as any)?.error;
+				if (err || errorMessage) {
+					const fields: Record<string, string | string[]> = {};
+					const validation =
+						(err as any)?.Validation ?? (res as any)?.Validation;
+					const addFieldError = (key: string, msg: string) => {
+						if (!key) return;
+						if (!fields[key]) fields[key] = msg;
+						else
+							fields[key] = Array.isArray(fields[key])
+								? [...(fields[key] as string[]), msg]
+								: [fields[key] as string, msg];
+					};
+					if (Array.isArray(validation)) {
+						for (const v of validation) {
+							let key =
+								(v as any)?.field ??
+								(v as any)?.Field ??
+								(v as any)?.path ??
+								(v as any)?.Path ??
+								'';
+							if (!key && Array.isArray((v as any)?.field)) {
+								key = ((v as any)?.field as any[])
+									.map(
+										(p: any) =>
+											p?.name ?? p?.localName ?? p?.jsonName,
+									)
+									.filter(Boolean)
+									.join('.');
+							}
+							if (
+								!key &&
+								Array.isArray((v as any)?.fieldPath?.elements)
+							) {
+								key = ((v as any)?.fieldPath?.elements as any[])
+									.map((e: any) => e?.name)
+									.filter(Boolean)
+									.join('.');
+							}
+							const msg =
+								(v as any)?.message ??
+								(v as any)?.Message ??
+								'Invalid value';
+							addFieldError(key, msg);
+						}
+					}
+					formApi?.setErrorMap?.({
+						onSubmit: {
+							form: errorMessage || 'Failed to update content',
+							fields,
+						},
+					});
+					return;
+				}
 				if (res.Record?.Public?.ContentID) {
 					router.push(`/content/${res.Record.Public.ContentID}`);
 				}

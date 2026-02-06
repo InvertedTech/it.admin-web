@@ -12,29 +12,24 @@ export function PublishContentForm({ contentId }: { contentId: string }) {
 			PublishOnUTC: { seconds: 0, nanos: 0 } as any,
 		} as Record<string, any>,
 		onSubmit: async ({ value }) => {
-			const req = create(
-				PublishContentRequestSchema as any,
-				value as any,
-			);
-
-			// TODO: Handle Response
-			await publishContent(req as any);
+			const req = create(PublishContentRequestSchema as any, value as any);
+			const res = await publishContent(req as any);
 			try {
-				router.refresh();
+				if (res?.Record) router.refresh();
 			} catch {}
 		},
 	});
 
 	return (
 		<form
-			id='publish-content'
+			id="publish-content"
 			onSubmit={(e) => {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
 		>
 			<form.AppForm>
-				<form.AppField name='ContentID'>
+				<form.AppField name="ContentID">
 					{(f: any) => (
 						<f.TextField
 							label={'Content ID'}
@@ -44,12 +39,10 @@ export function PublishContentForm({ contentId }: { contentId: string }) {
 					)}
 				</form.AppField>
 				<form.AppField
-					name='PublishOnUTC'
-					children={(f: any) => (
-						<f.DateTimeField label='Publishing Date' />
-					)}
+					name="PublishOnUTC"
+					children={(f: any) => <f.DateTimeField label="Publishing Date" />}
 				/>
-				<form.CreateButton label='Publish' />
+				<form.CreateButton label="Publish" />
 			</form.AppForm>
 		</form>
 	);

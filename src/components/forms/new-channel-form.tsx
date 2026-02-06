@@ -53,10 +53,10 @@ function ParentChannelSelect({ options }: { options: ChannelOption[] }) {
 				onValueChange={(v) => field.handleChange(v === 'none' ? '' : v)}
 			>
 				<SelectTrigger aria-invalid={isInvalid}>
-					<SelectValue placeholder='None' />
+					<SelectValue placeholder="None" />
 				</SelectTrigger>
 				<SelectContent>
-					<SelectItem value='none'>None</SelectItem>
+					<SelectItem value="none">None</SelectItem>
 					{options.map((o) => (
 						<SelectItem
 							key={o.ChannelId ?? ''}
@@ -110,7 +110,7 @@ export function NewChannelForm({
 				}
 				toast('Channel created', {
 					description: (
-						<pre className='bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4'>
+						<pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
 							<code>{JSON.stringify(parsed.data, null, 2)}</code>
 						</pre>
 					),
@@ -121,7 +121,6 @@ export function NewChannelForm({
 					} as CSSProperties,
 				});
 
-				// TODO: Handle Response
 				return;
 			},
 		},
@@ -129,11 +128,11 @@ export function NewChannelForm({
 
 	return (
 		<FormCard
-			cardTitle='Create A Channel'
-			cardDescription='Define the basics for your new channel.'
+			cardTitle="Create A Channel"
+			cardDescription="Define the basics for your new channel."
 		>
 			<form
-				id='new-channel-form'
+				id="new-channel-form"
 				onSubmitCapture={(event) => {
 					// Block any submit while on step 1 (capture phase)
 					if (step === 1) {
@@ -159,9 +158,7 @@ export function NewChannelForm({
 			>
 				<form.AppForm>
 					{
-						<form.Subscribe
-							selector={(s: any) => s?.submitErrors ?? s?.errors}
-						>
+						<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
 							{(errs: any) => <FormSubmitErrors errors={errs} />}
 						</form.Subscribe>
 					}
@@ -189,25 +186,29 @@ function Wizard({
 	setStep: (s: 1 | 2) => void;
 }) {
 	return (
-		<div className='space-y-4'>
-			<div className='text-sm text-muted-foreground'>
-				Step {step} of 2
-			</div>
+		<div className="space-y-4">
+			<div className="text-sm text-muted-foreground">Step {step} of 2</div>
 			{step === 1 ? (
-				<StepOne channels={channels} form={form} />
+				<StepOne
+					channels={channels}
+					form={form}
+				/>
 			) : (
 				<StepTwo form={form} />
 			)}
 
-			<Field className='flex items-center justify-between'>
+			<Field className="flex items-center justify-between">
 				{step === 1 ? (
-					<Button type='reset' variant='outline'>
+					<Button
+						type="reset"
+						variant="outline"
+					>
 						Cancel
 					</Button>
 				) : (
 					<Button
-						type='button'
-						variant='outline'
+						type="button"
+						variant="outline"
 						onClick={() => setStep(1)}
 					>
 						Back
@@ -216,12 +217,10 @@ function Wizard({
 				{step === 1 ? (
 					<form.Subscribe selector={(s: any) => s?.values}>
 						{(values: any) => {
-							const canNext = !!(
-								values?.DisplayName && values?.UrlStub
-							);
+							const canNext = !!(values?.DisplayName && values?.UrlStub);
 							return (
 								<Button
-									type='button'
+									type="button"
 									onClick={(e) => {
 										e.preventDefault();
 										e.stopPropagation();
@@ -237,10 +236,13 @@ function Wizard({
 				) : (
 					<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
 						{(isSubmitting: boolean) => (
-							<Button type='submit' disabled={isSubmitting}>
+							<Button
+								type="submit"
+								disabled={isSubmitting}
+							>
 								{isSubmitting ? (
 									<>
-										<Spinner className='mr-2' /> Creating...
+										<Spinner className="mr-2" /> Creating...
 									</>
 								) : (
 									'Create Channel'
@@ -258,36 +260,34 @@ function StepOne({ channels, form }: { channels: ChannelOption[]; form: any }) {
 	return (
 		<>
 			<AutoSlugger form={form} />
-			<FieldGroup className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-				<div className='md:col-span-1'>
+			<FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
+				<div className="md:col-span-1">
 					<form.AppField
-						name='DisplayName'
+						name="DisplayName"
 						children={(field: any) => (
 							<field.TextField
-								label='Display Name'
-								description='The public name viewers will see for this channel.'
+								label="Display Name"
+								description="The public name viewers will see for this channel."
 							/>
 						)}
 					/>
 				</div>
-				<div className='md:col-span-1'>
+				<div className="md:col-span-1">
 					<form.AppField
-						name='UrlStub'
+						name="UrlStub"
 						children={(field: any) => (
 							<field.TextField
-								label='URL Stub'
-								description='Auto-generated from Display Name.'
+								label="URL Stub"
+								description="Auto-generated from Display Name."
 								disabled
 							/>
 						)}
 					/>
 				</div>
-				<div className='md:col-span-2'>
+				<div className="md:col-span-2">
 					<form.AppField
-						name='ParentChannelId'
-						children={() => (
-							<ParentChannelSelect options={channels} />
-						)}
+						name="ParentChannelId"
+						children={() => <ParentChannelSelect options={channels} />}
 					/>
 				</div>
 			</FieldGroup>
@@ -297,37 +297,31 @@ function StepOne({ channels, form }: { channels: ChannelOption[]; form: any }) {
 
 function StepTwo({ form }: { form: any }) {
 	return (
-		<FieldGroup className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-			<div className='md:col-span-2'>
+		<FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
+			<div className="md:col-span-2">
 				<form.AppField
-					name='ImageAssetId'
+					name="ImageAssetId"
 					children={(field: any) => (
-						<field.ImagePickerField label='Channel Image' />
+						<field.ImagePickerField label="Channel Image" />
 					)}
 				/>
 			</div>
-			<div className='md:col-span-1'>
+			<div className="md:col-span-1">
 				<form.AppField
-					name='YoutubeUrl'
-					children={(field: any) => (
-						<field.TextField label='YouTube URL' />
-					)}
+					name="YoutubeUrl"
+					children={(field: any) => <field.TextField label="YouTube URL" />}
 				/>
 			</div>
-			<div className='md:col-span-1'>
+			<div className="md:col-span-1">
 				<form.AppField
-					name='RumbleUrl'
-					children={(field: any) => (
-						<field.TextField label='Rumble URL' />
-					)}
+					name="RumbleUrl"
+					children={(field: any) => <field.TextField label="Rumble URL" />}
 				/>
 			</div>
-			<div className='md:col-span-2'>
+			<div className="md:col-span-2">
 				<form.AppField
-					name='OldChannelId'
-					children={(field: any) => (
-						<field.TextField label='Old Channel ID' />
-					)}
+					name="OldChannelId"
+					children={(field: any) => <field.TextField label="Old Channel ID" />}
 				/>
 			</div>
 		</FieldGroup>
@@ -344,8 +338,7 @@ function AutoSlugger({ form }: { form: any }) {
 				// Always sync stub to the slugified DisplayName for a locked field
 				if (typeof form?.setFieldValue === 'function') {
 					const desired = slugify(name);
-					if (desired !== stub)
-						form.setFieldValue('UrlStub', desired);
+					if (desired !== stub) form.setFieldValue('UrlStub', desired);
 				}
 				return null;
 			}}
