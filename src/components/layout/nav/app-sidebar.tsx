@@ -172,7 +172,6 @@ function filterNavItems(items: NavItem[], roles: string[]): NavItem[] {
 		.filter(Boolean) as NavItem[];
 }
 
-// TODO: Add Favorited Pages Section Stored In A Cookie
 export function AppSidebar({
 	headerTitle = 'Inverted CMS',
 	sessionUserName,
@@ -188,20 +187,19 @@ export function AppSidebar({
 	const roles = sessionRoles ?? [];
 	const navMain = filterNavItems(data.navMain as NavItem[], roles);
 	return (
-		<Sidebar
-			collapsible="offcanvas"
-			{...props}
-		>
+		<Sidebar collapsible='offcanvas' {...props}>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							asChild
-							className="data-[slot=sidebar-menu-button]:!p-1.5"
+							className='data-[slot=sidebar-menu-button]:!p-1.5'
 						>
-							<a href="/">
-								<IconInnerShadowTop className="!size-5" />
-								<span className="text-base font-semibold">{headerTitle}</span>
+							<a href='/'>
+								<IconInnerShadowTop className='!size-5' />
+								<span className='text-base font-semibold'>
+									{headerTitle}
+								</span>
 							</a>
 						</SidebarMenuButton>
 					</SidebarMenuItem>

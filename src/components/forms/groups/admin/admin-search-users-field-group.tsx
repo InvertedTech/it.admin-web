@@ -40,13 +40,13 @@ export const AdminSearchUsersSearchBarFieldGroup = withFieldGroup({
 	render: function Render({ group }) {
 		return (
 			<FieldGroup>
-				<div className="flex flex-wrap items-end gap-2">
-					<div className="flex-1 min-w-[240px]">
-						<group.AppField name="SearchString">
-							{(f) => <f.TextField label="Search" />}
+				<div className='flex flex-wrap items-end gap-2'>
+					<div className='flex-1 min-w-[240px]'>
+						<group.AppField name='SearchString'>
+							{(f) => <f.TextField label='Search' />}
 						</group.AppField>
 					</div>
-					<div className="min-w-[220px]">
+					{/* <div className="min-w-[220px]">
 						<group.AppField name="Roles">
 							{(f) => (
 								<f.MultiSelectField
@@ -56,10 +56,10 @@ export const AdminSearchUsersSearchBarFieldGroup = withFieldGroup({
 								/>
 							)}
 						</group.AppField>
-					</div>
-					<div className="min-w-[160px]">
-						<group.AppField name="IncludeDeleted">
-							{(f) => <f.SwitchField label="Include deleted" />}
+					</div> */}
+					<div className='min-w-[160px]'>
+						<group.AppField name='IncludeDeleted'>
+							{(f) => <f.SwitchField label='Include deleted' />}
 						</group.AppField>
 					</div>
 				</div>
@@ -73,19 +73,19 @@ export const AdminSearchUsersFiltersFieldGroup = withFieldGroup({
 	render: function Render({ group }) {
 		return (
 			<FieldGroup>
-				<div className="grid gap-3 md:grid-cols-2">
-					<group.AppField name="CreatedAfter">
-						{(f) => <f.TextField label="Created after" />}
+				<div className='grid gap-3 md:grid-cols-2'>
+					<group.AppField name='CreatedAfter'>
+						{(f) => <f.TextField label='Created after' />}
 					</group.AppField>
-					<group.AppField name="CreatedBefore">
-						{(f) => <f.TextField label="Created before" />}
+					<group.AppField name='CreatedBefore'>
+						{(f) => <f.TextField label='Created before' />}
 					</group.AppField>
-					<group.AppField name="UserIDs">
+					<group.AppField name='UserIDs'>
 						{(f) => (
 							<f.MultiSelectField
-								label="User IDs"
+								label='User IDs'
 								options={[]}
-								placeholder="Add IDs…"
+								placeholder='Add IDs…'
 							/>
 						)}
 					</group.AppField>
@@ -100,18 +100,14 @@ export const AdminSearchUsersPagingFieldGroup = withFieldGroup({
 	render: function Render({ group }) {
 		return (
 			<FieldGroup>
-				<div className="flex items-center gap-3">
-					<group.AppField name="PageSize">
+				<div className='flex items-center gap-3'>
+					<group.AppField name='PageSize'>
 						{(f) => (
-							<f.NumberField
-								label="Page size"
-								min={1}
-								step={1}
-							/>
+							<f.NumberField label='Page size' min={1} step={1} />
 						)}
 					</group.AppField>
 					{/* hidden server paging cursor */}
-					<group.AppField name="PageOffset">
+					<group.AppField name='PageOffset'>
 						{(f) => <f.HiddenField />}
 					</group.AppField>
 				</div>

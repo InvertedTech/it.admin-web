@@ -40,6 +40,7 @@ import {
 	ModifyContentResponseSchema,
 	ModifyContentRequestSchema,
 	ModifyContentResponse,
+	GetAllContentAdminRequest,
 } from '@inverted-tech/fragments/Content';
 async function getToken() {
 	const session = await getSession();
@@ -83,7 +84,6 @@ export async function createContent(req: CreateContentRequest) {
 	}
 }
 
-// TODO: Add GetAdminContentRequest
 export async function getContent() {
 	try {
 		const token = await getToken();
@@ -91,6 +91,68 @@ export async function getContent() {
 			Authorization: `Bearer ${token}`,
 		};
 		const res = await fetch(API_BASE, {
+			headers: head,
+			method: 'GET',
+		});
+
+		if (!res) return create(GetAllContentAdminResponseSchema);
+
+		const body: GetAllContentAdminResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(GetAllContentAdminResponseSchema);
+	}
+}
+
+// TODO: Replace getContentCalls with getAllContent
+export async function getAllContent(req: GetAllContentAdminRequest) {
+	try {
+		const token = await getToken();
+		const head: HeadersInit = {
+			Authorization: `Bearer ${token}`,
+		};
+		let url = new URL(`${API_BASE}`);
+
+		if (req.CategoryId)
+			url.searchParams.append('CategoryId', req.CategoryId);
+
+		if (req.ChannelId) url.searchParams.append('ChannelId', req.ChannelId);
+		if (req.ContentType) {
+			url.searchParams.append('ContentType', req.ContentType.toString());
+		}
+
+		if (req.PageOffset) {
+			url.searchParams.append('PageOffset', req.PageOffset.toString());
+		} else {
+			url.searchParams.append('PageOffset', '0');
+		}
+
+		if (req.PageSize) {
+			url.searchParams.append('PageSize', req.PageSize.toString());
+		} else {
+			url.searchParams.append('PageSize', '10');
+		}
+
+		if (req.SubscriptionSearch?.MinimumLevel) {
+			url.searchParams.append(
+				'SubscriptionSearch.MinimumLevel',
+				req.SubscriptionSearch.MinimumLevel.toString(),
+			);
+		} else {
+			url.searchParams.append('SubscriptionSearch.MinimumLevel', '0');
+		}
+
+		if (req.SubscriptionSearch?.MaximumLevel) {
+			url.searchParams.append(
+				'SubscriptionSearch.MaximumLevel',
+				req.SubscriptionSearch.MaximumLevel.toString(),
+			);
+		} else {
+			url.searchParams.append('SubscriptionSearch.MaximumLevel', '9999');
+		}
+
+		const res = await fetch(url, {
 			headers: head,
 			method: 'GET',
 		});
@@ -352,7 +414,7 @@ export type DashboardContentEvent = {
 	url?: string;
 };
 
-// Returns concatenated publish + announcement events for a given year-month (YYYY-MM)
+// TODO: Pass req in as args
 export async function getCalendarEvents(args: {
 	ym: string;
 	type?: 'publish' | 'announcement' | 'all';
@@ -405,7 +467,7 @@ export async function getCalendarEvents(args: {
 	return events;
 }
 
-// Returns concatenated publish + announcement events for the week containing startDate (ISO YYYY-MM-DD)
+// TODO: Pass req in as args
 export async function getWeekEvents(args?: {
 	startDate?: string;
 }): Promise<DashboardContentEvent[]> {
@@ -472,6 +534,7 @@ function relLabel(d?: Date): string {
 	return d.toLocaleString();
 }
 
+// TODO: Pass req in as args
 export async function getOverviewActivity(args?: {
 	rangeDays?: number;
 	limitDrafts?: number;
@@ -522,12 +585,15 @@ export async function getOverviewActivity(args?: {
 		if (!pub) {
 			draftCount++;
 			if (drafts.length < limD)
-				drafts.push(toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)));
+				drafts.push(
+					toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)),
+				);
 			continue;
 		}
 		if (pub > now) {
 			scheduledCount++;
-			if (scheduled.length < limS) scheduled.push(toItem(r, 'scheduled', pub));
+			if (scheduled.length < limS)
+				scheduled.push(toItem(r, 'scheduled', pub));
 			continue;
 		}
 		// published in the past
@@ -556,7 +622,8 @@ export async function getOverviewActivity(args?: {
 export async function modifyContent(req: ModifyContentRequest) {
 	try {
 		const token = await getToken();
-		if (!token || token === '') return create(ModifyContentResponseSchema, {});
+		if (!token || token === '')
+			return create(ModifyContentResponseSchema, {});
 		console.log('here', token);
 		const url = API_BASE_URL.concat(`/cms/admin/content/${req.ContentID}`);
 		console.log(url);

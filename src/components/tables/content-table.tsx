@@ -7,7 +7,6 @@ import {
 	VisibilityState,
 	flexRender,
 	getCoreRowModel,
-	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
@@ -34,6 +33,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { ContentListRecord } from '@inverted-tech/fragments/Content';
 import roleHelpers from '@/lib/roleHelpers';
@@ -411,10 +411,26 @@ export function ContentTable({
 	data,
 	roles,
 	pageSize = 25,
+	onPrevPage,
+	onNextPage,
+	hasPrev,
+	hasNext,
+	loading = false,
+	skeletonRows = 8,
+	totalItems,
+	offsetStart,
 }: {
 	data: ContentListRecord[];
 	roles: string[];
 	pageSize?: number;
+	onPrevPage?: () => void;
+	onNextPage?: () => void;
+	hasPrev?: boolean;
+	hasNext?: boolean;
+	loading?: boolean;
+	skeletonRows?: number;
+	totalItems?: number;
+	offsetStart?: number;
 }) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnVisibility, setColumnVisibility] =
@@ -433,7 +449,6 @@ export function ContentTable({
 		onSortingChange: setSorting,
 		onColumnVisibilityChange: setColumnVisibility,
 		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 	});
 	React.useEffect(() => {
@@ -448,7 +463,9 @@ export function ContentTable({
 			<div className='flex justify-end gap-2 py-2'>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant='outline'>Columns</Button>
+						<Button type='button' variant='outline'>
+							Columns
+						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end'>
 						{table
@@ -491,7 +508,32 @@ export function ContentTable({
 						))}
 					</TableHeader>
 					<TableBody>
-						{table.getRowModel().rows.length ? (
+						{loading ? (
+							Array.from({ length: skeletonRows }).map(
+								(_, rowIdx) => (
+									<TableRow key={`skeleton-${rowIdx}`}>
+										{table
+											.getVisibleLeafColumns()
+											.map((col, colIdx) => (
+												<TableCell
+													key={`${col.id}-${colIdx}`}
+												>
+													{colIdx === 0 ? (
+														<div className='flex min-w-0 flex-col gap-1'>
+															<Skeleton className='h-4 w-40' />
+															<Skeleton className='h-3 w-16' />
+														</div>
+													) : colIdx <= 3 ? (
+														<Skeleton className='h-5 w-20 rounded-full' />
+													) : (
+														<Skeleton className='h-4 w-28' />
+													)}
+												</TableCell>
+											))}
+									</TableRow>
+								),
+							)
+						) : table.getRowModel().rows.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow key={row.id}>
 									{row.getVisibleCells().map((cell) => (
@@ -521,22 +563,30 @@ export function ContentTable({
 			{/* Footer */}
 			<div className='mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center'>
 				<div className='text-muted-foreground text-sm'>
-					{table.getRowModel().rows.length} shown.
+					{loading
+						? 'Loading...'
+						: typeof totalItems === 'number'
+							? totalItems === 0
+								? '0 of 0'
+								: `${(offsetStart ?? 0) + 1}-${(offsetStart ?? 0) + data.length} of ${totalItems}`
+							: `${table.getRowModel().rows.length} shown.`}
 				</div>
 				<div className='flex gap-2'>
 					<Button
+						type='button'
 						variant='outline'
 						size='sm'
-						onClick={() => table.previousPage()}
-						disabled={!table.getCanPreviousPage()}
+						onClick={onPrevPage}
+						disabled={loading || !hasPrev}
 					>
 						Previous
 					</Button>
 					<Button
+						type='button'
 						variant='outline'
 						size='sm'
-						onClick={() => table.nextPage()}
-						disabled={!table.getCanNextPage()}
+						onClick={onNextPage}
+						disabled={loading || !hasNext}
 					>
 						Next
 					</Button>
