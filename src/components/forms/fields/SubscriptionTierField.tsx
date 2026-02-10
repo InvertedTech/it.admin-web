@@ -26,9 +26,13 @@ async function fetchTiers(): Promise<
 export function SubscriptionTierField({
 	label,
 	tiers: initialTiers,
+	useAmountCents = false,
+	includeMaxOption = false,
 }: {
 	label?: React.ReactNode;
 	tiers?: Array<{ Name?: string; AmountCents?: number }>;
+	useAmountCents?: boolean;
+	includeMaxOption?: boolean;
 }) {
 	const field = useFieldContext<number | undefined>();
 	const [tiers, setTiers] = React.useState(initialTiers);
@@ -47,12 +51,17 @@ export function SubscriptionTierField({
 		const list = [{ value: '0', label: 'Free' }];
 		(tiers ?? []).forEach((t, i) =>
 			list.push({
-				value: String(i + 1),
+				value: String(
+					useAmountCents ? Number(t?.AmountCents ?? 0) : i + 1,
+				),
 				label: t?.Name || `Tier ${i + 1}`,
 			})
 		);
+		if (includeMaxOption) {
+			list.push({ value: '9999', label: 'Max' });
+		}
 		return list;
-	}, [tiers]);
+	}, [includeMaxOption, tiers, useAmountCents]);
 
 	return (
 		<UIField>

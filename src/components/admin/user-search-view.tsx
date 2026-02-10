@@ -12,10 +12,11 @@ import {
 import type { UserSearchRecord } from '@inverted-tech/fragments/Authentication';
 import {
 	AdminSearchUsersSearchBarFieldGroup,
-	AdminSearchUsersFiltersFieldGroup,
+	type RoleOption,
 } from '../forms/groups/admin/admin-search-users-field-group';
 import { UsersTable } from '../tables/users-table';
 import { listUsers } from '@/app/actions/auth';
+import { RoleMeta, Roles as AllRoles } from '@/lib/types';
 import {
 	Select,
 	SelectContent,
@@ -34,6 +35,11 @@ type Props = {
 	createdAfter?: string;
 	createdBefore?: string;
 };
+
+const ROLE_OPTIONS: RoleOption[] = AllRoles.map((role) => ({
+	DisplayName: RoleMeta[role]?.label ?? role,
+	RoleValue: role,
+}));
 
 function parseTimestampInput(value?: string) {
 	if (!value || !value.trim()) return undefined;
@@ -128,10 +134,8 @@ export function UsersSearchView({
 
 		if (typeof value.IncludeDeleted === 'boolean') {
 			params.set('IncludeDeleted', value.IncludeDeleted ? '1' : '0');
-			params.set('includeDeleted', value.IncludeDeleted ? '1' : '0');
 		} else {
 			params.delete('IncludeDeleted');
-			params.delete('includeDeleted');
 		}
 
 		params.delete('Roles');
@@ -166,10 +170,8 @@ export function UsersSearchView({
 		const params = new URLSearchParams(searchParams?.toString());
 		if (typeof value === 'boolean') {
 			params.set('IncludeDeleted', value ? '1' : '0');
-			params.set('includeDeleted', value ? '1' : '0');
 		} else {
 			params.delete('IncludeDeleted');
-			params.delete('includeDeleted');
 		}
 		router.replace(`${pathname}?${params.toString()}`);
 	}
@@ -226,46 +228,8 @@ export function UsersSearchView({
 					<AdminSearchUsersSearchBarFieldGroup
 						form={form}
 						fields={FIELDS as any}
+						roles={ROLE_OPTIONS}
 					/>
-				</div>
-
-				{/* <details className='rounded border p-3 [&>summary]:cursor-pointer'>
-					<summary className='text-sm text-muted-foreground'>
-						Advanced filters
-					</summary>
-					<div className='mt-3'>
-						<AdminSearchUsersFiltersFieldGroup
-							form={form}
-							fields={FIELDS as any}
-						/>
-					</div>
-				</details> */}
-
-				<div className='flex justify-end'>
-					<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-						<span>Rows per page</span>
-						<Select
-							value={String(size)}
-							onValueChange={(v) => {
-								const nextSize = Number(v);
-								form.setFieldValue('PageSize' as any, nextSize);
-								form.setFieldValue('PageOffset' as any, 0);
-								setSize(nextSize);
-								setOffset(0);
-								form.handleSubmit();
-							}}
-						>
-							<SelectTrigger className='h-8 w-[88px]'>
-								<SelectValue placeholder='25' />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value='10'>10</SelectItem>
-								<SelectItem value='25'>25</SelectItem>
-								<SelectItem value='50'>50</SelectItem>
-								<SelectItem value='100'>100</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
 				</div>
 
 				<form.Subscribe

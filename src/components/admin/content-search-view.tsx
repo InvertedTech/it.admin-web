@@ -25,6 +25,7 @@ import {
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 import { create } from '@bufbuild/protobuf';
 import { getAllContent } from '@/app/actions/content';
+import { AdminContentFiltersFieldGroup } from '../forms/groups/content/content-search-field-groups';
 
 const typeOptions = Object.entries(ContentTypeLabels).map(([key, label]) => ({
 	value: Number(key),
@@ -65,7 +66,8 @@ export function ContentSearchView({
 	const [size, setSize] = React.useState<number>(pageSize);
 	const [offset, setOffset] = React.useState<number>(pageOffset);
 	const [total, setTotal] = React.useState<number>(0);
-
+	const [minimumLevel, setMinimumLevel] = React.useState(minLevel);
+	const [maximumLevel, setMaximumLevel] = React.useState(maxLevel);
 	const form = useProtoAppForm({
 		schema: GetAllContentAdminRequestSchema,
 		defaultValues: create(GetAllContentAdminRequestSchema, {
@@ -131,18 +133,31 @@ export function ContentSearchView({
 	function executeSearch(
 		next: { nextOffset?: number; nextSize?: number } = {},
 	) {
-		const minFromFilters =
-			accessFilters.length > 0 ? Math.min(...accessFilters) : minLevel;
-		const maxFromFilters =
-			accessFilters.length > 0 ? Math.max(...accessFilters) : maxLevel;
+		const minFromFilters = Number(
+			form.getFieldValue('SubscriptionSearch.MinimumLevel' as any) ??
+				minLevel,
+		);
+		const maxFromFilters = Number(
+			form.getFieldValue('SubscriptionSearch.MaximumLevel' as any) ??
+				maxLevel,
+		);
+		const channelFromFilters = String(
+			form.getFieldValue('ChannelId' as any) ?? '',
+		).trim();
+		const pageSizeFromFilters = Number(
+			form.getFieldValue('PageSize' as any) ?? size,
+		);
 		const normalizedOffset = Math.max(0, next.nextOffset ?? offset);
-		const normalizedSize = Math.max(1, next.nextSize ?? size);
+		const normalizedSize = Math.max(
+			1,
+			next.nextSize ?? pageSizeFromFilters,
+		);
 		const contentType =
 			typeFilters.length === 1 ? (typeFilters[0] as ContentType) : 0;
 
 		form.setFieldValue('PageOffset' as any, normalizedOffset);
 		form.setFieldValue('PageSize' as any, normalizedSize);
-		form.setFieldValue('ChannelId' as any, channelFilter.trim());
+		form.setFieldValue('ChannelId' as any, channelFromFilters);
 		form.setFieldValue(
 			'SubscriptionSearch.MinimumLevel' as any,
 			minFromFilters,
@@ -157,7 +172,7 @@ export function ContentSearchView({
 			pageOffset: normalizedOffset,
 			minLevel: minFromFilters,
 			maxLevel: maxFromFilters,
-			channelId: channelFilter,
+			channelId: channelFromFilters,
 		});
 		form.handleSubmit();
 	}
@@ -209,6 +224,20 @@ export function ContentSearchView({
 	const canPrev = offset > 0;
 	const canNext = offset + data.length < total;
 
+	const FIELDS = {
+		$typeName: '$typeName',
+		PageSize: 'PageSize',
+		PageOffset: 'PageOffset',
+		SubscriptionSearch: 'SubscriptionSearch',
+		'SubscriptionSearch.MinimumLevel': 'SubscriptionSearch.MinimumLevel',
+		'SubscriptionSearch.MaximumLevel': 'SubscriptionSearch.MaximumLevel',
+		Deleted: 'Deleted',
+		OnlyLive: 'OnlyLive',
+		ChannelId: 'ChannelId',
+		CategoryId: 'CategoryId',
+		ContentType: 'ContentType',
+	};
+
 	return (
 		<form
 			className='space-y-4'
@@ -219,134 +248,14 @@ export function ContentSearchView({
 				executeSearch({ nextOffset: 0 });
 			}}
 		>
-			<div className='border-b pb-3'>
-				<div className='grid gap-2 md:grid-cols-2'>
-					<Input
-						placeholder='Search title...'
-						value={titleQuery}
-						onChange={(e) => setTitleQuery(e.target.value)}
-					/>
-					<Input
-						placeholder='Search author...'
-						value={authorQuery}
-						onChange={(e) => setAuthorQuery(e.target.value)}
+			<form.AppForm>
+				<div className='border-b pb-3'>
+					<AdminContentFiltersFieldGroup
+						form={form}
+						fields={FIELDS as any}
 					/>
 				</div>
-			</div>
-
-			<details className='rounded border p-3 [&>summary]:cursor-pointer'>
-				<summary className='text-sm text-muted-foreground'>
-					Advanced filters
-				</summary>
-				<div className='mt-3 grid gap-4 md:grid-cols-2'>
-					<div className='space-y-2'>
-						<div className='text-sm font-medium'>Content types</div>
-						<div className='grid grid-cols-2 gap-2'>
-							{typeOptions.map((opt) => (
-								<label
-									key={opt.value}
-									className='flex items-center gap-2 text-sm'
-								>
-									<Checkbox
-										checked={typeFilters.includes(
-											opt.value,
-										)}
-										onCheckedChange={(v) => {
-											setTypeFilters((prev) =>
-												Boolean(v)
-													? prev.includes(opt.value)
-														? prev
-														: [...prev, opt.value]
-													: prev.filter(
-															(x) =>
-																x !== opt.value,
-														),
-											);
-										}}
-									/>
-									<span>{opt.label}</span>
-								</label>
-							))}
-						</div>
-					</div>
-					<div className='space-y-2'>
-						<div className='text-sm font-medium'>Access level</div>
-						<div className='grid grid-cols-2 gap-2'>
-							{accessOptions.map((opt) => (
-								<label
-									key={opt.value}
-									className='flex items-center gap-2 text-sm'
-								>
-									<Checkbox
-										checked={accessFilters.includes(
-											opt.value,
-										)}
-										onCheckedChange={(v) => {
-											setAccessFilters((prev) =>
-												Boolean(v)
-													? prev.includes(opt.value)
-														? prev
-														: [...prev, opt.value]
-													: prev.filter(
-															(x) =>
-																x !== opt.value,
-														),
-											);
-										}}
-									/>
-									<span>{opt.label}</span>
-								</label>
-							))}
-						</div>
-					</div>
-					<div className='space-y-2 md:col-span-2'>
-						<div className='text-sm font-medium'>Channel ID</div>
-						<Input
-							placeholder='Optional channel ID'
-							value={channelFilter}
-							onChange={(e) => setChannelFilter(e.target.value)}
-						/>
-					</div>
-				</div>
-				<div className='mt-4 flex justify-end gap-2'>
-					<Button
-						type='button'
-						variant='outline'
-						onClick={resetFilters}
-					>
-						Reset filters
-					</Button>
-					<Button type='submit'>Apply filters</Button>
-				</div>
-			</details>
-
-			<div className='flex justify-end'>
-				<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-					<span>Rows per page</span>
-					<Select
-						value={String(size)}
-						onValueChange={(v) => {
-							const nextSize = Number(v);
-							setSize(nextSize);
-							setOffset(0);
-							executeSearch({
-								nextOffset: 0,
-								nextSize,
-							});
-						}}
-					>
-						<SelectTrigger className='h-8 w-[88px]'>
-							<SelectValue placeholder='25' />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value='10'>10</SelectItem>
-							<SelectItem value='25'>25</SelectItem>
-							<SelectItem value='50'>50</SelectItem>
-							<SelectItem value='100'>100</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
-			</div>
+			</form.AppForm>
 
 			<ContentTable
 				data={filteredData}

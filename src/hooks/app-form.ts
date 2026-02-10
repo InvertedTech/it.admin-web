@@ -30,6 +30,10 @@ import {
 	HiddenField,
 	NumberField,
 	MFAField,
+	PageSizeField,
+	CategorySelectField,
+	RoleSelectField,
+	ContentTypeSelectField,
 } from '@/components/forms/fields';
 import {
 	CreateButton,
@@ -67,6 +71,10 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
 		HiddenField,
 		NumberField,
 		MFAField,
+		PageSizeField,
+		CategorySelectField,
+		RoleSelectField,
+		ContentTypeSelectField,
 	},
 	formComponents: {
 		SubmitErrors,
