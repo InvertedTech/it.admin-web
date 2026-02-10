@@ -27,7 +27,6 @@ import {
 import { ContentEvent, Item } from '@/lib/utils';
 import {
 	Plus,
-	Upload,
 	Settings,
 	Image as ImageIcon,
 	FileText,
@@ -285,8 +284,8 @@ function OverviewHeader() {
                     </Link>
                 </Button>
                 <Button asChild variant='outline' size='sm' className='gap-2'>
-                    <Link href='/content/assets/upload'>
-                        <Upload className='h-4 w-4' /> Upload asset
+                    <Link href='/content/assets'>
+                        <ImageIcon className='h-4 w-4' /> Assets
                     </Link>
                 </Button>
             </div>
@@ -447,8 +446,8 @@ function QuickActions() {
                     </Link>
                 </Button>
                 <Button asChild variant='outline' className='justify-start gap-2'>
-                    <Link href='/content/assets/upload'>
-                        <Upload className='h-4 w-4' /> Upload asset
+                    <Link href='/content/assets'>
+                        <ImageIcon className='h-4 w-4' /> Assets
                     </Link>
                 </Button>
                 <Button asChild variant='ghost' className='justify-start gap-2'>
@@ -514,12 +513,7 @@ function QuickLinks({ assets }: { assets: number }) {
 					icon={<ImageIcon className='h-4 w-4' />}
 					title='Assets'
 					hint={`${assets} files`}
-					href='/assets'
-				/>
-				<LinkRow
-					icon={<Upload className='h-4 w-4' />}
-					title='Upload asset'
-					href='/assets/upload'
+					href='/content/assets'
 				/>
 				<LinkRow
 					icon={<MessageSquare className='h-4 w-4' />}

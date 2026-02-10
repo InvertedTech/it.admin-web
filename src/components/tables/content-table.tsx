@@ -137,274 +137,261 @@ function getColumns(
 	isPublisherOrHigher: boolean,
 ): ColumnDef<ContentListRecord>[] {
 	return [
-	// Title
-	{
-		accessorKey: 'Title',
-		header: ({ column }) => (
-			<Button
-				variant='ghost'
-				onClick={() =>
-					column.toggleSorting(column.getIsSorted() === 'asc')
-				}
-			>
-				Title <ArrowUpDown className='ml-2 h-4 w-4' />
-			</Button>
-		),
-		cell: ({ row }) => {
-			const r = row.original;
-			const title = r.Title;
-			return (
-				<div className='flex items-center gap-2'>
-					<a
-						href={`/content/${r.ContentID}`}
-						className='underline underline-offset-2'
-					>
-						{title}
-					</a>
-					<a
-						href={`/content/${r.ContentID}/edit`}
-						className='text-muted-foreground hover:text-foreground text-xs underline underline-offset-2'
-					>
-						Edit
-					</a>
-				</div>
-			);
+		// Title
+		{
+			accessorKey: 'Title',
+			header: ({ column }) => (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Title <ArrowUpDown className="ml-2 h-4 w-4" />
+				</Button>
+			),
+			cell: ({ row }) => {
+				const r = row.original;
+				const title = r.Title;
+				return (
+					<div className="flex items-center gap-2">
+						<span className="truncate max-w-sm">{title}</span>
+					</div>
+				);
+			},
 		},
-	},
 
-	// Author
-	{
-		accessorKey: 'Author',
-		header: ({ column }) => (
-			<Button
-				variant='ghost'
-				onClick={() =>
-					column.toggleSorting(column.getIsSorted() === 'asc')
-				}
-			>
-				Author <ArrowUpDown className='ml-2 h-4 w-4' />
-			</Button>
-		),
-	},
-
-	// Type
-	{
-		accessorKey: 'ContentType',
-		header: 'Type',
-		cell: ({ row }) => {
-			const t = row.original.ContentType;
-			return <Badge variant='secondary'>{ContentTypeLabels[t]}</Badge>;
+		// Author
+		{
+			accessorKey: 'Author',
+			header: ({ column }) => (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Author <ArrowUpDown className="ml-2 h-4 w-4" />
+				</Button>
+			),
 		},
-	},
 
-	// Subscription
-	{
-		accessorKey: 'SubscriptionLevel',
-		header: 'Access',
-		cell: ({ row }) => (
-			<Badge>{levelLabel(row.original.SubscriptionLevel)}</Badge>
-		),
-	},
+		// Type
+		{
+			accessorKey: 'ContentType',
+			header: 'Type',
+			cell: ({ row }) => {
+				const t = row.original.ContentType;
+				return <Badge variant="secondary">{ContentTypeLabels[t]}</Badge>;
+			},
+		},
 
-	// Dates
-	{
-		accessorKey: 'CreatedOnUTC',
-		header: ({ column }) => (
-			<Button
-				variant='ghost'
-				onClick={() =>
-					column.toggleSorting(column.getIsSorted() === 'asc')
+		// Subscription
+		{
+			accessorKey: 'SubscriptionLevel',
+			header: 'Access',
+			cell: ({ row }) => (
+				<Badge>{levelLabel(row.original.SubscriptionLevel)}</Badge>
+			),
+		},
+
+		// Dates
+		{
+			accessorKey: 'CreatedOnUTC',
+			header: ({ column }) => (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Created <ArrowUpDown className="ml-2 h-4 w-4" />
+				</Button>
+			),
+			cell: ({ row }) => (
+				<span className="whitespace-nowrap">
+					{fmtDate(row.original.CreatedOnUTC)}
+				</span>
+			),
+			enableHiding: true,
+		},
+		{
+			accessorKey: 'PublishOnUTC',
+			header: 'Publish',
+			cell: ({ row }) => (
+				<span className="whitespace-nowrap">
+					{fmtDate(getPublishOnUTC(row.original))}
+				</span>
+			),
+			enableHiding: true,
+		},
+		{
+			accessorKey: 'AnnounceOnUTC',
+			header: 'Announce',
+			cell: ({ row }) => (
+				<span className="whitespace-nowrap">
+					{fmtDate((row.original as any)?.AnnounceOnUTC)}
+				</span>
+			),
+			enableHiding: true,
+		},
+		{
+			accessorKey: 'PinnedOnUTC',
+			header: 'Pinned',
+			cell: ({ row }) => (
+				<span className="whitespace-nowrap">
+					{fmtDate(row.original.PinnedOnUTC)}
+				</span>
+			),
+			enableHiding: true,
+		},
+
+		// Actions
+		{
+			id: 'actions',
+			cell: ({ row }) => {
+				const r = row.original;
+				const router = useRouter();
+				const [announceOpen, setAnnounceOpen] = React.useState(false);
+
+				async function doPublish() {
+					try {
+						const res = await fetch(
+							`/api/admin/content/${r.ContentID}/publish`,
+							{
+								method: 'POST',
+							},
+						);
+						if (!res.ok) throw new Error('Request failed');
+						toast.success('Publish requested');
+						router.refresh();
+					} catch {
+						toast.error('Failed to publish');
+					}
 				}
-			>
-				Created <ArrowUpDown className='ml-2 h-4 w-4' />
-			</Button>
-		),
-		cell: ({ row }) => (
-			<span className='whitespace-nowrap'>
-				{fmtDate(row.original.CreatedOnUTC)}
-			</span>
-		),
-		enableHiding: true,
-	},
-	{
-		accessorKey: 'PublishOnUTC',
-		header: 'Publish',
-		cell: ({ row }) => (
-			<span className='whitespace-nowrap'>
-				{fmtDate(getPublishOnUTC(row.original))}
-			</span>
-		),
-		enableHiding: true,
-	},
-	{
-		accessorKey: 'AnnounceOnUTC',
-		header: 'Announce',
-		cell: ({ row }) => (
-			<span className='whitespace-nowrap'>
-				{fmtDate((row.original as any)?.AnnounceOnUTC)}
-			</span>
-		),
-		enableHiding: true,
-	},
-	{
-		accessorKey: 'PinnedOnUTC',
-		header: 'Pinned',
-		cell: ({ row }) => (
-			<span className='whitespace-nowrap'>
-				{fmtDate(row.original.PinnedOnUTC)}
-			</span>
-		),
-		enableHiding: true,
-	},
 
-	// Actions
-	{
-		id: 'actions',
-		cell: ({ row }) => {
-			const r = row.original;
-			const router = useRouter();
-			const [announceOpen, setAnnounceOpen] = React.useState(false);
-
-			async function doPublish() {
-				try {
-					const res = await fetch(
-						`/api/admin/content/${r.ContentID}/publish`,
-						{
-							method: 'POST',
-						},
-					);
-					if (!res.ok) throw new Error('Request failed');
-					toast.success('Publish requested');
-					router.refresh();
-				} catch {
-					toast.error('Failed to publish');
+				async function doUnpublish() {
+					try {
+						const res = await fetch(
+							`/api/admin/content/${r.ContentID}/unpublish`,
+							{ method: 'POST' },
+						);
+						if (!res.ok) throw new Error('Request failed');
+						toast.success('Unpublish requested');
+						router.refresh();
+					} catch {
+						toast.error('Failed to unpublish');
+					}
 				}
-			}
 
-			async function doUnpublish() {
-				try {
-					const res = await fetch(
-						`/api/admin/content/${r.ContentID}/unpublish`,
-						{ method: 'POST' },
-					);
-					if (!res.ok) throw new Error('Request failed');
-					toast.success('Unpublish requested');
-					router.refresh();
-				} catch {
-					toast.error('Failed to unpublish');
+				async function doDelete() {
+					try {
+						if (!window.confirm('Delete this content?')) return;
+						const res = await fetch(
+							`/api/admin/content/${r.ContentID}/delete`,
+							{
+								method: 'POST',
+							},
+						);
+						if (!res.ok) throw new Error('Request failed');
+						toast.success('Delete requested');
+						router.refresh();
+					} catch {
+						toast.error('Failed to delete');
+					}
 				}
-			}
 
-			async function doDelete() {
-				try {
-					if (!window.confirm('Delete this content?')) return;
-					const res = await fetch(
-						`/api/admin/content/${r.ContentID}/delete`,
-						{
-							method: 'POST',
-						},
-					);
-					if (!res.ok) throw new Error('Request failed');
-					toast.success('Delete requested');
-					router.refresh();
-				} catch {
-					toast.error('Failed to delete');
-				}
-			}
-
-			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant='ghost' className='h-8 w-8 p-0'>
-							<span className='sr-only'>Open menu</span>
-							<MoreHorizontal className='h-4 w-4' />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align='end' className='w-40'>
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem
-							onClick={() =>
-								navigator.clipboard.writeText(r.ContentID)
-							}
+				return (
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant="ghost"
+								className="h-8 w-8 p-0"
+							>
+								<span className="sr-only">Open menu</span>
+								<MoreHorizontal className="h-4 w-4" />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent
+							align="end"
+							className="w-40"
 						>
-							Copy ID
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem asChild>
-							<a href={`/content/${r.ContentID}`}>View</a>
-						</DropdownMenuItem>
-						<DropdownMenuItem asChild>
-							<a href={`/content/${r.ContentID}/edit`}>Edit</a>
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						{isPublisherOrHigher && (
-							<>
-						{Boolean((r as any)?.AnnounceOnUTC) ? (
+							<DropdownMenuLabel>Actions</DropdownMenuLabel>
 							<DropdownMenuItem
-								onClick={async () => {
-									try {
-										const res = await fetch(
-											`/api/admin/content/${r.ContentID}/unannounce`,
-											{ method: 'POST' },
-										);
-										if (!res.ok)
-											throw new Error('Request failed');
-										toast.success('Unannounce requested');
-										router.refresh();
-									} catch {
-										toast.error('Failed to unannounce');
-									}
-								}}
+								onClick={() => navigator.clipboard.writeText(r.ContentID)}
 							>
-								Unannounce
+								Copy ID
 							</DropdownMenuItem>
-						) : (
-							<DropdownMenuItem
-								onClick={() => setAnnounceOpen(true)}
-							>
-								Announce…
+							<DropdownMenuSeparator />
+							<DropdownMenuItem asChild>
+								<a href={`/content/${r.ContentID}`}>View</a>
 							</DropdownMenuItem>
-						)}
-						<DropdownMenuSeparator />
-						{getPublishOnUTC(r) ? (
-							<DropdownMenuItem onClick={doUnpublish}>
-								Unpublish
+							<DropdownMenuItem asChild>
+								<a href={`/content/${r.ContentID}/edit`}>Edit</a>
 							</DropdownMenuItem>
-						) : (
-							<DropdownMenuItem onClick={doPublish}>
-								Publish
-							</DropdownMenuItem>
-						)}
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
-							className='text-destructive'
-							onClick={doDelete}
+							<DropdownMenuSeparator />
+							{isPublisherOrHigher && (
+								<>
+									{Boolean((r as any)?.AnnounceOnUTC) ? (
+										<DropdownMenuItem
+											onClick={async () => {
+												try {
+													const res = await fetch(
+														`/api/admin/content/${r.ContentID}/unannounce`,
+														{ method: 'POST' },
+													);
+													if (!res.ok) throw new Error('Request failed');
+													toast.success('Unannounce requested');
+													router.refresh();
+												} catch {
+													toast.error('Failed to unannounce');
+												}
+											}}
+										>
+											Unannounce
+										</DropdownMenuItem>
+									) : (
+										<DropdownMenuItem onClick={() => setAnnounceOpen(true)}>
+											Announce…
+										</DropdownMenuItem>
+									)}
+									<DropdownMenuSeparator />
+									{getPublishOnUTC(r) ? (
+										<DropdownMenuItem onClick={doUnpublish}>
+											Unpublish
+										</DropdownMenuItem>
+									) : (
+										<DropdownMenuItem onClick={doPublish}>
+											Publish
+										</DropdownMenuItem>
+									)}
+									<DropdownMenuSeparator />
+									<DropdownMenuItem
+										className="text-destructive"
+										onClick={doDelete}
+									>
+										Delete
+									</DropdownMenuItem>
+								</>
+							)}
+						</DropdownMenuContent>
+						<Dialog
+							open={announceOpen}
+							onOpenChange={setAnnounceOpen}
 						>
-							Delete
-						</DropdownMenuItem>
-							</>
-						)}
-					</DropdownMenuContent>
-					<Dialog open={announceOpen} onOpenChange={setAnnounceOpen}>
-						<DialogContent
-							className='sm:max-w-xl max-h-[80vh] overflow-y-auto'
-							aria-describedby='announce-desc'
-						>
-							<DialogTitle>Announce Content</DialogTitle>
-							<p
-								id='announce-desc'
-								className='text-muted-foreground text-sm'
+							<DialogContent
+								className="sm:max-w-xl max-h-[80vh] overflow-y-auto"
+								aria-describedby="announce-desc"
 							>
-								Choose a date and time to announce this content.
-							</p>
-							<AnnounceContentForm contentId={r.ContentID} />
-						</DialogContent>
-					</Dialog>
-				</DropdownMenu>
-			);
+								<DialogTitle>Announce Content</DialogTitle>
+								<p
+									id="announce-desc"
+									className="text-muted-foreground text-sm"
+								>
+									Choose a date and time to announce this content.
+								</p>
+								<AnnounceContentForm contentId={r.ContentID} />
+							</DialogContent>
+						</Dialog>
+					</DropdownMenu>
+				);
+			},
 		},
-	},
-];
+	];
 }
 
 export function ContentTable({
@@ -419,6 +406,7 @@ export function ContentTable({
 	skeletonRows = 8,
 	totalItems,
 	offsetStart,
+	filterButton,
 }: {
 	data: ContentListRecord[];
 	roles: string[];
@@ -431,10 +419,12 @@ export function ContentTable({
 	skeletonRows?: number;
 	totalItems?: number;
 	offsetStart?: number;
+	filterButton?: React.ReactNode;
 }) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
+	const router = useRouter();
 	const isPublisherOrHigher = roleHelpers.isPublisherOrHigher(roles);
 	const columns = React.useMemo(
 		() => getColumns(isPublisherOrHigher),
@@ -459,15 +449,19 @@ export function ContentTable({
 
 	return (
 		<div>
-			{/* Column toggle (matches members table) */}
-			<div className='flex justify-end gap-2 py-2'>
+			{/* Filters and Column toggle (matches members table) */}
+			<div className="flex justify-end gap-2 py-2">
+				{filterButton}
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button type='button' variant='outline'>
+						<Button
+							type="button"
+							variant="outline"
+						>
 							Columns
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align='end'>
+					<DropdownMenuContent align="end">
 						{table
 							.getAllColumns()
 							.filter((c) => c.getCanHide())
@@ -475,10 +469,8 @@ export function ContentTable({
 								<DropdownMenuCheckboxItem
 									key={c.id}
 									checked={c.getIsVisible()}
-									onCheckedChange={(v) =>
-										c.toggleVisibility(!!v)
-									}
-									className='capitalize'
+									onCheckedChange={(v) => c.toggleVisibility(!!v)}
+									className="capitalize"
 								>
 									{c.id}
 								</DropdownMenuCheckboxItem>
@@ -488,7 +480,7 @@ export function ContentTable({
 			</div>
 
 			{/* Table */}
-			<div className='overflow-hidden rounded-md border'>
+			<div className="overflow-hidden rounded-md border">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((hg) => (
@@ -498,8 +490,7 @@ export function ContentTable({
 										{header.isPlaceholder
 											? null
 											: flexRender(
-													header.column.columnDef
-														.header,
+													header.column.columnDef.header,
 													header.getContext(),
 												)}
 									</TableHead>
@@ -509,48 +500,49 @@ export function ContentTable({
 					</TableHeader>
 					<TableBody>
 						{loading ? (
-							Array.from({ length: skeletonRows }).map(
-								(_, rowIdx) => (
-									<TableRow key={`skeleton-${rowIdx}`}>
-										{table
-											.getVisibleLeafColumns()
-											.map((col, colIdx) => (
-												<TableCell
-													key={`${col.id}-${colIdx}`}
-												>
-													{colIdx === 0 ? (
-														<div className='flex min-w-0 flex-col gap-1'>
-															<Skeleton className='h-4 w-40' />
-															<Skeleton className='h-3 w-16' />
-														</div>
-													) : colIdx <= 3 ? (
-														<Skeleton className='h-5 w-20 rounded-full' />
-													) : (
-														<Skeleton className='h-4 w-28' />
-													)}
-												</TableCell>
-											))}
-									</TableRow>
-								),
-							)
-						) : table.getRowModel().rows.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow key={row.id}>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext(),
+							Array.from({ length: skeletonRows }).map((_, rowIdx) => (
+								<TableRow key={`skeleton-${rowIdx}`}>
+									{table.getVisibleLeafColumns().map((col, colIdx) => (
+										<TableCell key={`${col.id}-${colIdx}`}>
+											{colIdx === 0 ? (
+												<div className="flex min-w-0 flex-col gap-1">
+													<Skeleton className="h-4 w-40" />
+													<Skeleton className="h-3 w-16" />
+												</div>
+											) : colIdx <= 3 ? (
+												<Skeleton className="h-5 w-20 rounded-full" />
+											) : (
+												<Skeleton className="h-4 w-28" />
 											)}
 										</TableCell>
 									))}
 								</TableRow>
 							))
+						) : table.getRowModel().rows.length ? (
+							table.getRowModel().rows.map((row) => {
+								const contentId = row.original.ContentID || '';
+								return (
+									<TableRow
+										key={row.id}
+										onClick={() => router.push(`/content/${contentId}`)}
+										className="cursor-pointer hover:bg-muted/50"
+									>
+										{row.getVisibleCells().map((cell) => (
+											<TableCell key={cell.id}>
+												{flexRender(
+													cell.column.columnDef.cell,
+													cell.getContext(),
+												)}
+											</TableCell>
+										))}
+									</TableRow>
+								);
+							})
 						) : (
 							<TableRow>
 								<TableCell
 									colSpan={columns.length}
-									className='h-24 text-center'
+									className="h-24 text-center"
 								>
 									No results.
 								</TableCell>
@@ -561,8 +553,8 @@ export function ContentTable({
 			</div>
 
 			{/* Footer */}
-			<div className='mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center'>
-				<div className='text-muted-foreground text-sm'>
+			<div className="mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+				<div className="text-muted-foreground text-sm">
 					{loading
 						? 'Loading...'
 						: typeof totalItems === 'number'
@@ -571,20 +563,20 @@ export function ContentTable({
 								: `${(offsetStart ?? 0) + 1}-${(offsetStart ?? 0) + data.length} of ${totalItems}`
 							: `${table.getRowModel().rows.length} shown.`}
 				</div>
-				<div className='flex gap-2'>
+				<div className="flex gap-2">
 					<Button
-						type='button'
-						variant='outline'
-						size='sm'
+						type="button"
+						variant="outline"
+						size="sm"
 						onClick={onPrevPage}
 						disabled={loading || !hasPrev}
 					>
 						Previous
 					</Button>
 					<Button
-						type='button'
-						variant='outline'
-						size='sm'
+						type="button"
+						variant="outline"
+						size="sm"
 						onClick={onNextPage}
 						disabled={loading || !hasNext}
 					>
@@ -595,5 +587,3 @@ export function ContentTable({
 		</div>
 	);
 }
-
-

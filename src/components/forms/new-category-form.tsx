@@ -21,6 +21,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { normalizeFieldErrors } from '@/hooks/use-proto-validation';
+import { AutoSlugger } from './auto-slugger';
 
 const NewCategorySchema = z.object({
 	DisplayName: z.string().nonempty('DisplayName must not be empty'),
@@ -207,30 +208,3 @@ export function NewCategoryForm({
 	);
 }
 
-function AutoSlugger({ form }: { form: any }) {
-	return (
-		<form.Subscribe selector={(s: any) => s?.values}>
-			{(values: any) => {
-				const name = (values?.DisplayName ?? '') as string;
-				const stub = (values?.UrlStub ?? '') as string;
-				if (typeof form?.setFieldValue === 'function') {
-					const desired = slugify(name);
-					if (desired !== stub)
-						form.setFieldValue('UrlStub', desired);
-				}
-				return null;
-			}}
-		</form.Subscribe>
-	);
-}
-
-function slugify(input: string): string {
-	return input
-		.toLowerCase()
-		.trim()
-		.replace(/[']/g, '')
-		.replace(/\//g, '-')
-		.replace(/[^a-z0-9\s-]/g, '')
-		.replace(/\s+/g, '-')
-		.replace(/-+/g, '-');
-}

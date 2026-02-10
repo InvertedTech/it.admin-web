@@ -12,6 +12,7 @@ import {
 import type { UserSearchRecord } from '@inverted-tech/fragments/Authentication';
 import {
 	AdminSearchUsersSearchBarFieldGroup,
+	UsersFiltersButton,
 	type RoleOption,
 } from '../forms/groups/admin/admin-search-users-field-group';
 import { UsersTable } from '../tables/users-table';
@@ -68,7 +69,6 @@ function timestampToIso(value: unknown) {
 	return '';
 }
 
-// TODO: Make Params Work
 export function UsersSearchView({
 	pageSize = 25,
 	pageOffset = 0,
@@ -221,20 +221,10 @@ export function UsersSearchView({
 				setOffset(0);
 				form.handleSubmit();
 			}}
-			className='space-y-4'
+			className="space-y-4"
 		>
 			<form.AppForm>
-				<div className='border-b pb-3'>
-					<AdminSearchUsersSearchBarFieldGroup
-						form={form}
-						fields={FIELDS as any}
-						roles={ROLE_OPTIONS}
-					/>
-				</div>
-
-				<form.Subscribe
-					selector={(s: any) => s?.values?.IncludeDeleted}
-				>
+				<form.Subscribe selector={(s: any) => s?.values?.IncludeDeleted}>
 					{(includeDeletedValue?: boolean) => (
 						<IncludeDeletedUrlEffect
 							includeDeletedValue={includeDeletedValue}
@@ -251,6 +241,7 @@ export function UsersSearchView({
 					onNextPage={nextPage}
 					hasPrev={canPrev}
 					hasNext={canNext}
+					filterButton={<UsersFiltersButton roles={ROLE_OPTIONS} />}
 				/>
 			</form.AppForm>
 		</form>

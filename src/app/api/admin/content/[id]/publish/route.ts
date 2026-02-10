@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { getSession } from '@/lib/session';
+import { requireApiBase } from '@/lib/apiBase';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { PublishContentRequestSchema } from '@inverted-tech/fragments/Content';
 
-const API_BASE = 'http://localhost:8001/api/cms/admin/content';
+const API_BASE = `${requireApiBase()}/cms/admin/content`;
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

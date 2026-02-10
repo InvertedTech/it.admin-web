@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 export type NavNode = {
 	title: string;
@@ -70,10 +71,10 @@ function NavRow({ item }: { item: NavNode }) {
 					asChild
 					isActive={parentActive}
 				>
-					<a href={item.url}>
+					<Link href={item.url}>
 						{Icon && <Icon className="size-4" />}
 						<span>{item.title}</span>
-					</a>
+					</Link>
 				</SidebarMenuButton>
 			</SidebarMenuItem>
 		);
@@ -92,13 +93,13 @@ function NavRow({ item }: { item: NavNode }) {
 						isActive={parentActive}
 						className="flex-1"
 					>
-						<a
+						<Link
 							href={item.url}
 							className="flex items-center gap-2"
 						>
 							{Icon && <Icon className="size-4" />}
 							<span>{item.title}</span>
-						</a>
+						</Link>
 					</SidebarMenuButton>
 
 					<Button
@@ -108,7 +109,7 @@ function NavRow({ item }: { item: NavNode }) {
 						onClick={() => setOpen((v) => !v)}
 						className={cn(
 							'ml-auto h-7 w-7 p-0 text-muted-foreground hover:text-foreground',
-							open && 'text-foreground'
+							open && 'text-foreground',
 						)}
 						aria-label={open ? 'Collapse section' : 'Expand section'}
 					>
@@ -129,13 +130,13 @@ function NavRow({ item }: { item: NavNode }) {
 										asChild
 										isActive={active}
 									>
-										<a
+										<Link
 											href={sub.url}
 											className="flex items-center gap-2"
 										>
 											{sub.icon && <sub.icon className="size-3.5" />}
 											<span>{sub.title}</span>
-										</a>
+										</Link>
 									</SidebarMenuSubButton>
 								</SidebarMenuSubItem>
 							);

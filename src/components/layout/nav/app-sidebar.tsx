@@ -1,7 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { IconHelp, IconInnerShadowTop, IconSearch } from '@tabler/icons-react';
+import {
+	IconChartBubble,
+	IconHelp,
+	IconInnerShadowTop,
+	IconSearch,
+} from '@tabler/icons-react';
 
 import { NavUser } from '@/components/layout/nav/nav-user';
 import {
@@ -23,7 +28,6 @@ import {
 	Palette,
 	PlusSquare,
 	Settings as SettingsIcon,
-	Upload,
 	UserIcon,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -59,11 +63,6 @@ const data = {
 			title: 'Asset Library',
 			icon: Images,
 			url: '/content/assets',
-		},
-		{
-			title: 'Upload Asset',
-			icon: Upload,
-			url: '/content/assets/upload',
 		},
 		// {
 		// 	title: 'Events',
@@ -187,19 +186,20 @@ export function AppSidebar({
 	const roles = sessionRoles ?? [];
 	const navMain = filterNavItems(data.navMain as NavItem[], roles);
 	return (
-		<Sidebar collapsible='offcanvas' {...props}>
+		<Sidebar
+			collapsible="offcanvas"
+			{...props}
+		>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							asChild
-							className='data-[slot=sidebar-menu-button]:!p-1.5'
+							className="data-[slot=sidebar-menu-button]:!p-1.5"
 						>
-							<a href='/'>
-								<IconInnerShadowTop className='!size-5' />
-								<span className='text-base font-semibold'>
-									{headerTitle}
-								</span>
+							<a href="/">
+								<IconInnerShadowTop className="!size-5" />
+								<span className="text-base font-semibold">{headerTitle}</span>
 							</a>
 						</SidebarMenuButton>
 					</SidebarMenuItem>

@@ -2,6 +2,7 @@
 
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { getSession } from '@/lib/session';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 import {
 	SearchAssetRequest,
@@ -143,6 +144,11 @@ export async function createAsset(req: CreateAssetRequest) {
 		if (!body) {
 			return create(CreateAssetResponseSchema);
 		}
+
+		try {
+			revalidateTag(ADMIN_ASSETS_TAG);
+			revalidatePath('/content/assets');
+		} catch {}
 
 		return body;
 	} catch (error) {

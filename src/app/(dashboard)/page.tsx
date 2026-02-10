@@ -1,21 +1,31 @@
-import { ChartAreaInteractive } from '@/components/chart-area-interactive';
-import { DataTable } from '@/components/data-table';
+import { ContentWeekView } from '@/components/content/content-week-view';
+import { RecentContentCard } from '@/components/dashboard/recent-content-card';
 import { SectionCards } from '@/components/section-cards';
+import { adminSearchContent, getWeekEvents } from '@/app/actions/content';
+import { create } from '@bufbuild/protobuf';
+import { GetAllContentAdminRequestSchema } from '@inverted-tech/fragments/Content';
 import { requireAnyRole } from '@/lib/rbac';
-
-import data from '../data.json';
 
 export default async function Page() {
 	await requireAnyRole();
+	const weekEvents = await getWeekEvents();
+	const recentContent = await adminSearchContent(
+		create(GetAllContentAdminRequestSchema, {
+			PageSize: 5,
+			PageOffset: 0,
+			SubscriptionSearch: {
+				MinimumLevel: 0,
+				MaximumLevel: 9999,
+			},
+		}),
+	);
 	// TODO: Put actual data in Section Cards
-	// TODO: Put actual data in Data Table
-	// TODO: Put actual data in Chart Area Interactive
 	return (
 		<div>
-			<div className='space-y-6'>
+			<div className="space-y-6">
 				<SectionCards />
-				<ChartAreaInteractive />
-				<DataTable data={data} />
+				<ContentWeekView events={weekEvents} />
+				<RecentContentCard items={recentContent.Records ?? []} />
 			</div>
 		</div>
 	);

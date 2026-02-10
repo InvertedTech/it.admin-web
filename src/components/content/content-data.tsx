@@ -12,6 +12,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
+import DOMPurify from 'isomorphic-dompurify';
 
 type Props = {
 	pubData?: Partial<ContentPublicData> | any;
@@ -62,9 +63,14 @@ export function ContentData({ pubData, privData }: Props) {
 						{'HtmlBody' in value && value.HtmlBody ? (
 							<div>
 								<div className="text-sm text-muted-foreground">Body</div>
-								<div className="prose mt-1 max-w-none whitespace-pre-wrap break-words dark:prose-invert">
-									{value.HtmlBody}
-								</div>
+								<div
+									className="prose mt-1 max-w-none break-words dark:prose-invert"
+									dangerouslySetInnerHTML={{
+										__html: DOMPurify.sanitize(value.HtmlBody, {
+											USE_PROFILES: { html: true },
+										}),
+									}}
+								/>
 							</div>
 						) : null}
 

@@ -36,13 +36,21 @@ export default async function AllContentPage(props: Props) {
 	await requireRole(isWriterOrHigher);
 
 	return (
-		<ContentSearchView
-			roles={roles ?? []}
-			pageSize={pageSize}
-			pageOffset={pageOffset}
-			minLevel={minLevel}
-			maxLevel={maxLevel}
-			channelId={channelId}
-		/>
+		<div className="space-y-4">
+			<div>
+				<h1 className="text-3xl font-bold tracking-tight">Content</h1>
+				<p className="text-muted-foreground mt-2">
+					Search and manage your content.
+				</p>
+			</div>
+			<ContentSearchView
+				roles={roles ?? []}
+				pageSize={pageSize}
+				pageOffset={pageOffset}
+				minLevel={minLevel}
+				maxLevel={maxLevel}
+				channelId={channelId}
+			/>
+		</div>
 	);
 }

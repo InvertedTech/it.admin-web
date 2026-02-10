@@ -229,15 +229,23 @@ export default async function UsersSearchPage(props: Props) {
 
 	await requireRole(isMemberManagerOrHigher);
 	return (
-		<UsersSearchView
-			pageSize={pageSize}
-			pageOffset={pageOffset}
-			searchString={searchString}
-			includeDeleted={includeDeleted}
-			roles={roles}
-			userIDs={userIDs}
-			createdAfter={createdAfter}
-			createdBefore={createdBefore}
-		/>
+		<div className="space-y-4">
+			<div>
+				<h1 className="text-3xl font-bold tracking-tight">Members</h1>
+				<p className="text-muted-foreground mt-2">
+					Manage and search your members.
+				</p>
+			</div>
+			<UsersSearchView
+				pageSize={pageSize}
+				pageOffset={pageOffset}
+				searchString={searchString}
+				includeDeleted={includeDeleted}
+				roles={roles}
+				userIDs={userIDs}
+				createdAfter={createdAfter}
+				createdBefore={createdBefore}
+			/>
+		</div>
 	);
 }

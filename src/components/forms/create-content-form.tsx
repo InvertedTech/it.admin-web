@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 import { create } from '@bufbuild/protobuf';
 import {
@@ -15,10 +16,28 @@ import { FormCard } from './form-card';
 import { createContent } from '@/app/actions/content';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
+import { AutoContentSlugger } from './auto-content-slugger';
+import { PublishContentForm } from './publish-content-form';
 
 export function CreateContentForm() {
 	const router = useRouter();
+	const [postSubmitOpen, setPostSubmitOpen] = React.useState(false);
+	const [createdContentId, setCreatedContentId] = React.useState<string | null>(
+		null,
+	);
+	const [nextStep, setNextStep] = React.useState<'choice' | 'publish'>(
+		'choice',
+	);
 	const form = useProtoAppForm({
 		schema: CreateContentRequestSchema,
 		defaultInit: {
@@ -51,8 +70,12 @@ export function CreateContentForm() {
 				});
 				return;
 			}
-			if (res.Record && res.Record.Public?.ContentID !== '')
-				router.push(`/content/${res.Record.Public?.ContentID}`);
+			if (res.Record && res.Record.Public?.ContentID !== '') {
+				const id = res.Record.Public?.ContentID ?? null;
+				setCreatedContentId(id);
+				setNextStep('choice');
+				setPostSubmitOpen(true);
+			}
 		},
 	});
 
@@ -89,26 +112,27 @@ export function CreateContentForm() {
 	} as const;
 
 	return (
-		<FormCard
-			cardTitle="Create Content"
-			cardDescription="Set the details, metadata, and body for your content."
-		>
-			<form
-				id="create-content"
-				onSubmit={(e) => {
-					e.preventDefault();
-					form.handleSubmit();
-				}}
+		<>
+			<FormCard
+				cardTitle="Create Content"
+				cardDescription="Set the details, metadata, and body for your content."
 			>
-				<form.AppForm>
-					<AutoContentSlugger form={form} />
-					<div className="space-y-8">
-						<section className="space-y-4">
-							<ContentDetailsFields
-								form={form}
-								fields={detailsFields as any}
-							/>
-						</section>
+				<form
+					id="create-content"
+					onSubmit={(e) => {
+						e.preventDefault();
+						form.handleSubmit();
+					}}
+				>
+					<form.AppForm>
+						<AutoContentSlugger form={form} />
+						<div className="space-y-8">
+							<section className="space-y-4">
+								<ContentDetailsFields
+									form={form}
+									fields={detailsFields as any}
+								/>
+							</section>
 
 						<Separator />
 
@@ -262,35 +286,61 @@ export function CreateContentForm() {
 							<form.CreateButton label="Create" />
 						</div>
 					</div>
-				</form.AppForm>
-			</form>
-		</FormCard>
-	);
-}
+					</form.AppForm>
+				</form>
+			</FormCard>
+			<Dialog
+				open={postSubmitOpen}
+				onOpenChange={(open) => setPostSubmitOpen(open)}
+			>
+				<DialogContent className="sm:max-w-2xl">
+					<DialogHeader>
+						<DialogTitle>Publish now?</DialogTitle>
+						<DialogDescription>
+							Your content is created. You can publish it now, or skip this
+							step.
+						</DialogDescription>
+					</DialogHeader>
 
-function slugify(input: string): string {
-	return String(input)
-		.toLowerCase()
-		.trim()
-		.replace(/[']/g, '')
-		.replace(/\//g, '-')
-		.replace(/[^a-z0-9\s-]/g, '')
-		.replace(/\s+/g, '-')
-		.replace(/-+/g, '-');
-}
+					{nextStep === 'choice' && (
+						<div className="grid gap-3 sm:grid-cols-2">
+							<Button onClick={() => setNextStep('publish')}>Publish</Button>
+							<Button
+								variant="ghost"
+								onClick={() => {
+									setPostSubmitOpen(false);
+									if (createdContentId) {
+										router.push(`/content/${createdContentId}`);
+									}
+								}}
+							>
+								Skip for now
+							</Button>
+						</div>
+					)}
 
-function AutoContentSlugger({ form }: { form: any }) {
-	return (
-		<form.Subscribe selector={(s: any) => s?.values?.Public}>
-			{(pub: any) => {
-				const title = pub?.Title ?? '';
-				const url = pub?.URL ?? '';
-				const desired = slugify(title);
-				if (desired !== url && typeof form?.setFieldValue === 'function') {
-					form.setFieldValue('Public.URL', desired);
-				}
-				return null;
-			}}
-		</form.Subscribe>
+					{nextStep === 'publish' && createdContentId && (
+						<div className="space-y-4">
+							<PublishContentForm
+								contentId={createdContentId}
+								onComplete={() => {
+									setPostSubmitOpen(false);
+									router.push(`/content/${createdContentId}`);
+								}}
+							/>
+							<DialogFooter>
+								<Button variant="ghost" onClick={() => setNextStep('choice')}>
+									Back
+								</Button>
+								<Button variant="outline" type="submit" form="publish-content">
+									Done
+								</Button>
+							</DialogFooter>
+						</div>
+					)}
+
+				</DialogContent>
+			</Dialog>
+		</>
 	);
 }

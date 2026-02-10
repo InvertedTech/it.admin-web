@@ -14,7 +14,7 @@ import { isAdminOrHigher } from '@/lib/roleHelpers';
 const sections = [
 	{
 		title: 'General: Personalization',
-		href: '/settings/general',
+		href: '/settings/personalization',
 		desc: 'Customize platform name, theme, and branding defaults.',
 	},
 	{
@@ -32,16 +32,16 @@ const sections = [
 		href: '/settings/content',
 		desc: 'Define publishing options, categories, and permissions.',
 	},
-	{
-		title: 'Notifications (future)',
-		href: '/settings/notifications',
-		desc: 'Control email, push, and in-app notifications.',
-	},
-	{
-		title: 'Events (future)',
-		href: '/settings/events',
-		desc: 'Configure event listings and calendar integration.',
-	},
+	// {
+	// 	title: 'Notifications (future)',
+	// 	href: '/settings/notifications',
+	// 	desc: 'Control email, push, and in-app notifications.',
+	// },
+	// {
+	// 	title: 'Events (future)',
+	// 	href: '/settings/events',
+	// 	desc: 'Configure event listings and calendar integration.',
+	// },
 ];
 
 export default async function SettingsOverviewPage() {

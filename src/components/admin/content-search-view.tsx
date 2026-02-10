@@ -25,7 +25,10 @@ import {
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 import { create } from '@bufbuild/protobuf';
 import { getAllContent } from '@/app/actions/content';
-import { AdminContentFiltersFieldGroup } from '../forms/groups/content/content-search-field-groups';
+import {
+	AdminContentFiltersFieldGroup,
+	ContentFiltersButton,
+} from '../forms/groups/content/content-search-field-groups';
 
 const typeOptions = Object.entries(ContentTypeLabels).map(([key, label]) => ({
 	value: Number(key),
@@ -47,9 +50,6 @@ type Props = {
 	channelId?: string;
 };
 
-// TODO: Add Subscription Search Fields To Advanced filters
-// TODO: Add Channel Select Field Group to Advanced filters
-// TODO: Add Category Select Field Group to Advanced filters
 export function ContentSearchView({
 	roles,
 	pageSize = 25,
@@ -88,7 +88,6 @@ export function ContentSearchView({
 				setOffset(res.PageOffsetStart ?? value.PageOffset ?? 0);
 				setSize(value.PageSize ?? pageSize);
 			} catch (error) {
-				// TODO: Display/Handle
 				console.error(error);
 			} finally {
 				setLoading(false);
@@ -134,12 +133,10 @@ export function ContentSearchView({
 		next: { nextOffset?: number; nextSize?: number } = {},
 	) {
 		const minFromFilters = Number(
-			form.getFieldValue('SubscriptionSearch.MinimumLevel' as any) ??
-				minLevel,
+			form.getFieldValue('SubscriptionSearch.MinimumLevel' as any) ?? minLevel,
 		);
 		const maxFromFilters = Number(
-			form.getFieldValue('SubscriptionSearch.MaximumLevel' as any) ??
-				maxLevel,
+			form.getFieldValue('SubscriptionSearch.MaximumLevel' as any) ?? maxLevel,
 		);
 		const channelFromFilters = String(
 			form.getFieldValue('ChannelId' as any) ?? '',
@@ -148,10 +145,7 @@ export function ContentSearchView({
 			form.getFieldValue('PageSize' as any) ?? size,
 		);
 		const normalizedOffset = Math.max(0, next.nextOffset ?? offset);
-		const normalizedSize = Math.max(
-			1,
-			next.nextSize ?? pageSizeFromFilters,
-		);
+		const normalizedSize = Math.max(1, next.nextSize ?? pageSizeFromFilters);
 		const contentType =
 			typeFilters.length === 1 ? (typeFilters[0] as ContentType) : 0;
 
@@ -188,9 +182,7 @@ export function ContentSearchView({
 				? (item.Author ?? '').toLowerCase().includes(authorNeedle)
 				: true;
 			const typeOk =
-				typeFilters.length > 0
-					? typeFilters.includes(item.ContentType)
-					: true;
+				typeFilters.length > 0 ? typeFilters.includes(item.ContentType) : true;
 			const accessOk =
 				accessFilters.length > 0
 					? accessFilters.includes(item.SubscriptionLevel)
@@ -240,7 +232,7 @@ export function ContentSearchView({
 
 	return (
 		<form
-			className='space-y-4'
+			className="space-y-4"
 			onSubmit={(e) => {
 				e.preventDefault();
 				form.setFieldValue('PageOffset' as any, 0);
@@ -249,36 +241,30 @@ export function ContentSearchView({
 			}}
 		>
 			<form.AppForm>
-				<div className='border-b pb-3'>
-					<AdminContentFiltersFieldGroup
-						form={form}
-						fields={FIELDS as any}
-					/>
-				</div>
+				<ContentTable
+					data={filteredData}
+					pageSize={size}
+					roles={roles}
+					loading={loading}
+					totalItems={total}
+					offsetStart={offset}
+					hasPrev={canPrev}
+					hasNext={canNext}
+					filterButton={<ContentFiltersButton />}
+					onPrevPage={() => {
+						const nextOffset = Math.max(0, offset - size);
+						setOffset(nextOffset);
+						form.setFieldValue('PageOffset' as any, nextOffset);
+						executeSearch({ nextOffset });
+					}}
+					onNextPage={() => {
+						const nextOffset = offset + size;
+						setOffset(nextOffset);
+						form.setFieldValue('PageOffset' as any, nextOffset);
+						executeSearch({ nextOffset });
+					}}
+				/>
 			</form.AppForm>
-
-			<ContentTable
-				data={filteredData}
-				pageSize={size}
-				roles={roles}
-				loading={loading}
-				totalItems={total}
-				offsetStart={offset}
-				hasPrev={canPrev}
-				hasNext={canNext}
-				onPrevPage={() => {
-					const nextOffset = Math.max(0, offset - size);
-					setOffset(nextOffset);
-					form.setFieldValue('PageOffset' as any, nextOffset);
-					executeSearch({ nextOffset });
-				}}
-				onNextPage={() => {
-					const nextOffset = offset + size;
-					setOffset(nextOffset);
-					form.setFieldValue('PageOffset' as any, nextOffset);
-					executeSearch({ nextOffset });
-				}}
-			/>
 		</form>
 	);
 }

@@ -22,6 +22,7 @@ import { createAsset } from '@/app/actions/assets';
 import { create } from '@bufbuild/protobuf';
 import { CreateAssetRequestSchema } from '@inverted-tech/fragments/Content';
 import { ImageAssetDataSchema } from '@inverted-tech/fragments/Content/ImageAssetRecord_pb';
+import { slugify } from '@/lib/slugify';
 
 type ImageRecord = {
 	AssetID?: string;
@@ -33,25 +34,13 @@ type ImageRecord = {
 	Data?: { URL?: string; MimeType?: string; Data?: string };
 };
 
-function slugify(input: string): string {
-	return (input ?? '')
-		.toLowerCase()
-		.trim()
-		.replace(/[']/g, '')
-		.replace(/\//g, '-')
-		.replace(/[^a-z0-9\s-]/g, '')
-		.replace(/\s+/g, '-')
-		.replace(/-+/g, '-');
-}
-
 function srcFromImageRecord(r: ImageRecord): string | null {
 	const direct = r?.URL || r?.Public?.Data?.URL || r?.Data?.URL;
 	if (direct) return direct;
 	const base64 = r?.Public?.Data?.Data || r?.Data?.Data;
 	const mime = r?.Public?.Data?.MimeType || r?.Data?.MimeType || 'image/png';
 	if (base64) return `data:${mime};base64,${base64}`;
-	if (r?.AssetID)
-		return `http://localhost:8081/api/cms/asset/image/${r.AssetID}/data`;
+	if (r?.AssetID) return `/api/assets/image/${r.AssetID}/data`;
 	return null;
 }
 
@@ -172,26 +161,37 @@ function ImageTile({
 					const rec = admin?.Record ?? admin?.record ?? admin;
 					const one = rec?.AssetRecordOneof ?? rec?.assetRecordOneof;
 					let dataObj: any = null;
+					let urlFromRec: string | null = null;
 					if (one?.case === 'Image' || one?.case === 'image') {
 						const pub = (one?.value?.Public ??
 							one?.value?.public ??
 							one?.value) as any;
 						dataObj = pub?.Data ?? pub?.data ?? {};
+						urlFromRec =
+							pub?.URL ??
+							pub?.Url ??
+							pub?.Data?.URL ??
+							pub?.data?.url ??
+							null;
 					} else if (rec?.Image || rec?.image) {
 						const imageRec = rec?.Image ?? rec?.image;
 						const pub =
 							imageRec?.Public ?? imageRec?.public ?? imageRec;
 						dataObj = pub?.Data ?? pub?.data ?? {};
+						urlFromRec =
+							pub?.URL ??
+							pub?.Url ??
+							pub?.Data?.URL ??
+							pub?.data?.url ??
+							null;
 					}
 					const b64 = dataObj?.Data ?? dataObj?.data;
 					const mime =
 						dataObj?.MimeType ?? dataObj?.mimeType ?? 'image/png';
 					if (typeof b64 === 'string' && b64.length > 0)
 						setSrc(`data:${mime};base64,${b64}`);
-					else
-						setSrc(
-							`http://localhost:8081/api/cms/asset/image/${img.AssetID}/data`,
-						);
+					else if (urlFromRec) setSrc(String(urlFromRec));
+					else setSrc(`/api/assets/image/${img.AssetID}/data`);
 				})
 				.catch(() => setSrc(null));
 		}

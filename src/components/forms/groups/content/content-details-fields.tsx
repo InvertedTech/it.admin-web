@@ -34,6 +34,7 @@ import { useFieldContext, useFormContext } from '@/hooks/form-context';
 import { cn } from '@/lib/utils';
 import { normalizeFieldErrors } from '@/hooks/use-proto-validation';
 import { matchFieldErrors } from '@/components/forms/fields/utils';
+import { slugify } from '@/lib/slugify';
 
 // Group for basic content public details
 type ChannelOption = { ChannelId?: string; DisplayName?: string };
@@ -250,17 +251,6 @@ const ContentDetailsFields = withFieldGroup({
 });
 
 export default ContentDetailsFields;
-
-function slugify(input: string): string {
-	return String(input)
-		.toLowerCase()
-		.trim()
-		.replace(/[']/g, '')
-		.replace(/\//g, '-')
-		.replace(/[^a-z0-9\s-]/g, '')
-		.replace(/\s+/g, '-')
-		.replace(/-+/g, '-');
-}
 
 function getIn(obj: any, path: string) {
 	return path

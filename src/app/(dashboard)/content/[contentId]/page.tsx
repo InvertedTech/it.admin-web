@@ -7,12 +7,13 @@ import { ViewContentHeader } from '@/components/content/view-content-header';
 import { requireRole } from '@/lib/rbac';
 import { isPublisherOrHigher, isWriterOrHigher } from '@/lib/roleHelpers';
 import { getSession } from '@/lib/session';
+import { getApiBase } from '@/lib/apiBase';
 
 // Simple asset URL helper
 function getAssetUrl(assetId?: string): string | undefined {
 	if (!assetId) return undefined;
-	const base =
-		process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001/api';
+	const base = getApiBase();
+	if (!base) return undefined;
 	return `${base}/cms/asset/${assetId}/data`;
 }
 

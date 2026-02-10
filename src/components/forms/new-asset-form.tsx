@@ -14,17 +14,7 @@ import { ImageAssetDataSchema } from '@inverted-tech/fragments/Content/ImageAsse
 import { create } from '@bufbuild/protobuf';
 import { CreateAssetRequestSchema } from '@inverted-tech/fragments/Content';
 import { useRouter } from 'next/navigation';
-
-function slugify(input: string): string {
-	return (input ?? '')
-		.toLowerCase()
-		.trim()
-		.replace(/[']/g, '')
-		.replace(/\//g, '-')
-		.replace(/[^a-z0-9\s-]/g, '')
-		.replace(/\s+/g, '-')
-		.replace(/-+/g, '-');
-}
+import { AutoSlugger } from './auto-slugger';
 
 export function NewAssetForm() {
 	const [tab, setTab] = useState<'image' | 'audio'>('image');
@@ -143,30 +133,6 @@ function UploadArea({
 	);
 }
 
-function AutoSlugger({
-	form,
-	titlePath,
-	urlPath,
-}: {
-	form: any;
-	titlePath: string;
-	urlPath: string;
-}) {
-	return (
-		<form.Subscribe selector={(s: any) => s?.values}>
-			{(values: any) => {
-				const title = (form.getFieldValue(titlePath) ?? '') as string;
-				const url = (form.getFieldValue(urlPath) ?? '') as string;
-				const desired = slugify(title);
-				if (desired !== url && typeof form?.setFieldValue === 'function') {
-					form.setFieldValue(urlPath, desired);
-				}
-				return null;
-			}}
-		</form.Subscribe>
-	);
-}
-
 export function NewImageAssetForm() {
 	const router = useRouter();
 	const form = useProtoAppForm({
@@ -254,8 +220,8 @@ export function NewImageAssetForm() {
 					}
 					<AutoSlugger
 						form={form}
-						titlePath="Public.Title"
-						urlPath="Public.URL"
+						namePath="Public.Title"
+						slugPath="Public.URL"
 					/>
 
 					<FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -420,8 +386,8 @@ export function NewAudioAssetForm() {
 					}
 					<AutoSlugger
 						form={form}
-						titlePath="Public.Title"
-						urlPath="Public.URL"
+						namePath="Public.Title"
+						slugPath="Public.URL"
 					/>
 
 					<FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">

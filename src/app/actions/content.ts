@@ -41,6 +41,7 @@ import {
 	ModifyContentRequestSchema,
 	ModifyContentResponse,
 	GetAllContentAdminRequest,
+	GetAllContentAdminRequestSchema,
 } from '@inverted-tech/fragments/Content';
 async function getToken() {
 	const session = await getSession();
@@ -114,8 +115,7 @@ export async function getAllContent(req: GetAllContentAdminRequest) {
 		};
 		let url = new URL(`${API_BASE}`);
 
-		if (req.CategoryId)
-			url.searchParams.append('CategoryId', req.CategoryId);
+		if (req.CategoryId) url.searchParams.append('CategoryId', req.CategoryId);
 
 		if (req.ChannelId) url.searchParams.append('ChannelId', req.ChannelId);
 		if (req.ContentType) {
@@ -151,6 +151,48 @@ export async function getAllContent(req: GetAllContentAdminRequest) {
 		} else {
 			url.searchParams.append('SubscriptionSearch.MaximumLevel', '9999');
 		}
+
+		const res = await fetch(url, {
+			headers: head,
+			method: 'GET',
+		});
+
+		if (!res) return create(GetAllContentAdminResponseSchema);
+
+		const body: GetAllContentAdminResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(GetAllContentAdminResponseSchema);
+	}
+}
+
+export async function adminSearchContent(
+	req: GetAllContentAdminRequest,
+): Promise<GetAllContentAdminResponse> {
+	try {
+		const token = await getToken();
+		const head: HeadersInit = {
+			Authorization: `Bearer ${token}`,
+		};
+		const url = new URL(`${API_BASE}`);
+
+		if (req.CategoryId) url.searchParams.append('CategoryId', req.CategoryId);
+		if (req.ChannelId) url.searchParams.append('ChannelId', req.ChannelId);
+		if (req.ContentType) {
+			url.searchParams.append('ContentType', req.ContentType.toString());
+		}
+
+		url.searchParams.append(
+			'PageOffset',
+			(req.PageOffset ?? 0).toString(),
+		);
+		url.searchParams.append('PageSize', (req.PageSize ?? 10).toString());
+
+		const minLevel = req.SubscriptionSearch?.MinimumLevel ?? 0;
+		const maxLevel = req.SubscriptionSearch?.MaximumLevel ?? 9999;
+		url.searchParams.append('SubscriptionSearch.MinimumLevel', String(minLevel));
+		url.searchParams.append('SubscriptionSearch.MaximumLevel', String(maxLevel));
 
 		const res = await fetch(url, {
 			headers: head,
@@ -410,7 +452,7 @@ export type DashboardContentEvent = {
 	title: string;
 	date: string; // YYYY-MM-DD
 	time?: string; // HH:mm
-	type: 'publish' | 'announcement';
+	type: 'publish' | 'announcement' | 'created';
 	url?: string;
 };
 
@@ -484,14 +526,53 @@ export async function getWeekEvents(args?: {
 		return x >= weekStart && x <= weekEnd;
 	}
 
-	const list = await getContent();
+	const list = await adminSearchContent(
+		create(GetAllContentAdminRequestSchema, {
+			PageSize: 200,
+			PageOffset: 0,
+			SubscriptionSearch: {
+				MinimumLevel: 0,
+				MaximumLevel: 9999,
+			},
+		}),
+	);
 	const records = (list as any)?.Records ?? [];
 	const events: DashboardContentEvent[] = [];
+
+	const pickDate = (r: any, keys: string[]) => {
+		for (const key of keys) {
+			const v = r?.[key];
+			const d = tsToDate(v);
+			if (d) return d;
+		}
+		return undefined;
+	};
+
 	for (const r of records) {
 		const title: string = r?.Title ?? 'Untitled';
 		const id: string = r?.ContentID ?? '';
+		try {
+			console.log('[getWeekEvents] record dates', {
+				id,
+				title,
+				PublishOnUTC: r?.PublishOnUTC,
+				PublishOnUtc: r?.PublishOnUtc,
+				publishOnUtc: r?.publishOnUtc,
+				AnnounceOnUTC: r?.AnnounceOnUTC,
+				AnnounceOnUtc: r?.AnnounceOnUtc,
+				announceOnUtc: r?.announceOnUtc,
+				CreatedOnUTC: r?.CreatedOnUTC,
+				CreatedOnUtc: r?.CreatedOnUtc,
+				createdOnUtc: r?.createdOnUtc,
+			});
+		} catch {}
 
-		const p = tsToDate(r?.PublishOnUTC);
+		const p = pickDate(r, [
+			'PublishOnUTC',
+			'PublishOnUtc',
+			'publishOnUtc',
+			'publishOnUTC',
+		]);
 		if (p && inWeek(p)) {
 			events.push({
 				id: `${id}-pub`,
@@ -503,7 +584,12 @@ export async function getWeekEvents(args?: {
 			});
 		}
 
-		const a = tsToDate(r?.AnnounceOnUTC);
+		const a = pickDate(r, [
+			'AnnounceOnUTC',
+			'AnnounceOnUtc',
+			'announceOnUtc',
+			'announceOnUTC',
+		]);
 		if (a && inWeek(a)) {
 			events.push({
 				id: `${id}-ann`,
@@ -513,6 +599,25 @@ export async function getWeekEvents(args?: {
 				type: 'announcement',
 				url: `/content/${id}`,
 			});
+		}
+
+		if (!p && !a) {
+			const c = pickDate(r, [
+				'CreatedOnUTC',
+				'CreatedOnUtc',
+				'createdOnUtc',
+				'createdOnUTC',
+			]);
+			if (c && inWeek(c)) {
+				events.push({
+					id: `${id}-created`,
+					title,
+					date: isoDate(c),
+					time: isoTime(c),
+					type: 'created',
+					url: `/content/${id}`,
+				});
+			}
 		}
 	}
 
@@ -585,15 +690,12 @@ export async function getOverviewActivity(args?: {
 		if (!pub) {
 			draftCount++;
 			if (drafts.length < limD)
-				drafts.push(
-					toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)),
-				);
+				drafts.push(toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)));
 			continue;
 		}
 		if (pub > now) {
 			scheduledCount++;
-			if (scheduled.length < limS)
-				scheduled.push(toItem(r, 'scheduled', pub));
+			if (scheduled.length < limS) scheduled.push(toItem(r, 'scheduled', pub));
 			continue;
 		}
 		// published in the past
@@ -622,11 +724,8 @@ export async function getOverviewActivity(args?: {
 export async function modifyContent(req: ModifyContentRequest) {
 	try {
 		const token = await getToken();
-		if (!token || token === '')
-			return create(ModifyContentResponseSchema, {});
-		console.log('here', token);
+		if (!token || token === '') return create(ModifyContentResponseSchema, {});
 		const url = API_BASE_URL.concat(`/cms/admin/content/${req.ContentID}`);
-		console.log(url);
 		const res = await fetch(url, {
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -642,6 +741,13 @@ export async function modifyContent(req: ModifyContentRequest) {
 		}
 
 		const body: ModifyContentResponse = await res.json();
+		try {
+			revalidateTag(ADMIN_CONTENT_TAG);
+			revalidatePath('/content');
+			revalidatePath('/content/all');
+			if ((req as any)?.ContentID)
+				revalidatePath(`/content/${(req as any).ContentID}`);
+		} catch {}
 		return body;
 	} catch (error) {
 		console.error(error);

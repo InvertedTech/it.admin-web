@@ -298,6 +298,8 @@ export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 		}
 
 		const body: ModifyCMSPublicDataResponse = await res.json();
+		revalidateTag(ADMIN_SETTINGS_TAG);
+		revalidatePath('/settings/content');
 		return body;
 	} catch (error) {
 		console.error(error);
@@ -335,6 +337,8 @@ export async function modifyOwnerSubscriptionSettings(
 		}
 
 		const body: ModifySubscriptionOwnerDataResponse = await res.json();
+		revalidateTag(ADMIN_SETTINGS_TAG);
+		revalidatePath('/settings/subscriptions');
 		return body;
 	} catch (error) {
 		console.error(error);
