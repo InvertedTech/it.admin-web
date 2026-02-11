@@ -70,23 +70,19 @@ function fmtDate(input?: MaybeTimestamp) {
 	return d.toLocaleString();
 }
 
-export function RecentContentCard({
-	items,
-}: {
-	items: ContentListRecord[];
-}) {
+export function RecentContentCard({ items }: { items: ContentListRecord[] }) {
 	return (
 		<Card>
-			<CardHeader className="flex flex-row items-center justify-between gap-4">
+			<CardHeader className='flex flex-row items-center justify-between gap-4'>
 				<div>
 					<CardTitle>Recent Content</CardTitle>
-					<p className="text-sm text-muted-foreground">
+					<p className='text-sm text-muted-foreground'>
 						Latest posts and updates.
 					</p>
 				</div>
 			</CardHeader>
 			<CardContent>
-				<div className="space-y-3">
+				<div className='space-y-3'>
 					{items.map((item) => {
 						const date =
 							(item as any)?.PublishOnUTC ??
@@ -95,30 +91,36 @@ export function RecentContentCard({
 							(item as any)?.CreatedOnUtc;
 						return (
 							<div
-								key={item.ContentID || item.Id || item.Title}
-								className="flex items-start justify-between gap-4 border-b border-border/60 pb-3 last:border-0 last:pb-0"
+								key={
+									item.ContentID ||
+									item.ContentID ||
+									item.Title
+								}
+								className='flex items-start justify-between gap-4 border-b border-border/60 pb-3 last:border-0 last:pb-0'
 							>
-								<div className="min-w-0">
-									<div className="flex items-center gap-2">
-										<span className="truncate font-medium">
+								<div className='min-w-0'>
+									<div className='flex items-center gap-2'>
+										<span className='truncate font-medium'>
 											{item.Title || 'Untitled'}
 										</span>
-										<Badge variant="secondary">
-											{ContentTypeLabels[item.ContentType] ?? 'Content'}
+										<Badge variant='secondary'>
+											{ContentTypeLabels[
+												item.ContentType
+											] ?? 'Content'}
 										</Badge>
 									</div>
-									<div className="text-xs text-muted-foreground">
+									<div className='text-xs text-muted-foreground'>
 										{item.Author || 'Unknown author'}
 									</div>
 								</div>
-								<div className="text-xs text-muted-foreground whitespace-nowrap">
+								<div className='text-xs text-muted-foreground whitespace-nowrap'>
 									{fmtDate(date)}
 								</div>
 							</div>
 						);
 					})}
 					{items.length === 0 && (
-						<div className="text-sm text-muted-foreground">
+						<div className='text-sm text-muted-foreground'>
 							No recent content found.
 						</div>
 					)}
