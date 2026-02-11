@@ -70,11 +70,7 @@ function fmtDate(input?: MaybeTimestamp) {
 	return d.toLocaleString();
 }
 
-export function RecentContentCard({
-	items,
-}: {
-	items: ContentListRecord[];
-}) {
+export function RecentContentCard({ items }: { items: ContentListRecord[] }) {
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center justify-between gap-4">
@@ -95,7 +91,7 @@ export function RecentContentCard({
 							(item as any)?.CreatedOnUtc;
 						return (
 							<div
-								key={item.ContentID || item.Id || item.Title}
+								key={item.ContentID || item.Title}
 								className="flex items-start justify-between gap-4 border-b border-border/60 pb-3 last:border-0 last:pb-0"
 							>
 								<div className="min-w-0">

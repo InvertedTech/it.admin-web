@@ -25,6 +25,7 @@ const defaultRoleOptions: RoleOption[] = AllRoles.map((role) => ({
 // Separate component for the Filters button to be used in table headers
 export function UsersFiltersButton({ roles }: { roles?: RoleOption[] }) {
 	const form = useFormContext();
+	const AppForm = form as any;
 	const [filterDialogOpen, setFilterDialogOpen] = React.useState(false);
 	const roleOptions =
 		Array.isArray(roles) && roles.length > 0 ? roles : defaultRoleOptions;
@@ -51,45 +52,45 @@ export function UsersFiltersButton({ roles }: { roles?: RoleOption[] }) {
 					<div className="space-y-8 py-4">
 						<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
 							<div className="lg:col-span-1">
-								<form.AppField name="SearchString">
-									{(f) => <f.TextField label="Search" />}
-								</form.AppField>
+								<AppForm.AppField name="SearchString">
+									{(f: any) => <f.TextField label="Search" />}
+								</AppForm.AppField>
 							</div>
 							<div className="lg:col-span-2">
-								<form.AppField name="Roles">
-									{(f) => (
+								<AppForm.AppField name="Roles">
+									{(f: any) => (
 										<f.RoleSelectField
 											label="Roles"
 											options={roleOptions}
 										/>
 									)}
-								</form.AppField>
+								</AppForm.AppField>
 							</div>
 							<div className="lg:col-span-1">
-								<form.AppField name="IncludeDeleted">
-									{(f) => <f.SwitchField label="Include deleted" />}
-								</form.AppField>
+								<AppForm.AppField name="IncludeDeleted">
+									{(f: any) => <f.SwitchField label="Include deleted" />}
+								</AppForm.AppField>
 							</div>
 						</div>
 
 						<div className="grid gap-6 md:grid-cols-2">
-							<form.AppField name="CreatedAfter">
-								{(f) => <f.TextField label="Created after" />}
-							</form.AppField>
-							<form.AppField name="CreatedBefore">
-								{(f) => <f.TextField label="Created before" />}
-							</form.AppField>
+							<AppForm.AppField name="CreatedAfter">
+								{(f: any) => <f.TextField label="Created after" />}
+							</AppForm.AppField>
+							<AppForm.AppField name="CreatedBefore">
+								{(f: any) => <f.TextField label="Created before" />}
+							</AppForm.AppField>
 						</div>
 
 						<div className="lg:col-span-1">
-							<form.AppField name="PageSize">
-								{(f) => (
+							<AppForm.AppField name="PageSize">
+								{(f: any) => (
 									<f.PageSizeField
 										label="Page Size"
 										value={25}
 									/>
 								)}
-							</form.AppField>
+							</AppForm.AppField>
 						</div>
 
 						<div className="flex items-center justify-end gap-2 pt-4">
@@ -97,8 +98,8 @@ export function UsersFiltersButton({ roles }: { roles?: RoleOption[] }) {
 								type="button"
 								variant="outline"
 								onClick={() => {
-									form.reset();
-									(form as any).setFieldValue('PageOffset', 0);
+									AppForm.reset?.();
+									AppForm.setFieldValue('PageOffset', 0);
 								}}
 							>
 								Reset
@@ -106,8 +107,8 @@ export function UsersFiltersButton({ roles }: { roles?: RoleOption[] }) {
 							<Button
 								type="button"
 								onClick={() => {
-									(form as any).setFieldValue('PageOffset', 0);
-									form.handleSubmit();
+									AppForm.setFieldValue('PageOffset', 0);
+									AppForm.handleSubmit();
 									setFilterDialogOpen(false);
 								}}
 							>
@@ -184,7 +185,7 @@ export const AdminSearchUsersSearchBarFieldGroup = withFieldGroup({
 								type="button"
 								className="px-3 py-2 text-sm font-medium rounded border border-input hover:bg-accent"
 								onClick={() => {
-									group.reset?.();
+									(group as any).reset?.();
 								}}
 							>
 								Reset Filters

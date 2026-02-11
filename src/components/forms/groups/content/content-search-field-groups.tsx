@@ -17,6 +17,7 @@ type CategoryOption = { CategoryId?: string; DisplayName?: string };
 
 export function ContentFiltersButton() {
 	const form = useFormContext();
+	const AppForm = form as any;
 	const [channels, setChannels] = React.useState<ChannelOption[]>([]);
 	const [categories, setCategories] = React.useState<CategoryOption[]>([]);
 	const [filterDialogOpen, setFilterDialogOpen] = React.useState(false);
@@ -100,77 +101,77 @@ export function ContentFiltersButton() {
 					<div className="space-y-8 py-4">
 						<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
 							<div className="lg:col-span-1">
-								<form.AppField name="PageSize">
-									{(f) => (
+								<AppForm.AppField name="PageSize">
+									{(f: any) => (
 										<f.PageSizeField
 											label="Page Size"
 											value={25}
 										/>
 									)}
-								</form.AppField>
+								</AppForm.AppField>
 							</div>
 
 							<div className="lg:col-span-1">
-								<form.AppField name="SubscriptionSearch.MinimumLevel">
-									{(f) => (
+								<AppForm.AppField name="SubscriptionSearch.MinimumLevel">
+									{(f: any) => (
 										<f.SubscriptionTierField
 											label="Minimum Tier"
 											useAmountCents
 											includeMaxOption
 										/>
 									)}
-								</form.AppField>
+								</AppForm.AppField>
 							</div>
 
 							<div className="lg:col-span-1">
-								<form.AppField name="SubscriptionSearch.MaximumLevel">
-									{(f) => (
+								<AppForm.AppField name="SubscriptionSearch.MaximumLevel">
+									{(f: any) => (
 										<f.SubscriptionTierField
 											label="Maximum Tier"
 											useAmountCents
 											includeMaxOption
 										/>
 									)}
-								</form.AppField>
+								</AppForm.AppField>
 							</div>
 
 							<div className="space-y-3 lg:col-span-1">
-								<form.AppField name="Deleted">
-									{(f) => <f.SwitchField label="Show Deleted" />}
-								</form.AppField>
-								<form.AppField name="OnlyLive">
-									{(f) => <f.SwitchField label="Show Unpublished" />}
-								</form.AppField>
+								<AppForm.AppField name="Deleted">
+									{(f: any) => <f.SwitchField label="Show Deleted" />}
+								</AppForm.AppField>
+								<AppForm.AppField name="OnlyLive">
+									{(f: any) => <f.SwitchField label="Show Unpublished" />}
+								</AppForm.AppField>
 							</div>
 						</div>
 
 						<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-							<form.AppField name="ChannelId">
-								{(f) => (
+							<AppForm.AppField name="ChannelId">
+								{(f: any) => (
 									<f.ChannelSelectField
 										label="Channel"
 										options={channelOptions}
 									/>
 								)}
-							</form.AppField>
+							</AppForm.AppField>
 
-							<form.AppField name="CategoryId">
-								{(f) => (
+							<AppForm.AppField name="CategoryId">
+								{(f: any) => (
 									<f.CategorySelectField
 										label="Category"
 										options={categoryOptions}
 									/>
 								)}
-							</form.AppField>
+							</AppForm.AppField>
 
-							<form.AppField name="ContentType">
-								{(f) => (
+							<AppForm.AppField name="ContentType">
+								{(f: any) => (
 									<f.ContentTypeSelectField
 										label="Content Type"
 										description=""
 									/>
 								)}
-							</form.AppField>
+							</AppForm.AppField>
 						</div>
 
 						<div className="flex items-center justify-end gap-2 pt-4">
@@ -178,7 +179,7 @@ export function ContentFiltersButton() {
 								type="button"
 								variant="outline"
 								onClick={() => {
-									form.reset();
+									AppForm.reset?.();
 								}}
 							>
 								Reset
@@ -186,7 +187,7 @@ export function ContentFiltersButton() {
 							<Button
 								type="button"
 								onClick={() => {
-									form.handleSubmit();
+									AppForm.handleSubmit();
 									setFilterDialogOpen(false);
 								}}
 							>

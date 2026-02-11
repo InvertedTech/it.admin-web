@@ -12,8 +12,8 @@ type AutoSluggerProps =
 
 export function AutoSlugger(props: AutoSluggerProps) {
 	const form = props.form;
-	const namePath = 'namePath' in props ? props.namePath : 'DisplayName';
-	const slugPath = 'slugPath' in props ? props.slugPath : 'UrlStub';
+	const namePath = props.namePath ?? 'DisplayName';
+	const slugPath = props.slugPath ?? 'UrlStub';
 
 	return (
 		<form.Subscribe selector={(s: any) => s?.values}>
