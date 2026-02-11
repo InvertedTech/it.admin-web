@@ -2,11 +2,14 @@ import { getOwnUser } from '@/app/actions/auth';
 import { getSession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
 
+const baseUrl = process.env.BASE_URL!;
+
 export async function GET(request: NextRequest) {
 	const token = request.nextUrl.searchParams.get('token')?.trim();
 
 	if (!token) {
-		return NextResponse.redirect(new URL('/login', request.url));
+		console.error('token not found');
+		return NextResponse.redirect(new URL('/login', baseUrl));
 	}
 
 	const session = await getSession();
@@ -15,7 +18,8 @@ export async function GET(request: NextRequest) {
 
 	const res = await getOwnUser();
 	if (!res || !res.Record) {
-		return NextResponse.redirect(new URL('/login', request.url));
+		console.error('Res Or Res.Record Was Empty');
+		return NextResponse.redirect(new URL('/login', baseUrl));
 	}
 
 	const userName = res.Record.Public?.Data?.UserName?.trim();
@@ -23,7 +27,8 @@ export async function GET(request: NextRequest) {
 	const id = res.Record.Public?.UserID?.trim();
 
 	if (!userName || !roles || roles.length === 0 || !id) {
-		return NextResponse.redirect(new URL('/login', request.url));
+		console.error('Res Or Res.Record Was Empty');
+		return NextResponse.redirect(new URL('/login', baseUrl));
 	}
 
 	session.userName = userName;
@@ -43,5 +48,5 @@ export async function GET(request: NextRequest) {
 
 	await session.save();
 
-	return NextResponse.redirect(new URL('/', request.url));
+	return NextResponse.redirect(new URL('/', baseUrl));
 }
