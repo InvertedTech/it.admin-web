@@ -25,6 +25,8 @@ import {
 	GetOtherTotpListResponseSchema,
 	GetOtherUserResponse,
 	GetOtherUserResponseSchema,
+	GetOwnUserResponse,
+	GetOwnUserResponseSchema,
 	ModifyOtherUserRequest,
 	ModifyOtherUserRequestSchema,
 	ModifyOtherUserResponse,
@@ -65,6 +67,29 @@ export async function logoutAction(): Promise<boolean> {
 			console.error('logoutAction error:', e);
 		} catch {}
 		return false;
+	}
+}
+
+export async function getOwnUser() {
+	try {
+		const url = API_BASE.concat('/user');
+		const token = await getToken();
+		if (!token) {
+			return create(GetOwnUserResponseSchema, {});
+		}
+
+		const res = await fetch(url, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		const body: GetOwnUserResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error('Error Getting Own User: ', error);
+		return create(GetOwnUserResponseSchema, {});
 	}
 }
 
