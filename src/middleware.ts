@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { unsealData } from 'iron-session';
 
-const AUTH_COOKIE = 'it.admin.session';
+const SESSION_COOKIE = 'it.admin.session';
+const TOKEN_COOKIE = 'token';
 const PUBLIC_PATHS = ['/login', '/unauthorized'];
 type SessionData = {
 	roles?: string[];
@@ -31,7 +32,7 @@ export async function middleware(request: NextRequest) {
 		return NextResponse.next();
 	}
 
-	const token = request.cookies.get(AUTH_COOKIE)?.value;
+	const token = request.cookies.get(TOKEN_COOKIE)?.value;
 
 	if (!token) {
 		const loginUrl = request.nextUrl.clone();
@@ -41,7 +42,15 @@ export async function middleware(request: NextRequest) {
 	}
 
 	try {
-		const session = await unsealData<SessionData>(token, {
+		const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value;
+		if (!sessionCookie) {
+			const loginUrl = request.nextUrl.clone();
+			loginUrl.pathname = '/login';
+			loginUrl.searchParams.set('from', pathname);
+			return NextResponse.redirect(loginUrl);
+		}
+
+		const session = await unsealData<SessionData>(sessionCookie, {
 			password: getSessionPassword(),
 		});
 		const raw = session?.roles as unknown;

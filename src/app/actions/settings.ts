@@ -3,7 +3,7 @@
 import { cache } from 'react';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
-import { getSession } from '@/lib/session';
+import { getSession, getTokenCookie } from '@/lib/session';
 import {
 	GetAdminDataResponse,
 	GetAdminDataResponseSchema,
@@ -47,8 +47,7 @@ import {
 } from '@inverted-tech/fragments/Settings';
 
 async function getToken() {
-	const session = await getSession();
-	return session.token;
+	return getTokenCookie();
 }
 
 const ADMIN_SETTINGS_TAG = 'admin-settings';
@@ -137,7 +136,7 @@ export async function getPublicSettings() {
 
 export async function getAdminSettings() {
 	const session = await getSession();
-	const token = session.token;
+	const token = await getTokenCookie();
 	const roles = session.roles ?? [];
 	if (roles.includes('owner')) {
 		const owner = await _getOwnerSettings(token);

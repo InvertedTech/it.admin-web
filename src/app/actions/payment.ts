@@ -1,6 +1,6 @@
 'use server';
 
-import { getSession } from '@/lib/session';
+import { getTokenCookie } from '@/lib/session';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import {
 	CancelOtherSubscriptionRequestSchema,
@@ -14,8 +14,7 @@ import {
 const API_BASE_URL = process.env.API_BASE_URL!;
 const API_BASE = `${API_BASE_URL}`;
 async function getToken() {
-	const session = await getSession();
-	return session.token;
+	return getTokenCookie();
 }
 
 export async function getSubscriptionsForUser(userId: string) {

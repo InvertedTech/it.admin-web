@@ -1,12 +1,9 @@
-import { LoginForm } from '@/components/forms';
+import { redirect } from 'next/navigation';
 
-// TODO: Add Support For AD when phillip does his thing
 export default function Page() {
-	return (
-		<div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-			<div className="w-full max-w-sm">
-				<LoginForm />
-			</div>
-		</div>
-	);
+	const loginRedirect = process.env.IT_LOGIN_REDIRECT?.trim();
+	if (!loginRedirect) {
+		throw new Error('IT_LOGIN_REDIRECT is not set');
+	}
+	redirect(loginRedirect);
 }

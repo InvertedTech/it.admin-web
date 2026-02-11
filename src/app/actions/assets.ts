@@ -1,7 +1,7 @@
 'use server';
 
 import { create, toJsonString } from '@bufbuild/protobuf';
-import { getSession } from '@/lib/session';
+import { getTokenCookie } from '@/lib/session';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 import {
@@ -18,8 +18,7 @@ import {
 import { AssetType } from '@inverted-tech/fragments/Content/AssetInterface_pb';
 
 async function getToken() {
-	const session = await getSession();
-	return session.token;
+	return getTokenCookie();
 }
 
 const API_BASE_URL = process.env.API_BASE_URL!;

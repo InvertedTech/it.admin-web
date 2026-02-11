@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/session';
+import { getTokenCookie } from '@/lib/session';
 
 const API_BASE_URL = process.env.API_BASE_URL!;
 
@@ -11,8 +11,7 @@ export async function GET(
 		const { id } = await params;
 		if (!id) return new NextResponse(null, { status: 400 });
 
-		const session = await getSession();
-		const token = session.token;
+		const token = await getTokenCookie();
 		const safeId = encodeURIComponent(id);
 		const candidates = [
 			`${API_BASE_URL}/cms/admin/asset/image/${safeId}/data`,

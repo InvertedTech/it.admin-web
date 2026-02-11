@@ -41,13 +41,17 @@ import {
 	SearchUsersAdminResponseSchema,
 	type AuthenticateUserResponse,
 } from '@inverted-tech/fragments/Authentication';
-import { getSession } from '@/lib/session';
+import {
+	clearTokenCookie,
+	getSession,
+	getTokenCookie,
+	setTokenCookie,
+} from '@/lib/session';
 import { toIso } from '@/lib/utils';
 import { isAdminOrHigher, isMemberManagerOrHigher } from '@/lib/roleHelpers';
 import { ValidationIssueSchema } from '@inverted-tech/fragments/protos/index';
 async function getToken() {
-	const session = await getSession();
-	return session.token;
+	return getTokenCookie();
 }
 
 const API_BASE_URL = process.env.API_BASE_URL!;
@@ -57,6 +61,7 @@ const ADMIN_API_BASE = `${API_BASE_URL}/auth/admin`;
 export async function logoutAction(): Promise<boolean> {
 	'use server';
 	try {
+		await clearTokenCookie();
 		const session = await getSession();
 		await session.destroy();
 		return true;
@@ -95,8 +100,8 @@ export async function loginAction(
 		const body: AuthenticateUserResponse = await res.json();
 
 		if (body.ok && body.BearerToken && body.BearerToken !== '') {
+			await setTokenCookie(body.BearerToken);
 			const session = await getSession();
-			session.token = body.BearerToken;
 			if (body.UserRecord?.Public?.Data?.UserName) {
 				session.userName = body.UserRecord.Public.Data.UserName;
 			}
@@ -238,9 +243,7 @@ export async function renewToken() {
 			return create(RenewTokenResponseSchema);
 		}
 
-		const session = await getSession();
-		session.token = body.BearerToken;
-		await session.save();
+		await setTokenCookie(body.BearerToken);
 		return body;
 	} catch (error) {
 		console.error(error);

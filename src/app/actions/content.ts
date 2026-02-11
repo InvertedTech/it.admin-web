@@ -1,7 +1,7 @@
 'use server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
-import { getSession } from '@/lib/session';
+import { getTokenCookie } from '@/lib/session';
 import { isoDate, isoTime, tsToDate, type Item } from '@/lib/utils';
 import {
 	AnnounceContentRequest,
@@ -44,8 +44,7 @@ import {
 	GetAllContentAdminRequestSchema,
 } from '@inverted-tech/fragments/Content';
 async function getToken() {
-	const session = await getSession();
-	return session.token;
+	return getTokenCookie();
 }
 
 const ADMIN_CONTENT_TAG = 'admin-content';
