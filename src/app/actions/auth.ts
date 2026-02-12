@@ -51,10 +51,11 @@ import {
 } from '@/lib/session';
 import { toIso } from '@/lib/utils';
 import { isAdminOrHigher, isMemberManagerOrHigher } from '@/lib/roleHelpers';
-import {
-	APIErrorReason,
-	APIErrorSchema,
-} from '@inverted-tech/fragments/protos/index';
+import { APIErrorReason, APIErrorSchema } from '@inverted-tech/fragments';
+// import {
+// 	APIErrorReason,
+// 	APIErrorSchema,
+// } from '@inverted-tech/fragments/protos/Errors_pb';
 async function getToken() {
 	return getTokenCookie();
 }
