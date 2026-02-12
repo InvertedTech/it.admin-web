@@ -91,11 +91,7 @@ export function RecentContentCard({ items }: { items: ContentListRecord[] }) {
 							(item as any)?.CreatedOnUtc;
 						return (
 							<div
-								key={
-									item.ContentID ||
-									item.ContentID ||
-									item.Title
-								}
+								key={item.ContentID || item.Title}
 								className='flex items-start justify-between gap-4 border-b border-border/60 pb-3 last:border-0 last:pb-0'
 							>
 								<div className='min-w-0'>

@@ -22,9 +22,9 @@ import {
 } from '@/components/ui/tooltip';
 import { Info } from 'lucide-react';
 
-type Props = { from?: string };
+type Props = { msftRedirect: string; from?: string };
 
-export function LoginForm({ from }: Props) {
+export function LoginForm({ msftRedirect, from }: Props) {
 	const router = useRouter();
 	const [useMfa, setUseMfa] = React.useState(false);
 	const form = useProtoAppForm({
@@ -107,7 +107,10 @@ export function LoginForm({ from }: Props) {
 										/>
 									</button>
 								</TooltipTrigger>
-								<TooltipContent side="top" align="start">
+								<TooltipContent
+									side="top"
+									align="start"
+								>
 									Enable if your account requires an authenticator code.
 								</TooltipContent>
 							</Tooltip>
@@ -148,6 +151,10 @@ export function LoginForm({ from }: Props) {
 								variant="outline"
 								type="button"
 								className="border-[#8C8C8C] bg-white text-[#5E5E5E] hover:bg-[#F3F2F1] hover:text-[#323130]"
+								onClick={(e) => {
+									e.preventDefault();
+									router.replace(msftRedirect);
+								}}
 							>
 								<svg
 									aria-hidden="true"
