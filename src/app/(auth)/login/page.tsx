@@ -1,7 +1,6 @@
 'use server';
 import { LoginForm } from '@/components/forms';
 
-// TODO: Add Support For AD when phillip does his thing
 export default async function Page() {
 	const msftRedirect = process.env.IT_LOGIN_REDIRECT ?? '';
 
