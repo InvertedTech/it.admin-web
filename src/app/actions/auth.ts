@@ -3,11 +3,12 @@
 import { Roles } from '@/lib/types';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import {
+	CreateUserRequest,
+	CreateUserRequestSchema,
+	CreateUserResponse,
+	CreateUserResponseSchema,
 	AuthenticateUserRequest,
 	AuthenticateUserResponseSchema,
-	AuthErrorReason,
-	AuthErrorReasonSchema,
-	AuthErrorSchema,
 	ChangeOtherPasswordRequest,
 	ChangeOtherPasswordRequestSchema,
 	ChangeOtherPasswordResponse,
@@ -20,7 +21,6 @@ import {
 	DisableOtherTotpRequestSchema,
 	DisableOtherTotpResponse,
 	DisableOtherTotpResponseSchema,
-	GetOtherTotpListRequestSchema,
 	GetOtherTotpListResponse,
 	GetOtherTotpListResponseSchema,
 	GetOtherUserResponse,
@@ -49,7 +49,10 @@ import {
 } from '@/lib/session';
 import { toIso } from '@/lib/utils';
 import { isAdminOrHigher, isMemberManagerOrHigher } from '@/lib/roleHelpers';
-import { ValidationIssueSchema } from '@inverted-tech/fragments/protos/index';
+import {
+	APIErrorReason,
+	APIErrorSchema,
+} from '@inverted-tech/fragments/protos/index';
 async function getToken() {
 	return getTokenCookie();
 }
@@ -90,9 +93,9 @@ export async function loginAction(
 		if (!res) {
 			return create(AuthenticateUserResponseSchema, {
 				ok: false,
-				Error: create(AuthErrorSchema, {
-					Message: 'Unknown Error',
-					Type: AuthErrorReason.AUTH_REASON_UNSPECIFIED,
+				Error: create(APIErrorSchema, {
+					Message: 'No Response Recieved From The Server',
+					Reason: APIErrorReason.ERROR_REASON_SERVICE_UNAVAILABLE,
 				}),
 			});
 		}
@@ -121,7 +124,8 @@ export async function loginAction(
 			}
 
 			if (body.UserRecord?.Public?.Data?.ProfileImagePNG) {
-				session.profileImageId = body.UserRecord.Public.Data.ProfileImagePNG;
+				session.profileImageId =
+					body.UserRecord.Public.Data.ProfileImagePNG;
 			}
 
 			if (
@@ -138,9 +142,9 @@ export async function loginAction(
 	} catch (e: any) {
 		return create(AuthenticateUserResponseSchema, {
 			ok: false,
-			Error: create(AuthErrorSchema, {
+			Error: create(APIErrorSchema, {
 				Message: 'Unknown Error',
-				Type: AuthErrorReason.AUTH_REASON_UNSPECIFIED,
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 			}),
 		});
 	}
@@ -165,13 +169,15 @@ export async function listUsers(
 			`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`;
 
 		if (req.PageSize != null) parts.push(enc('PageSize', req.PageSize));
-		if (req.PageOffset != null) parts.push(enc('PageOffset', req.PageOffset));
+		if (req.PageOffset != null)
+			parts.push(enc('PageOffset', req.PageOffset));
 		if (req.SearchString?.trim())
 			parts.push(enc('SearchString', req.SearchString.trim()));
 		if (Array.isArray(req.Roles))
 			for (const r of req.Roles) if (r) parts.push(enc('Roles', r));
 		if (Array.isArray(req.UserIDs))
-			for (const id of req.UserIDs) if (id) parts.push(enc('UserIDs', id));
+			for (const id of req.UserIDs)
+				if (id) parts.push(enc('UserIDs', id));
 		const ca = toIso((req as any)?.CreatedAfter);
 		const cb = toIso((req as any)?.CreatedBefore);
 		if (ca) parts.push(enc('CreatedAfter', ca));
@@ -394,8 +400,8 @@ export async function adminEditOtherUserPassword(
 		const token = await getToken();
 		if (!token || token === '')
 			return create(ChangeOtherPasswordResponseSchema, {
-				Error: create(AuthErrorSchema, {
-					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+				Error: create(APIErrorSchema, {
+					Reason: APIErrorReason.ERROR_REASON_UNAUTHENTICATED,
 					Message: 'Not Logged In',
 					Validation: [],
 				}),
@@ -404,8 +410,8 @@ export async function adminEditOtherUserPassword(
 		const roles = (await getSession()).roles;
 		if (!roles || roles.length < 0)
 			return create(ChangeOtherPasswordResponseSchema, {
-				Error: create(AuthErrorSchema, {
-					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+				Error: create(APIErrorSchema, {
+					Reason: APIErrorReason.ERROR_REASON_UNAUTHENTICATED,
 					Message: 'Not Logged In',
 					Validation: [],
 				}),
@@ -413,8 +419,8 @@ export async function adminEditOtherUserPassword(
 
 		if (!isMemberManagerOrHigher(roles))
 			return create(ChangeOtherPasswordResponseSchema, {
-				Error: create(AuthErrorSchema, {
-					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+				Error: create(APIErrorSchema, {
+					Reason: APIErrorReason.ERROR_REASON_UNAUTHORIZED,
 					Message: 'User Does Not Have Required Role',
 					Validation: [],
 				}),
@@ -433,8 +439,8 @@ export async function adminEditOtherUserPassword(
 	} catch (error) {
 		console.error(error);
 		return create(ChangeOtherPasswordResponseSchema, {
-			Error: create(AuthErrorSchema, {
-				Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNKNOWN,
+			Error: create(APIErrorSchema, {
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 				Message: 'An Error Has Occured Changing A Users Password',
 				Validation: [],
 			}),
@@ -447,8 +453,8 @@ export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
 		const token = await getToken();
 		if (!token || token === '')
 			return create(ModifyOtherUserResponseSchema, {
-				Error: create(AuthErrorSchema, {
-					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+				Error: create(APIErrorSchema, {
+					Reason: APIErrorReason.ERROR_REASON_UNAUTHENTICATED,
 					Message: 'Not Logged In',
 					Validation: [],
 				}),
@@ -457,8 +463,8 @@ export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
 		const roles = (await getSession()).roles;
 		if (!roles || roles.length < 0)
 			return create(ModifyOtherUserResponseSchema, {
-				Error: create(AuthErrorSchema, {
-					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+				Error: create(APIErrorSchema, {
+					Reason: APIErrorReason.ERROR_REASON_UNAUTHENTICATED,
 					Message: 'Not Logged In',
 					Validation: [],
 				}),
@@ -466,8 +472,8 @@ export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
 
 		if (!isMemberManagerOrHigher(roles))
 			return create(ModifyOtherUserResponseSchema, {
-				Error: create(AuthErrorSchema, {
-					Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNAUTHORIZED,
+				Error: create(APIErrorSchema, {
+					Reason: APIErrorReason.ERROR_REASON_UNAUTHORIZED,
 					Message: 'User Does Not Have Required Role',
 					Validation: [],
 				}),
@@ -488,8 +494,8 @@ export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
 	} catch (error) {
 		console.error(error);
 		return create(ModifyOtherUserResponseSchema, {
-			Error: create(AuthErrorSchema, {
-				Type: AuthErrorReason.MODIFY_OTHER_USER_ERROR_UNKNOWN,
+			Error: create(APIErrorSchema, {
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 				Message: 'An Error Ocurred While Trying To Modify Other User',
 				Validation: [],
 			}),

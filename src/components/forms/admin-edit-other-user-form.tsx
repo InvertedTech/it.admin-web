@@ -1,13 +1,10 @@
 import { useAppForm } from '@/hooks/app-form';
 import { create } from '@bufbuild/protobuf';
 import { AdminEditOtherUserFieldGroups } from './groups/authentication/admin-user-field-groups';
-import {
-	AuthErrorReason,
-	ModifyOtherUserRequestSchema,
-} from '@inverted-tech/fragments/Authentication/index';
+import { ModifyOtherUserRequestSchema } from '@inverted-tech/fragments/Authentication/index';
 import { adminEditOtherUser } from '@/app/actions/auth';
 import { toast } from 'sonner';
-
+import { APIErrorReason } from '@inverted-tech/fragments';
 export function AdminEditOtherUserForm({
 	userId,
 	userName,
@@ -37,8 +34,7 @@ export function AdminEditOtherUserForm({
 
 				const err = (res as any)?.Error;
 				if (err) {
-					const message =
-						err?.Message ?? 'Failed to update the user';
+					const message = err?.Message ?? 'Failed to update the user';
 					type FieldKey =
 						| 'UserID'
 						| 'UserName'
@@ -49,7 +45,15 @@ export function AdminEditOtherUserForm({
 						{};
 					const addFieldError = (key: string, msg: string) => {
 						if (!key) return;
-						if (!['UserID', 'UserName', 'DisplayName', 'Email', 'Bio'].includes(key))
+						if (
+							![
+								'UserID',
+								'UserName',
+								'DisplayName',
+								'Email',
+								'Bio',
+							].includes(key)
+						)
 							return;
 						const k = key as FieldKey;
 						if (!fields[k]) fields[k] = msg;
@@ -69,14 +73,12 @@ export function AdminEditOtherUserForm({
 					}
 
 					if (
-						err?.Type ===
-						AuthErrorReason.MODIFY_OTHER_USER_ERROR_USERNAME_TAKEN
+						err?.Type === APIErrorReason.ERROR_REASON_ALREADY_EXISTS
 					) {
 						addFieldError('UserName', 'Username already taken');
 					}
 					if (
-						err?.Type ===
-						AuthErrorReason.MODIFY_OTHER_USER_ERROR_EMAIL_TAKEN
+						err?.Type === APIErrorReason.ERROR_REASON_ALREADY_EXISTS
 					) {
 						addFieldError('Email', 'Email already in use');
 					}

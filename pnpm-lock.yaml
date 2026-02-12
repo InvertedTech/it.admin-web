@@ -24,8 +24,8 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@19.1.0)
       '@inverted-tech/fragments':
-        specifier: ^0.8.0
-        version: 0.8.0
+        specifier: ^0.9.1
+        version: 0.9.1
       '@lexical/html':
         specifier: ^0.40.0
         version: 0.40.0
@@ -492,8 +492,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@inverted-tech/fragments@0.8.0':
-    resolution: {integrity: sha512-vtoM3uAgLsLOqVdl1m7iuMMhsxfcTKpMiE+6aSqd2fVPSVDbbGul2j6PD9sFWS49fFQgED1Qfc/7os7DNCaUGg==}
+  '@inverted-tech/fragments@0.9.1':
+    resolution: {integrity: sha512-FLdx8ebktCgY0l7aBkrjTHY13wq7kYWS0Qc33Uw/Tvx/MZ8MftSh8h3aUZsRE7p0WGlEbXVmU2ZXqwKVIVvLOw==}
 
   '@isaacs/fs-minipass@4.0.1':
     resolution: {integrity: sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w==}
@@ -2632,7 +2632,7 @@ snapshots:
   '@img/sharp-win32-x64@0.34.4':
     optional: true
 
-  '@inverted-tech/fragments@0.8.0':
+  '@inverted-tech/fragments@0.9.1':
     dependencies:
       '@bufbuild/protobuf': 2.10.0
       '@bufbuild/protovalidate': 1.1.1(@bufbuild/protobuf@2.10.0)
