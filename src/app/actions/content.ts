@@ -43,6 +43,7 @@ import {
 	GetAllContentAdminRequest,
 	GetAllContentAdminRequestSchema,
 } from '@inverted-tech/fragments/Content';
+import { APIErrorReason, APIErrorSchema } from '@inverted-tech/fragments';
 async function getToken() {
 	return getTokenCookie();
 }
@@ -64,12 +65,22 @@ export async function createContent(req: CreateContentRequest) {
 		});
 
 		if (!res) {
-			return create(CreateContentResponseSchema);
+			return create(CreateContentResponseSchema, {
+				Error: create(APIErrorSchema, {
+					Reason: APIErrorReason.ERROR_REASON_SERVICE_UNAVAILABLE,
+					Message: 'Server Unavailible',
+				}),
+			});
 		}
 
 		const body: CreateContentResponse = await res.json();
 		if (!body) {
-			return create(CreateContentResponseSchema);
+			return create(CreateContentResponseSchema, {
+				Error: create(APIErrorSchema, {
+					Reason: APIErrorReason.ERROR_REASON_DELIVERY_FAILED,
+					Message: 'Server Did Not Send A Response',
+				}),
+			});
 		}
 
 		try {
@@ -79,8 +90,13 @@ export async function createContent(req: CreateContentRequest) {
 		} catch {}
 		return body;
 	} catch (error) {
-		console.error(error);
-		return create(CreateContentResponseSchema);
+		console.error('Create Content Error: ', error);
+		return create(CreateContentResponseSchema, {
+			Error: create(APIErrorSchema, {
+				Reason: APIErrorReason.ERROR_REASON_PROVIDER_ERROR,
+				Message: 'Server Error, Check Logs For Create Content',
+			}),
+		});
 	}
 }
 
@@ -114,7 +130,8 @@ export async function getAllContent(req: GetAllContentAdminRequest) {
 		};
 		let url = new URL(`${API_BASE}`);
 
-		if (req.CategoryId) url.searchParams.append('CategoryId', req.CategoryId);
+		if (req.CategoryId)
+			url.searchParams.append('CategoryId', req.CategoryId);
 
 		if (req.ChannelId) url.searchParams.append('ChannelId', req.ChannelId);
 		if (req.ContentType) {
@@ -176,22 +193,26 @@ export async function adminSearchContent(
 		};
 		const url = new URL(`${API_BASE}`);
 
-		if (req.CategoryId) url.searchParams.append('CategoryId', req.CategoryId);
+		if (req.CategoryId)
+			url.searchParams.append('CategoryId', req.CategoryId);
 		if (req.ChannelId) url.searchParams.append('ChannelId', req.ChannelId);
 		if (req.ContentType) {
 			url.searchParams.append('ContentType', req.ContentType.toString());
 		}
 
-		url.searchParams.append(
-			'PageOffset',
-			(req.PageOffset ?? 0).toString(),
-		);
+		url.searchParams.append('PageOffset', (req.PageOffset ?? 0).toString());
 		url.searchParams.append('PageSize', (req.PageSize ?? 10).toString());
 
 		const minLevel = req.SubscriptionSearch?.MinimumLevel ?? 0;
 		const maxLevel = req.SubscriptionSearch?.MaximumLevel ?? 9999;
-		url.searchParams.append('SubscriptionSearch.MinimumLevel', String(minLevel));
-		url.searchParams.append('SubscriptionSearch.MaximumLevel', String(maxLevel));
+		url.searchParams.append(
+			'SubscriptionSearch.MinimumLevel',
+			String(minLevel),
+		);
+		url.searchParams.append(
+			'SubscriptionSearch.MaximumLevel',
+			String(maxLevel),
+		);
 
 		const res = await fetch(url, {
 			headers: head,
@@ -230,6 +251,7 @@ export async function adminGetContent(contentId: string) {
 	}
 }
 
+// TODO: Add Error.proto errors
 export async function publishContent(req: PublishContentRequest) {
 	try {
 		const token = await getToken();
@@ -286,6 +308,7 @@ export async function publishContent(req: PublishContentRequest) {
 	}
 }
 
+// TODO: Add Error.proto errors
 export async function unpublishContent(req: UnpublishContentRequest) {
 	try {
 		const token = await getToken();
@@ -318,6 +341,7 @@ export async function unpublishContent(req: UnpublishContentRequest) {
 	}
 }
 
+// TODO: Add Error.proto errors
 export async function announceContent(req: AnnounceContentRequest) {
 	try {
 		const token = await getToken();
@@ -350,6 +374,7 @@ export async function announceContent(req: AnnounceContentRequest) {
 	}
 }
 
+// TODO: Add Error.proto errors
 export async function unannounceContent(req: UnannounceContentRequest) {
 	try {
 		const token = await getToken();
@@ -382,6 +407,7 @@ export async function unannounceContent(req: UnannounceContentRequest) {
 	}
 }
 
+// TODO: Add Error.proto errors
 export async function deleteContent(req: DeleteContentRequest) {
 	try {
 		const token = await getToken();
@@ -413,6 +439,7 @@ export async function deleteContent(req: DeleteContentRequest) {
 	}
 }
 
+// TODO: Add Error.proto errors
 export async function undeleteContent(req: UndeleteContentRequest) {
 	try {
 		const token = await getToken();
@@ -689,12 +716,15 @@ export async function getOverviewActivity(args?: {
 		if (!pub) {
 			draftCount++;
 			if (drafts.length < limD)
-				drafts.push(toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)));
+				drafts.push(
+					toItem(r, 'draft', tsToDate((r as any)?.CreatedOnUTC)),
+				);
 			continue;
 		}
 		if (pub > now) {
 			scheduledCount++;
-			if (scheduled.length < limS) scheduled.push(toItem(r, 'scheduled', pub));
+			if (scheduled.length < limS)
+				scheduled.push(toItem(r, 'scheduled', pub));
 			continue;
 		}
 		// published in the past
@@ -720,10 +750,12 @@ export async function getOverviewActivity(args?: {
 	return { drafts, scheduled, recent, stats: { ...stats } };
 }
 
+// TODO: Add Error.proto errors
 export async function modifyContent(req: ModifyContentRequest) {
 	try {
 		const token = await getToken();
-		if (!token || token === '') return create(ModifyContentResponseSchema, {});
+		if (!token || token === '')
+			return create(ModifyContentResponseSchema, {});
 		const url = API_BASE_URL.concat(`/cms/admin/content/${req.ContentID}`);
 		const res = await fetch(url, {
 			headers: {

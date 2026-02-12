@@ -119,6 +119,7 @@ export async function searchAssets(
 	}
 }
 
+// TODO: Add Error.proto errors
 export async function createAsset(req: CreateAssetRequest) {
 	const url = `${API_BASE_URL}/cms/admin/asset`;
 	const token = await getToken();

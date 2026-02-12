@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
 	}
 
 	const session = await getSession();
-	session.token = token;
+	// TODO: Make Sure This Isn't Needed
+	// session.token = token;
 	await session.save();
 
 	const res = await getOwnUser();
