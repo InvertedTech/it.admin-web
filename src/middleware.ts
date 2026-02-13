@@ -1,20 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { unsealData } from 'iron-session';
 
 const SESSION_COOKIE = 'it.admin.session';
 const TOKEN_COOKIE = 'token';
 const PUBLIC_PATHS = ['/login', '/unauthorized'];
-type SessionData = {
-	roles?: string[];
-};
-
-function getSessionPassword() {
-	return (
-		process.env.IRON_SESSION_PASSWORD ??
-		'dev-only-insecure-please-change-this-at-least-32-chars'
-	);
-}
 
 export async function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl;
@@ -50,13 +39,15 @@ export async function middleware(request: NextRequest) {
 			return NextResponse.redirect(loginUrl);
 		}
 
-		const session = await unsealData<SessionData>(sessionCookie, {
-			password: getSessionPassword(),
-		});
-		const raw = session?.roles as unknown;
+		const session = JSON.parse(
+			decodeURIComponent(sessionCookie),
+		) as { roles?: unknown };
+		const raw = session?.roles;
+		// TODO(auth-removal): Remove role/authorization read.
 		const roles = (Array.isArray(raw) ? raw : raw ? [String(raw)] : []).filter(
 			(r) => typeof r === 'string' && r.trim().length > 0,
 		);
+		// TODO(auth-removal): Remove role/authorization gate.
 		if (roles.length === 0) {
 			const unauthorizedUrl = request.nextUrl.clone();
 			unauthorizedUrl.pathname = '/unauthorized';

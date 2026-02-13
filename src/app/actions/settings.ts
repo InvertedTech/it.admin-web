@@ -3,7 +3,7 @@
 import { cache } from 'react';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
-import { getSession, getTokenCookie } from '@/lib/session';
+import { getSessionRoles, getTokenCookie } from '@/lib/session';
 import {
 	GetAdminDataResponse,
 	GetAdminDataResponseSchema,
@@ -135,9 +135,10 @@ export async function getPublicSettings() {
 }
 
 export async function getAdminSettings() {
-	const session = await getSession();
 	const token = await getTokenCookie();
-	const roles = session.roles ?? [];
+	// TODO(auth-removal): Remove role/authorization read.
+	const roles = await getSessionRoles();
+	// TODO(auth-removal): Remove role/authorization check.
 	if (roles.includes('owner')) {
 		const owner = await _getOwnerSettings(token);
 		// Normalize to the admin response shape for callers expecting { Public, Private }

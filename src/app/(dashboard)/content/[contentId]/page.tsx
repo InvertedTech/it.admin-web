@@ -6,7 +6,7 @@ import { ContentTimeline } from '@/components/content/content-timeline';
 import { ViewContentHeader } from '@/components/content/view-content-header';
 import { requireRole } from '@/lib/rbac';
 import { isPublisherOrHigher, isWriterOrHigher } from '@/lib/roleHelpers';
-import { getSession } from '@/lib/session';
+import { getSessionRoles } from '@/lib/session';
 import { getApiBase } from '@/lib/apiBase';
 
 // Simple asset URL helper
@@ -22,10 +22,13 @@ export default async function ViewContentPage({
 }: {
 	params: { contentId: string };
 }) {
+	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isWriterOrHigher);
 	const { contentId } = await params;
-	const session = await getSession();
-	const canPublish = isPublisherOrHigher(session.roles ?? []);
+	// TODO(auth-removal): Remove role/authorization read.
+	const roles = await getSessionRoles();
+	// TODO(auth-removal): Remove role/authorization check.
+	const canPublish = isPublisherOrHigher(roles);
 	const res = await adminGetContent(contentId);
 	const record = (res as any)?.Record;
 	if (!record) {

@@ -44,9 +44,12 @@ import {
 	type AuthenticateUserResponse,
 } from '@inverted-tech/fragments/Authentication';
 import {
+	clearSession,
 	clearTokenCookie,
 	getSession,
+	getSessionRoles,
 	getTokenCookie,
+	setSession,
 	setTokenCookie,
 } from '@/lib/session';
 import { toIso } from '@/lib/utils';
@@ -68,8 +71,7 @@ export async function logoutAction(): Promise<boolean> {
 	'use server';
 	try {
 		await clearTokenCookie();
-		const session = await getSession();
-		await session.destroy();
+		await clearSession();
 		return true;
 	} catch (e) {
 		try {
@@ -130,38 +132,12 @@ export async function loginAction(
 
 		if (body.ok && body.BearerToken && body.BearerToken !== '') {
 			await setTokenCookie(body.BearerToken);
-			const session = await getSession();
-			if (body.UserRecord?.Public?.Data?.UserName) {
-				session.userName = body.UserRecord.Public.Data.UserName;
-			}
-
-			if (
-				body.UserRecord?.Private?.Roles &&
-				body.UserRecord.Private.Roles.length > 0
-			) {
-				session.roles = body.UserRecord.Private.Roles;
-			}
-
-			if (
-				body.UserRecord?.Public?.Data?.DisplayName &&
-				body.UserRecord.Public.Data.DisplayName !== ''
-			) {
-				session.displayName = body.UserRecord.Public.Data.DisplayName;
-			}
-
-			if (body.UserRecord?.Public?.Data?.ProfileImagePNG) {
-				session.profileImageId =
-					body.UserRecord.Public.Data.ProfileImagePNG;
-			}
-
-			if (
-				body.UserRecord?.Public?.UserID &&
-				body.UserRecord.Public.UserID !== ''
-			) {
-				session.id = body.UserRecord.Public.UserID;
-			}
-
-			await session.save();
+			await setSession({
+				userName: body.UserRecord?.Public?.Data?.UserName,
+				roles: body.UserRecord?.Private?.Roles ?? [],
+				displayName: body.UserRecord?.Public?.Data?.DisplayName,
+				id: body.UserRecord?.Public?.UserID,
+			});
 		}
 
 		return body;
@@ -372,7 +348,9 @@ export async function getSessionUser() {
 
 export async function adminGetUserTotpDevices(userId: string) {
 	try {
-		const roles = (await getSession()).roles ?? [];
+		// TODO(auth-removal): Remove role/authorization read.
+		const roles = await getSessionRoles();
+		// TODO(auth-removal): Remove role/authorization check.
 		if (!isAdminOrHigher(roles)) {
 			return create(GetOtherTotpListResponseSchema, {});
 		}
@@ -433,8 +411,9 @@ export async function adminEditOtherUserPassword(
 				}),
 			});
 
-		const roles = (await getSession()).roles;
-		if (!roles || roles.length < 0)
+		// TODO(auth-removal): Remove role/authorization read.
+		const roles = await getSessionRoles();
+		if (roles.length === 0)
 			return create(ChangeOtherPasswordResponseSchema, {
 				Error: create(APIErrorSchema, {
 					Reason: APIErrorReason.ERROR_REASON_UNAUTHENTICATED,
@@ -443,6 +422,7 @@ export async function adminEditOtherUserPassword(
 				}),
 			});
 
+		// TODO(auth-removal): Remove role/authorization check.
 		if (!isMemberManagerOrHigher(roles))
 			return create(ChangeOtherPasswordResponseSchema, {
 				Error: create(APIErrorSchema, {
@@ -486,8 +466,9 @@ export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
 				}),
 			});
 
-		const roles = (await getSession()).roles;
-		if (!roles || roles.length < 0)
+		// TODO(auth-removal): Remove role/authorization read.
+		const roles = await getSessionRoles();
+		if (roles.length === 0)
 			return create(ModifyOtherUserResponseSchema, {
 				Error: create(APIErrorSchema, {
 					Reason: APIErrorReason.ERROR_REASON_UNAUTHENTICATED,
@@ -496,6 +477,7 @@ export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
 				}),
 			});
 
+		// TODO(auth-removal): Remove role/authorization check.
 		if (!isMemberManagerOrHigher(roles))
 			return create(ModifyOtherUserResponseSchema, {
 				Error: create(APIErrorSchema, {

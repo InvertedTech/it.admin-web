@@ -15,8 +15,9 @@ type DashboardLayoutProps = {
 export default async function DashboardLayout({ children }: DashboardLayoutProps) {
 	const s = await getSession();
 	const userName = s.userName ?? undefined;
+	// TODO(auth-removal): Remove role/authorization read.
 	const roles = s.roles ?? [];
-    return (
+	return (
 		<SidebarProvider
 			style={
 				{

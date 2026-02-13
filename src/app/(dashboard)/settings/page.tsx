@@ -45,6 +45,7 @@ const sections = [
 ];
 
 export default async function SettingsOverviewPage() {
+	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isAdminOrHigher);
 	return (
 		<div>

@@ -145,6 +145,7 @@ type NavItem = {
 };
 
 function canAccessRoute(url: string, roles: string[]) {
+	// TODO(auth-removal): Remove role/authorization checks.
 	if (url.startsWith('/content')) return isWriterOrHigher(roles);
 	if (url.startsWith('/comments')) return isCommentModeratorOrHigher(roles);
 	if (url.startsWith('/events')) return canModerateEvent(roles);

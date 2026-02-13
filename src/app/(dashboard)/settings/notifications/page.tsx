@@ -5,6 +5,7 @@ import { requireRole } from '@/lib/rbac';
 import { isOwner } from '@/lib/roleHelpers';
 
 export default async function SettingsNotificationsPage() {
+	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isOwner);
 	const owner = await getOwnerSettings().catch(() => undefined);
 	const base = { Data: owner?.Owner?.Notification } as any;

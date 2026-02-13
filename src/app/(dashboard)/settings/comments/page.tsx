@@ -7,6 +7,7 @@ import { requireRole } from '@/lib/rbac';
 import { isAdminOrHigher } from '@/lib/roleHelpers';
 
 export default async function SettingsCommentsPage() {
+	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isAdminOrHigher);
 	return (
 		<div>

@@ -1,4 +1,5 @@
 const ROLE_OWNER = 'owner';
+// TODO(auth-removal): Remove role/authorization helper checks in this file.
 const ROLE_ADMIN = 'admin';
 const ROLE_BACKUP = 'backup';
 const ROLE_OPS = 'ops';

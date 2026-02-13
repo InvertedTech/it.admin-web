@@ -227,6 +227,7 @@ export default async function UsersSearchPage(props: Props) {
 	const createdAfter = toSingle(sp.CreatedAfter);
 	const createdBefore = toSingle(sp.CreatedBefore);
 
+	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isMemberManagerOrHigher);
 	return (
 		<div className="space-y-4">
