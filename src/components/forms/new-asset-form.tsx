@@ -159,7 +159,7 @@ export function NewImageAssetForm() {
 			const res = await createAsset(req);
 
 			if (res.Record) {
-				router.push('/content/assets');
+				router.push('/assets');
 			}
 
 			// TODO: display error
@@ -330,7 +330,7 @@ export function NewAudioAssetForm() {
 				toast('Audio uploaded', {
 					description: (res as any)?.Record?.AssetID,
 				});
-				router.push('/content/assets');
+				router.push('/assets');
 			} else {
 				toast('Upload failed', {
 					description: 'Could not create audio asset',

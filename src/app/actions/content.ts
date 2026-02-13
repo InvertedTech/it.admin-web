@@ -48,7 +48,6 @@ async function getToken() {
 	return getTokenCookie();
 }
 
-const ADMIN_CONTENT_TAG = 'admin-content';
 const API_BASE_URL = process.env.API_BASE_URL!;
 const API_BASE = `${API_BASE_URL}/cms/admin/content`;
 
@@ -83,11 +82,6 @@ export async function createContent(req: CreateContentRequest) {
 			});
 		}
 
-		try {
-			revalidateTag(ADMIN_CONTENT_TAG);
-			revalidatePath('/content');
-			revalidatePath('/content/all');
-		} catch {}
 		return body;
 	} catch (error) {
 		console.error('Create Content Error: ', error);
@@ -237,7 +231,6 @@ export async function adminGetContent(contentId: string) {
 				Authorization: `Bearer ${token}`,
 			},
 			method: 'GET',
-			next: { tags: [ADMIN_CONTENT_TAG], revalidate: 30 },
 		});
 
 		if (!res) {
@@ -294,13 +287,7 @@ export async function publishContent(req: PublishContentRequest) {
 			console.error('[publishContent] failed to parse response JSON', e);
 			body = create(PublishContentResponseSchema);
 		}
-		try {
-			revalidateTag(ADMIN_CONTENT_TAG);
-			revalidatePath('/content');
-			revalidatePath('/content/all');
-			if ((req as any)?.ContentID)
-				revalidatePath(`/content/${(req as any).ContentID}`);
-		} catch {}
+
 		return body;
 	} catch (error) {
 		console.error('[publishContent] error', error);
@@ -326,14 +313,7 @@ export async function unpublishContent(req: UnpublishContentRequest) {
 		}
 
 		const body: UnpublishContentResponse = await res.json();
-		console.log(body);
-		try {
-			revalidateTag(ADMIN_CONTENT_TAG);
-			revalidatePath('/content');
-			revalidatePath('/content/all');
-			if ((req as any)?.ContentID)
-				revalidatePath(`/content/${(req as any).ContentID}`);
-		} catch {}
+
 		return body;
 	} catch (error) {
 		console.error(error);
@@ -360,13 +340,7 @@ export async function announceContent(req: AnnounceContentRequest) {
 		}
 
 		const body: AnnounceContentResponse = await res.json();
-		try {
-			revalidateTag(ADMIN_CONTENT_TAG);
-			revalidatePath('/content');
-			revalidatePath('/content/all');
-			if ((req as any)?.ContentID)
-				revalidatePath(`/content/${(req as any).ContentID}`);
-		} catch {}
+
 		return body;
 	} catch (error) {
 		console.error(error);
@@ -393,13 +367,6 @@ export async function unannounceContent(req: UnannounceContentRequest) {
 		}
 
 		const body: UnannounceContentResponse = await res.json();
-		try {
-			revalidateTag(ADMIN_CONTENT_TAG);
-			revalidatePath('/content');
-			revalidatePath('/content/all');
-			if ((req as any)?.ContentID)
-				revalidatePath(`/content/${(req as any).ContentID}`);
-		} catch {}
 		return body;
 	} catch (error) {
 		console.error(error);
@@ -425,13 +392,6 @@ export async function deleteContent(req: DeleteContentRequest) {
 		}
 
 		const body: DeleteContentResponse = await res.json();
-		try {
-			revalidateTag(ADMIN_CONTENT_TAG);
-			revalidatePath('/content');
-			revalidatePath('/content/all');
-			if ((req as any)?.ContentID)
-				revalidatePath(`/content/${(req as any).ContentID}`);
-		} catch {}
 		return body;
 	} catch (error) {
 		console.error(error);
@@ -457,13 +417,6 @@ export async function undeleteContent(req: UndeleteContentRequest) {
 		}
 
 		const body: UndeleteContentResponse = await res.json();
-		try {
-			revalidateTag(ADMIN_CONTENT_TAG);
-			revalidatePath('/content');
-			revalidatePath('/content/all');
-			if ((req as any)?.ContentID)
-				revalidatePath(`/content/${(req as any).ContentID}`);
-		} catch {}
 		return body;
 	} catch (error) {
 		console.error(error);
@@ -577,21 +530,20 @@ export async function getWeekEvents(args?: {
 	for (const r of records) {
 		const title: string = r?.Title ?? 'Untitled';
 		const id: string = r?.ContentID ?? '';
-		try {
-			console.log('[getWeekEvents] record dates', {
-				id,
-				title,
-				PublishOnUTC: r?.PublishOnUTC,
-				PublishOnUtc: r?.PublishOnUtc,
-				publishOnUtc: r?.publishOnUtc,
-				AnnounceOnUTC: r?.AnnounceOnUTC,
-				AnnounceOnUtc: r?.AnnounceOnUtc,
-				announceOnUtc: r?.announceOnUtc,
-				CreatedOnUTC: r?.CreatedOnUTC,
-				CreatedOnUtc: r?.CreatedOnUtc,
-				createdOnUtc: r?.createdOnUtc,
-			});
-		} catch {}
+
+		// console.log('[getWeekEvents] record dates', {
+		// 	id,
+		// 	title,
+		// 	PublishOnUTC: r?.PublishOnUTC,
+		// 	PublishOnUtc: r?.PublishOnUtc,
+		// 	publishOnUtc: r?.publishOnUtc,
+		// 	AnnounceOnUTC: r?.AnnounceOnUTC,
+		// 	AnnounceOnUtc: r?.AnnounceOnUtc,
+		// 	announceOnUtc: r?.announceOnUtc,
+		// 	CreatedOnUTC: r?.CreatedOnUTC,
+		// 	CreatedOnUtc: r?.CreatedOnUtc,
+		// 	createdOnUtc: r?.createdOnUtc,
+		// });
 
 		const p = pickDate(r, [
 			'PublishOnUTC',
@@ -772,13 +724,6 @@ export async function modifyContent(req: ModifyContentRequest) {
 		}
 
 		const body: ModifyContentResponse = await res.json();
-		try {
-			revalidateTag(ADMIN_CONTENT_TAG);
-			revalidatePath('/content');
-			revalidatePath('/content/all');
-			if ((req as any)?.ContentID)
-				revalidatePath(`/content/${(req as any).ContentID}`);
-		} catch {}
 		return body;
 	} catch (error) {
 		console.error(error);
