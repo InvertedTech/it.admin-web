@@ -1,5 +1,4 @@
 import { requireApiBase } from '@/lib/apiBase';
-import { getTokenCookie } from '@/lib/session';
 
 export async function GET(
 	_request: Request,
@@ -8,12 +7,10 @@ export async function GET(
 	try {
 		const { assetId } = await params;
 		const apiBase = requireApiBase().replace(/\/+$/, '');
-		const token = await getTokenCookie();
 		const url = `${apiBase}/cms/asset/${encodeURIComponent(assetId)}/data`;
 
 		const upstream = await fetch(url, {
 			method: 'GET',
-			headers: token ? { Authorization: `Bearer ${token}` } : undefined,
 			cache: 'no-store',
 		});
 

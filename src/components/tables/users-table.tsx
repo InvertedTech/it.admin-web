@@ -27,7 +27,7 @@ import { Label } from '@/components/ui/label';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
-import { Roles as AllRoles, RoleCategories, RoleMeta } from '@/lib/types';
+import { Roles as AllRoles, RoleCategories, RoleMeta } from '@/lib/roles';
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -54,7 +54,9 @@ import type {
 // ---------- helpers ----------
 const g = (obj: any, paths: string[], fb?: any) => {
 	for (const p of paths) {
-		const v = p.split('.').reduce<any>((o, k) => (o ? o[k] : undefined), obj);
+		const v = p
+			.split('.')
+			.reduce<any>((o, k) => (o ? o[k] : undefined), obj);
 		if (v !== undefined && v !== null) return v;
 	}
 	return fb;
@@ -111,11 +113,13 @@ export const userColumns: ColumnDef<any>[] = [
 		accessorFn: (r) => g(r, ['DisplayName', 'Public.Data.DisplayName'], ''),
 		header: ({ column }) => (
 			<Button
-				type="button"
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				type='button'
+				variant='ghost'
+				onClick={() =>
+					column.toggleSorting(column.getIsSorted() === 'asc')
+				}
 			>
-				Name <ArrowUpDown className="ml-2 h-4 w-4" />
+				Name <ArrowUpDown className='ml-2 h-4 w-4' />
 			</Button>
 		),
 		cell: ({ row }) => {
@@ -127,9 +131,9 @@ export const userColumns: ColumnDef<any>[] = [
 				'',
 			);
 			return (
-				<div className="flex min-w-0 flex-col">
-					<span className="truncate">{display}</span>
-					<span className="text-muted-foreground truncate text-xs">
+				<div className='flex min-w-0 flex-col'>
+					<span className='truncate'>{display}</span>
+					<span className='text-muted-foreground truncate text-xs'>
 						@{userName || '—'}
 					</span>
 				</div>
@@ -143,15 +147,17 @@ export const userColumns: ColumnDef<any>[] = [
 			g(r, ['Email', 'Private.Data.Email', 'Public.Data.Email'], ''),
 		header: ({ column }) => (
 			<Button
-				type="button"
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				type='button'
+				variant='ghost'
+				onClick={() =>
+					column.toggleSorting(column.getIsSorted() === 'asc')
+				}
 			>
-				Email <ArrowUpDown className="ml-2 h-4 w-4" />
+				Email <ArrowUpDown className='ml-2 h-4 w-4' />
 			</Button>
 		),
 		cell: ({ row }) => (
-			<span className="truncate">
+			<span className='truncate'>
 				{(row.getValue('Email') as string) || '—'}
 			</span>
 		),
@@ -164,19 +170,15 @@ export const userColumns: ColumnDef<any>[] = [
 		cell: ({ row }) => {
 			const roles: string[] = (row.getValue('roles') as string[]) ?? [];
 			return roles && roles.length ? (
-				<div className="flex flex-wrap gap-1">
+				<div className='flex flex-wrap gap-1'>
 					{roles.map((r) => (
-						<Badge
-							key={r}
-							variant="outline"
-							className="px-1.5"
-						>
+						<Badge key={r} variant='outline' className='px-1.5'>
 							{RoleMeta[r as keyof typeof RoleMeta]?.label ?? r}
 						</Badge>
 					))}
 				</div>
 			) : (
-				<span className="text-muted-foreground">—</span>
+				<span className='text-muted-foreground'>—</span>
 			);
 		},
 	},
@@ -203,15 +205,17 @@ export const userColumns: ColumnDef<any>[] = [
 		accessorFn: (r) => g(r, ['CreatedOnUTC', 'Public.CreatedOnUTC']),
 		header: ({ column }) => (
 			<Button
-				type="button"
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				type='button'
+				variant='ghost'
+				onClick={() =>
+					column.toggleSorting(column.getIsSorted() === 'asc')
+				}
 			>
-				Created <ArrowUpDown className="ml-2 h-4 w-4" />
+				Created <ArrowUpDown className='ml-2 h-4 w-4' />
 			</Button>
 		),
 		cell: ({ row }) => (
-			<span className="whitespace-nowrap">
+			<span className='whitespace-nowrap'>
 				{fmtDate(row.getValue('CreatedOnUTC'))}
 			</span>
 		),
@@ -222,15 +226,17 @@ export const userColumns: ColumnDef<any>[] = [
 		accessorFn: (r) => g(r, ['ModifiedOnUTC', 'Public.ModifiedOnUTC']),
 		header: ({ column }) => (
 			<Button
-				type="button"
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				type='button'
+				variant='ghost'
+				onClick={() =>
+					column.toggleSorting(column.getIsSorted() === 'asc')
+				}
 			>
-				Modified <ArrowUpDown className="ml-2 h-4 w-4" />
+				Modified <ArrowUpDown className='ml-2 h-4 w-4' />
 			</Button>
 		),
 		cell: ({ row }) => (
-			<span className="whitespace-nowrap">
+			<span className='whitespace-nowrap'>
 				{fmtDate(row.getValue('ModifiedOnUTC'))}
 			</span>
 		),
@@ -241,7 +247,7 @@ export const userColumns: ColumnDef<any>[] = [
 		accessorFn: (r) => g(r, ['DisabledOnUTC', 'Private.DisabledOnUTC']),
 		header: 'Disabled',
 		cell: ({ row }) => (
-			<span className="whitespace-nowrap">
+			<span className='whitespace-nowrap'>
 				{fmtDate(row.getValue('DisabledOnUTC'))}
 			</span>
 		),
@@ -256,21 +262,20 @@ export const userColumns: ColumnDef<any>[] = [
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button
-							type="button"
-							variant="ghost"
-							className="h-8 w-8 p-0"
+							type='button'
+							variant='ghost'
+							className='h-8 w-8 p-0'
 						>
-							<span className="sr-only">Open menu</span>
-							<MoreHorizontal className="h-4 w-4" />
+							<span className='sr-only'>Open menu</span>
+							<MoreHorizontal className='h-4 w-4' />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent
-						align="end"
-						className="w-40"
-					>
+					<DropdownMenuContent align='end' className='w-40'>
 						<DropdownMenuLabel>Actions</DropdownMenuLabel>
 						<DropdownMenuItem
-							onClick={() => navigator.clipboard.writeText(String(id))}
+							onClick={() =>
+								navigator.clipboard.writeText(String(id))
+							}
 						>
 							Copy ID
 						</DropdownMenuItem>
@@ -325,7 +330,8 @@ export function UsersTable({
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const includeDeletedParam =
-		searchParams?.get('IncludeDeleted') ?? searchParams?.get('includeDeleted');
+		searchParams?.get('IncludeDeleted') ??
+		searchParams?.get('includeDeleted');
 	const includeDeleted =
 		includeDeletedParam === '1' || includeDeletedParam === 'true';
 	const [optionsOpen, setOptionsOpen] = React.useState(false);
@@ -393,7 +399,8 @@ export function UsersTable({
 	const table = useReactTable({
 		data,
 		columns: userColumns,
-		getRowId: (row) => g(row, ['UserID', 'Public.UserID'], crypto.randomUUID()),
+		getRowId: (row) =>
+			g(row, ['UserID', 'Public.UserID'], crypto.randomUUID()),
 		state: {
 			...(clientSort ? { sorting } : {}),
 			columnVisibility,
@@ -410,18 +417,15 @@ export function UsersTable({
 		<div>
 			{/* optional column picker, no filters or local pagination */}
 			{showColumnPicker ? (
-				<div className="flex justify-end gap-2 py-2">
+				<div className='flex justify-end gap-2 py-2'>
 					{filterButton}
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button
-								type="button"
-								variant="outline"
-							>
+							<Button type='button' variant='outline'>
 								Columns
 							</Button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
+						<DropdownMenuContent align='end'>
 							{table
 								.getAllColumns()
 								.filter((c) => c.getCanHide())
@@ -429,8 +433,10 @@ export function UsersTable({
 									<DropdownMenuCheckboxItem
 										key={c.id}
 										checked={c.getIsVisible()}
-										onCheckedChange={(v) => c.toggleVisibility(!!v)}
-										className="capitalize"
+										onCheckedChange={(v) =>
+											c.toggleVisibility(!!v)
+										}
+										className='capitalize'
 									>
 										{c.id}
 									</DropdownMenuCheckboxItem>
@@ -440,7 +446,7 @@ export function UsersTable({
 				</div>
 			) : null}
 
-			<div className="overflow-hidden rounded-md border">
+			<div className='overflow-hidden rounded-md border'>
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((hg) => (
@@ -450,7 +456,8 @@ export function UsersTable({
 										{header.isPlaceholder
 											? null
 											: flexRender(
-													header.column.columnDef.header,
+													header.column.columnDef
+														.header,
 													header.getContext(),
 												)}
 									</TableHead>
@@ -460,40 +467,54 @@ export function UsersTable({
 					</TableHeader>
 					<TableBody>
 						{loading ? (
-							Array.from({ length: skeletonRows }).map((_, rowIdx) => (
-								<TableRow key={`skeleton-${rowIdx}`}>
-									{table.getVisibleLeafColumns().map((col, colIdx) => (
-										<TableCell key={`${col.id}-${colIdx}`}>
-											{colIdx === 0 ? (
-												<div className="flex min-w-0 flex-col gap-1">
-													<Skeleton className="h-4 w-32" />
-													<Skeleton className="h-3 w-24" />
-												</div>
-											) : colIdx === 1 ? (
-												<Skeleton className="h-4 w-44" />
-											) : colIdx === 2 ? (
-												<div className="flex flex-wrap gap-1">
-													<Skeleton className="h-4 w-14 rounded-full" />
-													<Skeleton className="h-4 w-12 rounded-full" />
-												</div>
-											) : colIdx === 3 ? (
-												<Skeleton className="h-5 w-14 rounded-full" />
-											) : (
-												<Skeleton className="h-4 w-6" />
-											)}
-										</TableCell>
-									))}
-								</TableRow>
-							))
+							Array.from({ length: skeletonRows }).map(
+								(_, rowIdx) => (
+									<TableRow key={`skeleton-${rowIdx}`}>
+										{table
+											.getVisibleLeafColumns()
+											.map((col, colIdx) => (
+												<TableCell
+													key={`${col.id}-${colIdx}`}
+												>
+													{colIdx === 0 ? (
+														<div className='flex min-w-0 flex-col gap-1'>
+															<Skeleton className='h-4 w-32' />
+															<Skeleton className='h-3 w-24' />
+														</div>
+													) : colIdx === 1 ? (
+														<Skeleton className='h-4 w-44' />
+													) : colIdx === 2 ? (
+														<div className='flex flex-wrap gap-1'>
+															<Skeleton className='h-4 w-14 rounded-full' />
+															<Skeleton className='h-4 w-12 rounded-full' />
+														</div>
+													) : colIdx === 3 ? (
+														<Skeleton className='h-5 w-14 rounded-full' />
+													) : (
+														<Skeleton className='h-4 w-6' />
+													)}
+												</TableCell>
+											))}
+									</TableRow>
+								),
+							)
 						) : table.getRowModel().rows.length ? (
 							table.getRowModel().rows.map((row) => {
-								const userId = g(row.original, ['UserID', 'Public.UserID'], '');
+								const userId = g(
+									row.original,
+									['UserID', 'Public.UserID'],
+									'',
+								);
 								return (
 									<TableRow
 										key={row.id}
-										data-state={row.getIsSelected() && 'selected'}
-										onClick={() => router.push(`/users/${userId}`)}
-										className="cursor-pointer hover:bg-muted/50"
+										data-state={
+											row.getIsSelected() && 'selected'
+										}
+										onClick={() =>
+											router.push(`/users/${userId}`)
+										}
+										className='cursor-pointer hover:bg-muted/50'
 									>
 										{row.getVisibleCells().map((cell) => (
 											<TableCell key={cell.id}>
@@ -510,7 +531,7 @@ export function UsersTable({
 							<TableRow>
 								<TableCell
 									colSpan={userColumns.length}
-									className="h-24 text-center"
+									className='h-24 text-center'
 								>
 									No results.
 								</TableCell>
@@ -520,24 +541,24 @@ export function UsersTable({
 				</Table>
 			</div>
 
-			<div className="mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
-				<div className="text-muted-foreground text-sm">
+			<div className='mt-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center'>
+				<div className='text-muted-foreground text-sm'>
 					{loading ? 'Loading…' : `${data.length} shown.`}
 				</div>
-				<div className="flex gap-2">
+				<div className='flex gap-2'>
 					<Button
-						type="button"
-						variant="outline"
-						size="sm"
+						type='button'
+						variant='outline'
+						size='sm'
 						onClick={onPrevPage}
 						disabled={!hasPrev || loading}
 					>
 						Previous
 					</Button>
 					<Button
-						type="button"
-						variant="outline"
-						size="sm"
+						type='button'
+						variant='outline'
+						size='sm'
 						onClick={onNextPage}
 						disabled={!hasNext || loading}
 					>
@@ -557,10 +578,5 @@ export function UsersTableFromResponse({
 	React.ComponentProps<typeof UsersTable>,
 	'data'
 >) {
-	return (
-		<UsersTable
-			data={resp?.Records ?? []}
-			{...p}
-		/>
-	);
+	return <UsersTable data={resp?.Records ?? []} {...p} />;
 }

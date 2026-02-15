@@ -1,7 +1,6 @@
 'use server';
 
 import { create, toJsonString } from '@bufbuild/protobuf';
-import { getTokenCookie } from '@/lib/session';
 
 import {
 	SearchAssetRequest,
@@ -16,19 +15,13 @@ import {
 } from '@inverted-tech/fragments/Content/index';
 import { AssetType } from '@inverted-tech/fragments/Content/AssetInterface_pb';
 
-async function getToken() {
-	return getTokenCookie();
-}
-
 const API_BASE_URL = process.env.API_BASE_URL!;
 
 export async function getAsset(assetId: string) {
 	try {
 		const url = `${API_BASE_URL}/cms/admin/asset/${encodeURIComponent(assetId)}`;
-		const token = await getToken();
 		const res = await fetch(url, {
 			method: 'GET',
-			headers: token ? { Authorization: `Bearer ${token}` } : undefined,
 		});
 		if (!res) return create(GetAssetAdminResponseSchema);
 		const body: GetAssetAdminResponse = await res.json();
@@ -53,11 +46,8 @@ export async function getImages(
 			url.searchParams.set('PageOffset', String(req.PageOffset));
 			url.searchParams.set('req.PageOffset', String(req.PageOffset));
 		}
-		const token = await getToken();
-
 		const res = await fetch(url.toString(), {
 			method: 'GET',
-			headers: token ? { Authorization: `Bearer ${token}` } : undefined,
 		});
 
 		if (!res) {
@@ -102,10 +92,8 @@ export async function searchAssets(
 			url.searchParams.set('AssetType', at);
 		}
 
-		const token = await getToken();
 		const fetchOptions: RequestInit = {
 			method: 'GET',
-			headers: token ? { Authorization: `Bearer ${token}` } : undefined,
 		};
 
 		const res = await fetch(url.toString(), fetchOptions);
@@ -122,7 +110,6 @@ export async function searchAssets(
 // TODO: Add Error.proto errors
 export async function createAsset(req: CreateAssetRequest) {
 	const url = `${API_BASE_URL}/cms/admin/asset`;
-	const token = await getToken();
 
 	try {
 		// Ensure proper message instance for JSON encoding
@@ -131,7 +118,6 @@ export async function createAsset(req: CreateAssetRequest) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: toJsonString(CreateAssetRequestSchema, msg),
 		});

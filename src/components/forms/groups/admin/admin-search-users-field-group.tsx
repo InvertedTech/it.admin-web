@@ -13,7 +13,7 @@ import { withFieldGroup } from '@/hooks/app-form';
 import { useFormContext } from '@/hooks/form-context';
 import { create } from '@bufbuild/protobuf';
 import { SearchUsersAdminRequestSchema } from '@inverted-tech/fragments/Authentication';
-import { RoleMeta, Roles as AllRoles } from '@/lib/types';
+import { RoleMeta, Roles as AllRoles } from '@/lib/roles';
 
 export type RoleOption = { DisplayName: string; RoleValue: string };
 
@@ -33,70 +33,73 @@ export function UsersFiltersButton({ roles }: { roles?: RoleOption[] }) {
 	return (
 		<>
 			<Button
-				type="button"
-				variant="outline"
+				type='button'
+				variant='outline'
 				onClick={() => setFilterDialogOpen(true)}
 			>
 				Filters
 			</Button>
 
 			{/* TODO: Experiment with shadcn Sheet component for better mobile/spacing experience */}
-			<Dialog
-				open={filterDialogOpen}
-				onOpenChange={setFilterDialogOpen}
-			>
-				<DialogContent className="max-h-[80vh] overflow-y-auto">
+			<Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+				<DialogContent className='max-h-[80vh] overflow-y-auto'>
 					<DialogHeader>
 						<DialogTitle>Search Filters</DialogTitle>
 					</DialogHeader>
-					<div className="space-y-8 py-4">
-						<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-							<div className="lg:col-span-1">
-								<AppForm.AppField name="SearchString">
-									{(f: any) => <f.TextField label="Search" />}
+					<div className='space-y-8 py-4'>
+						<div className='grid gap-6 md:grid-cols-2 lg:grid-cols-4'>
+							<div className='lg:col-span-1'>
+								<AppForm.AppField name='SearchString'>
+									{(f: any) => <f.TextField label='Search' />}
 								</AppForm.AppField>
 							</div>
-							<div className="lg:col-span-2">
-								<AppForm.AppField name="Roles">
+							<div className='lg:col-span-2'>
+								<AppForm.AppField name='Roles'>
 									{(f: any) => (
 										<f.RoleSelectField
-											label="Roles"
+											label='Roles'
 											options={roleOptions}
 										/>
 									)}
 								</AppForm.AppField>
 							</div>
-							<div className="lg:col-span-1">
-								<AppForm.AppField name="IncludeDeleted">
-									{(f: any) => <f.SwitchField label="Include deleted" />}
+							<div className='lg:col-span-1'>
+								<AppForm.AppField name='IncludeDeleted'>
+									{(f: any) => (
+										<f.SwitchField label='Include deleted' />
+									)}
 								</AppForm.AppField>
 							</div>
 						</div>
 
-						<div className="grid gap-6 md:grid-cols-2">
-							<AppForm.AppField name="CreatedAfter">
-								{(f: any) => <f.TextField label="Created after" />}
+						<div className='grid gap-6 md:grid-cols-2'>
+							<AppForm.AppField name='CreatedAfter'>
+								{(f: any) => (
+									<f.TextField label='Created after' />
+								)}
 							</AppForm.AppField>
-							<AppForm.AppField name="CreatedBefore">
-								{(f: any) => <f.TextField label="Created before" />}
+							<AppForm.AppField name='CreatedBefore'>
+								{(f: any) => (
+									<f.TextField label='Created before' />
+								)}
 							</AppForm.AppField>
 						</div>
 
-						<div className="lg:col-span-1">
-							<AppForm.AppField name="PageSize">
+						<div className='lg:col-span-1'>
+							<AppForm.AppField name='PageSize'>
 								{(f: any) => (
 									<f.PageSizeField
-										label="Page Size"
+										label='Page Size'
 										value={25}
 									/>
 								)}
 							</AppForm.AppField>
 						</div>
 
-						<div className="flex items-center justify-end gap-2 pt-4">
+						<div className='flex items-center justify-end gap-2 pt-4'>
 							<Button
-								type="button"
-								variant="outline"
+								type='button'
+								variant='outline'
 								onClick={() => {
 									AppForm.reset?.();
 									AppForm.setFieldValue('PageOffset', 0);
@@ -105,7 +108,7 @@ export function UsersFiltersButton({ roles }: { roles?: RoleOption[] }) {
 								Reset
 							</Button>
 							<Button
-								type="button"
+								type='button'
 								onClick={() => {
 									AppForm.setFieldValue('PageOffset', 0);
 									AppForm.handleSubmit();
@@ -127,63 +130,69 @@ export const AdminSearchUsersSearchBarFieldGroup = withFieldGroup({
 	defaultValues: create(SearchUsersAdminRequestSchema),
 	render: function Render({ group, roles }) {
 		const roleOptions =
-			Array.isArray(roles) && roles.length > 0 ? roles : defaultRoleOptions;
+			Array.isArray(roles) && roles.length > 0
+				? roles
+				: defaultRoleOptions;
 
 		return (
 			<FieldGroup>
 				<details
-					className="rounded border p-3 [&>summary]:cursor-pointer"
+					className='rounded border p-3 [&>summary]:cursor-pointer'
 					open
 				>
-					<summary className="text-sm text-muted-foreground">Filters</summary>
-					<div className="mt-3 space-y-4">
-						<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-							<div className="lg:col-span-1">
-								<group.AppField name="SearchString">
-									{(f) => <f.TextField label="Search" />}
+					<summary className='text-sm text-muted-foreground'>
+						Filters
+					</summary>
+					<div className='mt-3 space-y-4'>
+						<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
+							<div className='lg:col-span-1'>
+								<group.AppField name='SearchString'>
+									{(f) => <f.TextField label='Search' />}
 								</group.AppField>
 							</div>
-							<div className="lg:col-span-2">
-								<group.AppField name="Roles">
+							<div className='lg:col-span-2'>
+								<group.AppField name='Roles'>
 									{(f) => (
 										<f.RoleSelectField
-											label="Roles"
+											label='Roles'
 											options={roleOptions}
 										/>
 									)}
 								</group.AppField>
 							</div>
-							<div className="lg:col-span-1">
-								<group.AppField name="IncludeDeleted">
-									{(f) => <f.SwitchField label="Include deleted" />}
+							<div className='lg:col-span-1'>
+								<group.AppField name='IncludeDeleted'>
+									{(f) => (
+										<f.SwitchField label='Include deleted' />
+									)}
 								</group.AppField>
 							</div>
 						</div>
 
-						<div className="grid gap-4 md:grid-cols-2">
-							<group.AppField name="CreatedAfter">
-								{(f) => <f.TextField label="Created after" />}
+						<div className='grid gap-4 md:grid-cols-2'>
+							<group.AppField name='CreatedAfter'>
+								{(f) => <f.TextField label='Created after' />}
 							</group.AppField>
-							<group.AppField name="CreatedBefore">
-								{(f) => <f.TextField label="Created before" />}
+							<group.AppField name='CreatedBefore'>
+								{(f) => <f.TextField label='Created before' />}
 							</group.AppField>
 						</div>
 
-						<div className="lg:col-span-1">
-							<group.AppField name="PageSize">
+						<div className='lg:col-span-1'>
+							<group.AppField name='PageSize'>
 								{(f) => (
 									<f.PageSizeField
-										label="Page Size"
+										label='Page Size'
 										value={25}
 									/>
 								)}
 							</group.AppField>
 						</div>
 
-						<div className="flex items-center justify-end gap-2 pt-2">
+						<div className='flex items-center justify-end gap-2 pt-2'>
 							<button
-								type="button"
-								className="px-3 py-2 text-sm font-medium rounded border border-input hover:bg-accent"
+								type='button'
+								className='px-3 py-2 text-sm font-medium rounded border border-input hover:bg-accent'
 								onClick={() => {
 									(group as any).reset?.();
 								}}
@@ -191,7 +200,7 @@ export const AdminSearchUsersSearchBarFieldGroup = withFieldGroup({
 								Reset Filters
 							</button>
 							<div>
-								<group.CreateButton label="Apply Filters" />
+								<group.CreateButton label='Apply Filters' />
 							</div>
 						</div>
 					</div>

@@ -1,6 +1,5 @@
 'use server';
 
-import { getTokenCookie } from '@/lib/session';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import {
 	CancelOtherSubscriptionRequestSchema,
@@ -13,21 +12,12 @@ import {
 
 const API_BASE_URL = process.env.API_BASE_URL!;
 const API_BASE = `${API_BASE_URL}`;
-async function getToken() {
-	return getTokenCookie();
-}
 
 export async function getSubscriptionsForUser(userId: string) {
 	try {
-		const token = await getToken();
-		if (!token) throw new Error('No auth token');
-
 		const url = `${API_BASE}/payment/admin/user/${encodeURIComponent(userId)}/subscription`;
 		const res = await fetch(url, {
 			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
 		});
 
 		if (!res) {
@@ -46,9 +36,6 @@ export async function cancelSubscription(
 	internalSubscriptionId: string,
 ) {
 	try {
-		const token = await getToken();
-		if (!token) throw new Error('No auth token');
-		// TODO: Add Better Auth Gating, Return Error
 		const req = create(CancelOtherSubscriptionRequestSchema, {
 			UserID: userId,
 			InternalSubscriptionID: internalSubscriptionId,
@@ -59,7 +46,6 @@ export async function cancelSubscription(
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: toJsonString(CancelOtherSubscriptionRequestSchema, req),
 		});

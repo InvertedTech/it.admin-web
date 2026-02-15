@@ -32,15 +32,6 @@ import {
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { NavMain } from './nav-main';
-import {
-	canModerateEvent,
-	isAdminOrHigher,
-	isCommentModeratorOrHigher,
-	isOwner,
-	isMemberManagerOrHigher,
-	isSubscriptionManagerOrHigher,
-	isWriterOrHigher,
-} from '@/lib/roleHelpers';
 
 const data = {
 	user: {
@@ -144,48 +135,13 @@ type NavItem = {
 	items?: NavItem[];
 };
 
-function canAccessRoute(url: string, roles: string[]) {
-	// TODO(auth-removal): Remove role/authorization checks.
-	if (url.startsWith('/content')) return isWriterOrHigher(roles);
-	if (url.startsWith('/comments')) return isCommentModeratorOrHigher(roles);
-	if (url.startsWith('/events')) return canModerateEvent(roles);
-	if (url.startsWith('/users/subscriptions'))
-		return isSubscriptionManagerOrHigher(roles);
-	if (url.startsWith('/users')) return isMemberManagerOrHigher(roles);
-	if (url.startsWith('/settings/notifications')) return isOwner(roles);
-	if (url.startsWith('/settings')) return isAdminOrHigher(roles);
-	return roles.length > 0;
-}
-
-function filterNavItems(items: NavItem[], roles: string[]): NavItem[] {
-	return items
-		.map((item) => {
-			const childItems = item.items
-				? filterNavItems(item.items, roles)
-				: undefined;
-			const allowed = canAccessRoute(item.url, roles);
-			if (!allowed && (!childItems || childItems.length === 0)) {
-				return null;
-			}
-			return { ...item, items: childItems };
-		})
-		.filter(Boolean) as NavItem[];
-}
-
 export function AppSidebar({
 	headerTitle = 'Inverted CMS',
-	sessionUserName,
-	sessionEmail,
-	sessionRoles,
 	...props
 }: React.ComponentProps<typeof Sidebar> & {
 	headerTitle?: string;
-	sessionUserName?: string;
-	sessionEmail?: string;
-	sessionRoles?: string[];
 }) {
-	const roles = sessionRoles ?? [];
-	const navMain = filterNavItems(data.navMain as NavItem[], roles);
+	const navMain = data.navMain as NavItem[];
 	return (
 		<Sidebar collapsible='offcanvas' {...props}>
 			<SidebarHeader>
@@ -214,8 +170,8 @@ export function AppSidebar({
 			<SidebarFooter>
 				<NavUser
 					user={{
-						name: sessionUserName || data.user.name,
-						email: sessionEmail || data.user.email,
+						name: data.user.name,
+						email: data.user.email,
 						avatar: data.user.avatar,
 					}}
 				/>

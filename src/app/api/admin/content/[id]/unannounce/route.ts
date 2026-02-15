@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { getTokenCookie } from '@/lib/session';
 import { requireApiBase } from '@/lib/apiBase';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { UnannounceContentRequestSchema } from '@inverted-tech/fragments/Content';
@@ -9,7 +8,6 @@ const API_BASE = `${requireApiBase()}/cms/admin/content`;
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const token = (await getTokenCookie()) ?? '';
     const { id } = await params;
     const url = `${API_BASE}/${id}/unannounce`;
 
@@ -19,7 +17,6 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     const res = await fetch(url, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: bodyJson,
@@ -37,3 +34,4 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ ok: false, error: e?.message || 'Unannounce failed' }, { status: 500 });
   }
 }
+

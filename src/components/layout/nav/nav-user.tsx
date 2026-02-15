@@ -1,11 +1,8 @@
 'use client';
 
 import {
-	IconCreditCard,
 	IconDotsVertical,
 	IconLogout,
-	IconNotification,
-	IconUserCircle,
 } from '@tabler/icons-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -25,10 +22,6 @@ import {
 	useSidebar,
 } from '@/components/ui/sidebar';
 
-import { useRouter } from 'next/navigation';
-import { startTransition } from 'react';
-import { logoutAction } from '@/app/actions/auth';
-
 export function NavUser({
 	user,
 }: {
@@ -39,17 +32,6 @@ export function NavUser({
 	};
 }) {
 	const { isMobile } = useSidebar();
-	const router = useRouter();
-
-	async function onLogout() {
-		try {
-			startTransition(() => {});
-			await logoutAction();
-			router.push('/login');
-		} catch {
-			router.push('/login');
-		}
-	}
 
 	return (
 		<SidebarMenu>
@@ -115,9 +97,9 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator /> */}
-						<DropdownMenuItem onClick={onLogout}>
+						<DropdownMenuItem>
 							<IconLogout />
-							Log out
+							Signed in
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

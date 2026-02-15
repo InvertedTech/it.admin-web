@@ -3,7 +3,6 @@
 import { cache } from 'react';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
-import { getSessionRoles, getTokenCookie } from '@/lib/session';
 import {
 	GetAdminDataResponse,
 	GetAdminDataResponseSchema,
@@ -46,14 +45,10 @@ import {
 	GetPublicDataResponse,
 } from '@inverted-tech/fragments/Settings';
 
-async function getToken() {
-	return getTokenCookie();
-}
-
 const ADMIN_SETTINGS_TAG = 'admin-settings';
 const API_BASE_URL = process.env.API_BASE_URL!;
 
-const _getAdminSettings = cache(async (token?: string) => {
+const _getAdminSettings = cache(async () => {
 	const url = `${API_BASE_URL}/settings/admin`;
 	try {
 		const res = await fetch(url, {
@@ -62,7 +57,6 @@ const _getAdminSettings = cache(async (token?: string) => {
 			next: { tags: [ADMIN_SETTINGS_TAG], revalidate: 30 },
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token ?? ''}`,
 			},
 		});
 
@@ -84,7 +78,7 @@ const _getAdminSettings = cache(async (token?: string) => {
 	}
 });
 
-const _getOwnerSettings = cache(async (token?: string) => {
+const _getOwnerSettings = cache(async () => {
 	const url = `${API_BASE_URL}/settings/owner`;
 	try {
 		const res = await fetch(url, {
@@ -92,7 +86,6 @@ const _getOwnerSettings = cache(async (token?: string) => {
 			next: { tags: [ADMIN_SETTINGS_TAG], revalidate: 30 },
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token ?? ''}`,
 			},
 		});
 
@@ -135,28 +128,14 @@ export async function getPublicSettings() {
 }
 
 export async function getAdminSettings() {
-	const token = await getTokenCookie();
-	// TODO(auth-removal): Remove role/authorization read.
-	const roles = await getSessionRoles();
-	// TODO(auth-removal): Remove role/authorization check.
-	if (roles.includes('owner')) {
-		const owner = await _getOwnerSettings(token);
-		// Normalize to the admin response shape for callers expecting { Public, Private }
-		return create(GetAdminDataResponseSchema, {
-			Public: owner?.Public ?? {},
-			Private: owner?.Private ?? {},
-		});
-	}
-	return _getAdminSettings(token);
+	return _getAdminSettings();
 }
 
 export async function getOwnerSettings() {
-	const token = await getToken();
-	return _getOwnerSettings(token);
+	return _getOwnerSettings();
 }
 
 export async function createChannel(req: ChannelRecord) {
-	const token = await getToken();
 	const url = `${API_BASE_URL}/settings/channel/create`;
 
 	try {
@@ -164,7 +143,6 @@ export async function createChannel(req: ChannelRecord) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: JSON.stringify(req),
 		});
@@ -188,13 +166,9 @@ export async function createChannel(req: ChannelRecord) {
 
 export async function getChannels() {
 	try {
-		const token = await getToken();
 		const url = `${API_BASE_URL}/settings/channel`;
 		const res = await fetch(url, {
 			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
 		});
 
 		const body: ChannelRecord[] = await res.json();
@@ -206,7 +180,6 @@ export async function getChannels() {
 }
 
 export async function createCategory(req: CategoryRecord) {
-	const token = await getToken();
 	const url = `${API_BASE_URL}/settings/category/create`;
 	try {
 		// Ensure we serialize using a proper message instance so field names map correctly
@@ -215,7 +188,6 @@ export async function createCategory(req: CategoryRecord) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: toJsonString(CategoryRecordSchema, msg),
 		});
@@ -238,14 +210,12 @@ export async function createCategory(req: CategoryRecord) {
 export async function modifyPublicSubscriptionSettings(
 	req: ModifySubscriptionPublicDataRequest,
 ) {
-	const token = await getToken();
 	const url = `${API_BASE_URL}/settings/subscription/public`;
 	try {
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: toJsonString(ModifySubscriptionPublicDataRequestSchema, req),
 		});
@@ -277,13 +247,11 @@ export async function modifyPublicSubscriptionSettings(
 
 export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 	try {
-		const token = await getToken();
 		const url = `${API_BASE_URL}/settings/cms/public`;
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: toJsonString(ModifyCMSPublicDataRequestSchema, req),
 		});
@@ -316,13 +284,11 @@ export async function modifyOwnerSubscriptionSettings(
 	req: ModifySubscriptionOwnerDataRequest,
 ) {
 	try {
-		const token = await getToken();
 		const url = `${API_BASE_URL}/settings/cms/public`;
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: toJsonString(ModifySubscriptionOwnerDataRequestSchema, req),
 		});
@@ -355,14 +321,12 @@ export async function modifyNotificationsOwnerSettings(
 	req: ModifyNotificationOwnerDataRequest,
 ) {
 	try {
-		const token = await getToken();
 		const url = `${API_BASE_URL}/settings/notifications/owner`;
 		const msg = create(ModifyNotificationOwnerDataRequestSchema, req as any);
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: toJsonString(ModifyNotificationOwnerDataRequestSchema, msg),
 		});
@@ -394,7 +358,6 @@ export async function modifyEventsPublicSettings(
 	req: ModifyEventPublicSettingsRequest,
 ) {
 	try {
-		const token = await getToken();
 		const url = `${API_BASE_URL}/settings/events/public`;
 
 		// Sanitize any foreign/server-managed fields to avoid ForeignFieldError
@@ -428,7 +391,6 @@ export async function modifyEventsPublicSettings(
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: toJsonString(ModifyEventPublicSettingsRequestSchema, msg),
 		});
@@ -462,14 +424,12 @@ export async function modifyEventsPrivateSettings(
 	req: ModifyEventPrivateSettingsRequest,
 ) {
 	try {
-		const token = await getToken();
 		const url = `${API_BASE_URL}/settings/events/private`;
 		const msg = create(ModifyEventPrivateSettingsRequestSchema, req as any);
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: toJsonString(ModifyEventPrivateSettingsRequestSchema, msg),
 		});
@@ -502,14 +462,12 @@ export async function modifyEventsOwnerSettings(
 	req: ModifyEventOwnerSettingsRequest,
 ) {
 	try {
-		const token = await getToken();
 		const url = `${API_BASE_URL}/settings/events/owner`;
 		const msg = create(ModifyEventOwnerSettingsRequestSchema, req as any);
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: toJsonString(ModifyEventOwnerSettingsRequestSchema, msg),
 		});

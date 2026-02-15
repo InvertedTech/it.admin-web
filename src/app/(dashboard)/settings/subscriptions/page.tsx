@@ -4,15 +4,11 @@ import { SubscriptionPublicSettingsForm } from '@/components/forms/subscription-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { requireRole } from '@/lib/rbac';
 import { isAdminOrHigher, isOwner } from '@/lib/roleHelpers';
-import { getSessionRoles } from '@/lib/session';
 
 export default async function SubscriptionSettingsPage() {
 	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isAdminOrHigher);
-	// TODO(auth-removal): Remove role/authorization read.
-	const roles = await getSessionRoles();
-	// TODO(auth-removal): Remove role/authorization check.
-	const showOwner = isOwner(roles);
+	const showOwner = isOwner([]);
 	const { Public } = await getAdminSettings();
 	const owner = showOwner ? await getOwnerSettings().catch(() => undefined) : undefined;
 	const base = { Data: Public?.Subscription };

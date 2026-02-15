@@ -1,6 +1,6 @@
 'use server';
 
-import { Roles } from '@/lib/types';
+import { Roles } from '@/lib/roles';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import {
 	CreateUserRequest,
@@ -43,57 +43,27 @@ import {
 	SearchUsersAdminResponseSchema,
 	type AuthenticateUserResponse,
 } from '@inverted-tech/fragments/Authentication';
-import {
-	clearSession,
-	clearTokenCookie,
-	getSession,
-	getSessionRoles,
-	getTokenCookie,
-	setSession,
-	setTokenCookie,
-} from '@/lib/session';
 import { toIso } from '@/lib/utils';
-import { isAdminOrHigher, isMemberManagerOrHigher } from '@/lib/roleHelpers';
 import { APIErrorReason, APIErrorSchema } from '@inverted-tech/fragments';
 // import {
 // 	APIErrorReason,
 // 	APIErrorSchema,
 // } from '@inverted-tech/fragments/protos/Errors_pb';
-async function getToken() {
-	return getTokenCookie();
-}
-
 const API_BASE_URL = process.env.API_BASE_URL!;
 const API_BASE = `${API_BASE_URL}/auth`;
 const ADMIN_API_BASE = `${API_BASE_URL}/auth/admin`;
 
 export async function logoutAction(): Promise<boolean> {
 	'use server';
-	try {
-		await clearTokenCookie();
-		await clearSession();
-		return true;
-	} catch (e) {
-		try {
-			console.error('logoutAction error:', e);
-		} catch {}
-		return false;
-	}
+	return true;
 }
 
 export async function getOwnUser() {
 	try {
 		const url = API_BASE.concat('/user');
-		const token = await getToken();
-		if (!token) {
-			return create(GetOwnUserResponseSchema, {});
-		}
 
 		const res = await fetch(url, {
 			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
 		});
 
 		const body: GetOwnUserResponse = await res.json();
@@ -130,16 +100,6 @@ export async function loginAction(
 
 		const body: AuthenticateUserResponse = await res.json();
 
-		if (body.ok && body.BearerToken && body.BearerToken !== '') {
-			await setTokenCookie(body.BearerToken);
-			await setSession({
-				userName: body.UserRecord?.Public?.Data?.UserName,
-				roles: body.UserRecord?.Private?.Roles ?? [],
-				displayName: body.UserRecord?.Public?.Data?.DisplayName,
-				id: body.UserRecord?.Public?.UserID,
-			});
-		}
-
 		return body;
 	} catch (e: any) {
 		return create(AuthenticateUserResponseSchema, {
@@ -164,8 +124,6 @@ export async function listUsers(
 	}),
 ) {
 	try {
-		const token = await getToken();
-
 		const parts: string[] = [];
 		const enc = (k: string, v: string | number | boolean) =>
 			`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`;
@@ -194,7 +152,6 @@ export async function listUsers(
 
 		const res = await fetch(url, {
 			method: 'GET',
-			headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
 			cache: 'no-store',
 		});
 
@@ -210,12 +167,10 @@ export async function listUsers(
 
 export async function adminGetUser(userId: string) {
 	try {
-		const token = await getToken();
 		const url = ADMIN_API_BASE.concat(`/user/${userId}`);
 		const res = await fetch(url, {
 			method: 'GET',
 			headers: {
-				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
 			},
 		});
@@ -232,11 +187,9 @@ export async function adminGetUser(userId: string) {
 
 export async function renewToken() {
 	try {
-		const token = await getToken();
 		const url = API_BASE.concat('/renewtoken');
 		const res = await fetch(url, {
 			headers: {
-				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
 			},
 			method: 'GET',
@@ -251,7 +204,6 @@ export async function renewToken() {
 			return create(RenewTokenResponseSchema);
 		}
 
-		await setTokenCookie(body.BearerToken);
 		return body;
 	} catch (error) {
 		console.error(error);
@@ -261,12 +213,10 @@ export async function renewToken() {
 
 export async function grantRolesToUser(req: ModifyOtherUserRolesRequest) {
 	try {
-		const token = await getToken();
 		const res = await fetch(ADMIN_API_BASE.concat('/user/roles'), {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			body: toJsonString(ModifyOtherUserRolesRequestSchema, req),
 		});
@@ -285,14 +235,12 @@ export async function grantRolesToUser(req: ModifyOtherUserRolesRequest) {
 
 export async function enableUser(req: DisableEnableOtherUserRequest) {
 	try {
-		const token = await getToken();
 		const res = await fetch(
 			ADMIN_API_BASE.concat(`/user/${req.UserID}/enable`),
 			{
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
 				},
 				body: toJsonString(DisableEnableOtherUserRequestSchema, req),
 			},
@@ -310,14 +258,12 @@ export async function enableUser(req: DisableEnableOtherUserRequest) {
 
 export async function disableUser(req: DisableEnableOtherUserRequest) {
 	try {
-		const token = await getToken();
 		const res = await fetch(
 			ADMIN_API_BASE.concat(`/user/${req.UserID}/disable`),
 			{
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
 				},
 				body: toJsonString(DisableEnableOtherUserRequestSchema, req),
 			},
@@ -334,34 +280,13 @@ export async function disableUser(req: DisableEnableOtherUserRequest) {
 }
 
 export async function getSessionUser() {
-	try {
-		const session = await getSession();
-		return {
-			id: session.id ?? '',
-			userName: session.userName ?? '',
-			displayName: session.displayName ?? '',
-		};
-	} catch {
-		return { id: '', userName: '', displayName: '' };
-	}
+	return { id: '', userName: '', displayName: '' };
 }
 
 export async function adminGetUserTotpDevices(userId: string) {
 	try {
-		// TODO(auth-removal): Remove role/authorization read.
-		const roles = await getSessionRoles();
-		// TODO(auth-removal): Remove role/authorization check.
-		if (!isAdminOrHigher(roles)) {
-			return create(GetOtherTotpListResponseSchema, {});
-		}
-		const token = await getToken();
-		if (!token || token === '')
-			return create(GetOtherTotpListResponseSchema, {});
-
 		const res = await fetch(ADMIN_API_BASE.concat(`/totp/${userId}`), {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
+			headers: {},
 		});
 
 		const body: GetOtherTotpListResponse = await res.json();
@@ -374,14 +299,9 @@ export async function adminGetUserTotpDevices(userId: string) {
 
 export async function adminDisableOtherTotp(req: DisableOtherTotpRequest) {
 	try {
-		const token = await getToken();
-		if (!token || token === '')
-			return create(DisableOtherTotpResponseSchema, {});
-
 		const res = await fetch(ADMIN_API_BASE.concat('/totp/disable'), {
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
 			},
 			body: toJsonString(DisableOtherTotpRequestSchema, req),
@@ -401,41 +321,9 @@ export async function adminEditOtherUserPassword(
 	req: ChangeOtherPasswordRequest,
 ) {
 	try {
-		const token = await getToken();
-		if (!token || token === '')
-			return create(ChangeOtherPasswordResponseSchema, {
-				Error: create(APIErrorSchema, {
-					Reason: APIErrorReason.ERROR_REASON_UNAUTHENTICATED,
-					Message: 'Not Logged In',
-					Validation: [],
-				}),
-			});
-
-		// TODO(auth-removal): Remove role/authorization read.
-		const roles = await getSessionRoles();
-		if (roles.length === 0)
-			return create(ChangeOtherPasswordResponseSchema, {
-				Error: create(APIErrorSchema, {
-					Reason: APIErrorReason.ERROR_REASON_UNAUTHENTICATED,
-					Message: 'Not Logged In',
-					Validation: [],
-				}),
-			});
-
-		// TODO(auth-removal): Remove role/authorization check.
-		if (!isMemberManagerOrHigher(roles))
-			return create(ChangeOtherPasswordResponseSchema, {
-				Error: create(APIErrorSchema, {
-					Reason: APIErrorReason.ERROR_REASON_UNAUTHORIZED,
-					Message: 'User Does Not Have Required Role',
-					Validation: [],
-				}),
-			});
-
 		const res = await fetch(ADMIN_API_BASE.concat('/password'), {
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
 			},
 			body: toJsonString(ChangeOtherPasswordRequestSchema, req),
@@ -456,41 +344,9 @@ export async function adminEditOtherUserPassword(
 
 export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
 	try {
-		const token = await getToken();
-		if (!token || token === '')
-			return create(ModifyOtherUserResponseSchema, {
-				Error: create(APIErrorSchema, {
-					Reason: APIErrorReason.ERROR_REASON_UNAUTHENTICATED,
-					Message: 'Not Logged In',
-					Validation: [],
-				}),
-			});
-
-		// TODO(auth-removal): Remove role/authorization read.
-		const roles = await getSessionRoles();
-		if (roles.length === 0)
-			return create(ModifyOtherUserResponseSchema, {
-				Error: create(APIErrorSchema, {
-					Reason: APIErrorReason.ERROR_REASON_UNAUTHENTICATED,
-					Message: 'Not Logged In',
-					Validation: [],
-				}),
-			});
-
-		// TODO(auth-removal): Remove role/authorization check.
-		if (!isMemberManagerOrHigher(roles))
-			return create(ModifyOtherUserResponseSchema, {
-				Error: create(APIErrorSchema, {
-					Reason: APIErrorReason.ERROR_REASON_UNAUTHORIZED,
-					Message: 'User Does Not Have Required Role',
-					Validation: [],
-				}),
-			});
-
 		const res = await fetch(ADMIN_API_BASE.concat('/user'), {
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
 			},
 			body: toJsonString(ModifyOtherUserRequestSchema, req),

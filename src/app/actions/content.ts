@@ -1,7 +1,6 @@
 'use server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
-import { getTokenCookie } from '@/lib/session';
 import { isoDate, isoTime, tsToDate, type Item } from '@/lib/utils';
 import {
 	AnnounceContentRequest,
@@ -44,20 +43,15 @@ import {
 	GetAllContentAdminRequestSchema,
 } from '@inverted-tech/fragments/Content';
 import { APIErrorReason, APIErrorSchema } from '@inverted-tech/fragments';
-async function getToken() {
-	return getTokenCookie();
-}
 
 const API_BASE_URL = process.env.API_BASE_URL!;
 const API_BASE = `${API_BASE_URL}/cms/admin/content`;
 
 export async function createContent(req: CreateContentRequest) {
 	try {
-		const token = await getToken();
 		const res = await fetch(API_BASE, {
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			method: 'POST',
 			body: toJsonString(CreateContentRequestSchema, req),
@@ -96,9 +90,7 @@ export async function createContent(req: CreateContentRequest) {
 
 export async function getContent() {
 	try {
-		const token = await getToken();
 		const head: HeadersInit = {
-			Authorization: `Bearer ${token}`,
 		};
 		const res = await fetch(API_BASE, {
 			headers: head,
@@ -118,9 +110,7 @@ export async function getContent() {
 // TODO: Replace getContentCalls with getAllContent
 export async function getAllContent(req: GetAllContentAdminRequest) {
 	try {
-		const token = await getToken();
 		const head: HeadersInit = {
-			Authorization: `Bearer ${token}`,
 		};
 		let url = new URL(`${API_BASE}`);
 
@@ -181,9 +171,7 @@ export async function adminSearchContent(
 	req: GetAllContentAdminRequest,
 ): Promise<GetAllContentAdminResponse> {
 	try {
-		const token = await getToken();
 		const head: HeadersInit = {
-			Authorization: `Bearer ${token}`,
 		};
 		const url = new URL(`${API_BASE}`);
 
@@ -225,10 +213,8 @@ export async function adminSearchContent(
 
 export async function adminGetContent(contentId: string) {
 	try {
-		const token = await getToken();
 		const res = await fetch(API_BASE.concat(`/${contentId}`), {
 			headers: {
-				Authorization: `Bearer ${token}`,
 			},
 			method: 'GET',
 		});
@@ -247,7 +233,6 @@ export async function adminGetContent(contentId: string) {
 // TODO: Add Error.proto errors
 export async function publishContent(req: PublishContentRequest) {
 	try {
-		const token = await getToken();
 		const url = API_BASE.concat(`/${req.ContentID}/publish`);
 		const bodyJson = toJsonString(PublishContentRequestSchema, req);
 		try {
@@ -260,7 +245,6 @@ export async function publishContent(req: PublishContentRequest) {
 
 		const res = await fetch(url, {
 			headers: {
-				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
 			},
 			method: 'POST',
@@ -298,11 +282,9 @@ export async function publishContent(req: PublishContentRequest) {
 // TODO: Add Error.proto errors
 export async function unpublishContent(req: UnpublishContentRequest) {
 	try {
-		const token = await getToken();
 		const url = API_BASE.concat(`/${req.ContentID}/unpublish`);
 		const res = await fetch(url, {
 			headers: {
-				Authorization: `Bearer ${token}`,
 			},
 			method: 'POST',
 			body: toJsonString(UnpublishContentRequestSchema, req),
@@ -324,12 +306,10 @@ export async function unpublishContent(req: UnpublishContentRequest) {
 // TODO: Add Error.proto errors
 export async function announceContent(req: AnnounceContentRequest) {
 	try {
-		const token = await getToken();
 		const url = API_BASE.concat(`/${req.ContentID}/announce`);
 		const res = await fetch(url, {
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			method: 'POST',
 			body: toJsonString(AnnounceContentRequestSchema, req),
@@ -351,12 +331,10 @@ export async function announceContent(req: AnnounceContentRequest) {
 // TODO: Add Error.proto errors
 export async function unannounceContent(req: UnannounceContentRequest) {
 	try {
-		const token = await getToken();
 		const url = API_BASE.concat(`/${req.ContentID}/unannounce`);
 		const res = await fetch(url, {
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
 			},
 			method: 'POST',
 			body: toJsonString(UnannounceContentRequestSchema, req),
@@ -377,11 +355,9 @@ export async function unannounceContent(req: UnannounceContentRequest) {
 // TODO: Add Error.proto errors
 export async function deleteContent(req: DeleteContentRequest) {
 	try {
-		const token = await getToken();
 		const url = API_BASE.concat(`/${req.ContentID}/delete`);
 		const res = await fetch(url, {
 			headers: {
-				Authorization: `Bearer ${token}`,
 			},
 			method: 'POST',
 			body: toJsonString(DeleteContentRequestSchema, req),
@@ -402,11 +378,9 @@ export async function deleteContent(req: DeleteContentRequest) {
 // TODO: Add Error.proto errors
 export async function undeleteContent(req: UndeleteContentRequest) {
 	try {
-		const token = await getToken();
 		const url = API_BASE.concat(`/${req.ContentID}/undelete`);
 		const res = await fetch(url, {
 			headers: {
-				Authorization: `Bearer ${token}`,
 			},
 			method: 'POST',
 			body: toJsonString(UndeleteContentRequestSchema, req),
@@ -705,13 +679,10 @@ export async function getOverviewActivity(args?: {
 // TODO: Add Error.proto errors
 export async function modifyContent(req: ModifyContentRequest) {
 	try {
-		const token = await getToken();
-		if (!token || token === '')
 			return create(ModifyContentResponseSchema, {});
 		const url = API_BASE_URL.concat(`/cms/admin/content/${req.ContentID}`);
 		const res = await fetch(url, {
 			headers: {
-				Authorization: `Bearer ${token}`,
 				'Content-Type': 'application/json',
 			},
 			method: 'POST',
@@ -730,3 +701,5 @@ export async function modifyContent(req: ModifyContentRequest) {
 		return create(ModifyContentResponseSchema, {});
 	}
 }
+
+

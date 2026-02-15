@@ -30,7 +30,6 @@ import {
 	isSubscriptionManagerOrHigher,
 	isAdminOrHigher,
 } from '@/lib/roleHelpers';
-import { getSessionRoles } from '@/lib/session';
 
 function pick<T = unknown>(obj: any, paths: string[], fb?: T): T | undefined {
 	for (const p of paths) {
@@ -47,14 +46,11 @@ export default async function ViewUserPage({
 }) {
 	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isMemberManagerOrHigher);
-	// TODO(auth-removal): Remove role/authorization read.
-	const sessionRoles = await getSessionRoles();
-	// TODO(auth-removal): Remove role/authorization checks.
-	const canViewSubscriptions = isSubscriptionManagerOrHigher(sessionRoles);
-	const canGrantRoles = isAdminOrHigher(sessionRoles);
-	const canEditProfile = isMemberManagerOrHigher(sessionRoles);
-	const canToggleUser = isAdminOrHigher(sessionRoles);
-	const canViewTotp = isAdminOrHigher(sessionRoles);
+	const canViewSubscriptions = isSubscriptionManagerOrHigher([]);
+	const canGrantRoles = isAdminOrHigher([]);
+	const canEditProfile = isMemberManagerOrHigher([]);
+	const canToggleUser = isAdminOrHigher([]);
+	const canViewTotp = isAdminOrHigher([]);
 	const { userId } = await params;
 	const subs = canViewSubscriptions
 		? await getSubscriptionsForUser(userId)

@@ -1,7 +1,6 @@
 import { ContentSearchView } from '@/components/admin/content-search-view';
 import { requireRole } from '@/lib/rbac';
 import { isWriterOrHigher } from '@/lib/roleHelpers';
-import { getSessionRoles } from '@/lib/session';
 
 type Props = {
 	searchParams?: Promise<{
@@ -31,8 +30,6 @@ export default async function AllContentPage(props: Props) {
 	const minLevel = toInt(toSingle(sp.minLevel), 0);
 	const maxLevel = toInt(toSingle(sp.maxLevel), 9999);
 	const channelId = toSingle(sp.channelId) ?? '';
-	// TODO(auth-removal): Remove role/authorization read.
-	const roles = await getSessionRoles();
 	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isWriterOrHigher);
 
@@ -45,7 +42,7 @@ export default async function AllContentPage(props: Props) {
 				</p>
 			</div>
 			<ContentSearchView
-				roles={roles}
+				roles={[]}
 				pageSize={pageSize}
 				pageOffset={pageOffset}
 				minLevel={minLevel}

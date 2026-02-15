@@ -1,5 +1,4 @@
 const ROLE_OWNER = 'owner';
-// TODO(auth-removal): Remove role/authorization helper checks in this file.
 const ROLE_ADMIN = 'admin';
 const ROLE_BACKUP = 'backup';
 const ROLE_OPS = 'ops';
@@ -14,87 +13,66 @@ const ROLE_EVENT_MODERATOR = 'evt_moderator';
 const ROLE_MEMBER_MANAGER = 'member_manager';
 const ROLE_SUBSCRIPTION_MANAGER = 'sub_manager';
 
-export function hasRole(roles: string[], role: string): boolean {
-	return roles.includes(role);
+function allowAll(): boolean {
+	return true;
 }
 
-export function hasAnyRole(roles: string[], ...allowed: string[]): boolean {
-	for (const r of allowed) {
-		if (roles.includes(r)) return true;
-	}
-	return false;
+export function hasRole(_roles: string[], _role: string): boolean {
+	return allowAll();
 }
 
-export const isBackup = (roles: string[]) => hasRole(roles, ROLE_BACKUP);
+export function hasAnyRole(_roles: string[], ..._allowed: string[]): boolean {
+	return allowAll();
+}
 
-export const isOwner = (roles: string[]) => hasRole(roles, ROLE_OWNER);
+export const isBackup = (_roles: string[]) => allowAll();
 
-export const isAdmin = (roles: string[]) => hasRole(roles, ROLE_ADMIN);
+export const isOwner = (_roles: string[]) => allowAll();
 
-export const isOps = (roles: string[]) => hasRole(roles, ROLE_OPS);
+export const isAdmin = (_roles: string[]) => allowAll();
 
-export const isService = (roles: string[]) => hasRole(roles, ROLE_SERVICE);
+export const isOps = (_roles: string[]) => allowAll();
 
-export const isPublisher = (roles: string[]) =>
-	hasRole(roles, ROLE_CONTENT_PUBLISHER);
+export const isService = (_roles: string[]) => allowAll();
 
-export const isWriter = (roles: string[]) =>
-	hasRole(roles, ROLE_CONTENT_WRITER);
+export const isPublisher = (_roles: string[]) => allowAll();
 
-export const isCommentModerator = (roles: string[]) =>
-	hasRole(roles, ROLE_COMMENT_MODERATOR);
+export const isWriter = (_roles: string[]) => allowAll();
 
-export const isCommentAppellateJudge = (roles: string[]) =>
-	hasRole(roles, ROLE_COMMENT_APPELLATE_JUDGE);
+export const isCommentModerator = (_roles: string[]) => allowAll();
 
-export const isAdminOrHigher = (roles: string[]) =>
-	isAdmin(roles) || isOwner(roles);
+export const isCommentAppellateJudge = (_roles: string[]) => allowAll();
 
-export const isPublisherOrHigher = (roles: string[]) =>
-	isPublisher(roles) || isAdminOrHigher(roles);
+export const isAdminOrHigher = (_roles: string[]) => allowAll();
 
-export const isWriterOrHigher = (roles: string[]) =>
-	isWriter(roles) || isPublisherOrHigher(roles);
+export const isPublisherOrHigher = (_roles: string[]) => allowAll();
 
-export const isCommentModeratorOrHigher = (roles: string[]) =>
-	isCommentModerator(roles) || isPublisherOrHigher(roles);
+export const isWriterOrHigher = (_roles: string[]) => allowAll();
 
-export const isCommentAppellateJudgeOrHigher = (roles: string[]) =>
-	isCommentAppellateJudge(roles) || isAdminOrHigher(roles);
+export const isCommentModeratorOrHigher = (_roles: string[]) => allowAll();
 
-export const isMemberManager = (roles: string[]) =>
-	hasRole(roles, ROLE_MEMBER_MANAGER);
+export const isCommentAppellateJudgeOrHigher = (_roles: string[]) =>
+	allowAll();
 
-export const isSubscriptionManager = (roles: string[]) =>
-	hasRole(roles, ROLE_SUBSCRIPTION_MANAGER);
+export const isMemberManager = (_roles: string[]) => allowAll();
 
-export const isMemberManagerOrHigher = (roles: string[]) =>
-	isMemberManager(roles) || isAdminOrHigher(roles);
+export const isSubscriptionManager = (_roles: string[]) => allowAll();
 
-export const isSubscriptionManagerOrHigher = (roles: string[]) =>
-	isSubscriptionManager(roles) || isAdminOrHigher(roles);
+export const isMemberManagerOrHigher = (_roles: string[]) => allowAll();
 
-export const canPublish = (roles: string[]) => isPublisherOrHigher(roles);
+export const isSubscriptionManagerOrHigher = (_roles: string[]) => allowAll();
 
-export const canCreateContent = (roles: string[]) => isWriterOrHigher(roles);
+export const canPublish = (_roles: string[]) => allowAll();
 
-export const canCreateEvent = (roles: string[]) =>
-	hasAnyRole(roles, ROLE_EVENT_CREATOR, ROLE_ADMIN, ROLE_OWNER);
+export const canCreateContent = (_roles: string[]) => allowAll();
 
-export const canModerateEvent = (roles: string[]) =>
-	hasAnyRole(
-		roles,
-		ROLE_EVENT_CREATOR,
-		ROLE_EVENT_MODERATOR,
-		ROLE_ADMIN,
-		ROLE_OWNER,
-	);
+export const canCreateEvent = (_roles: string[]) => allowAll();
 
-export const canManageMembers = (roles: string[]) =>
-	isMemberManagerOrHigher(roles);
+export const canModerateEvent = (_roles: string[]) => allowAll();
 
-export const canManageSubscriptions = (roles: string[]) =>
-	isSubscriptionManagerOrHigher(roles);
+export const canManageMembers = (_roles: string[]) => allowAll();
+
+export const canManageSubscriptions = (_roles: string[]) => allowAll();
 
 export default {
 	hasRole,

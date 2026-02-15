@@ -17,7 +17,7 @@ import {
 } from '../forms/groups/admin/admin-search-users-field-group';
 import { UsersTable } from '../tables/users-table';
 import { listUsers } from '@/app/actions/auth';
-import { RoleMeta, Roles as AllRoles } from '@/lib/types';
+import { RoleMeta, Roles as AllRoles } from '@/lib/roles';
 import {
 	Select,
 	SelectContent,
@@ -221,10 +221,12 @@ export function UsersSearchView({
 				setOffset(0);
 				form.handleSubmit();
 			}}
-			className="space-y-4"
+			className='space-y-4'
 		>
 			<form.AppForm>
-				<form.Subscribe selector={(s: any) => s?.values?.IncludeDeleted}>
+				<form.Subscribe
+					selector={(s: any) => s?.values?.IncludeDeleted}
+				>
 					{(includeDeletedValue?: boolean) => (
 						<IncludeDeletedUrlEffect
 							includeDeletedValue={includeDeletedValue}
