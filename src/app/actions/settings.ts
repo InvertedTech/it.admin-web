@@ -4,6 +4,7 @@ import { cache } from 'react';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { authHeaders } from '@/lib/cookies';
+import { APIErrorSchema, APIErrorReason } from '@inverted-tech/fragments';
 import {
 	GetAdminDataResponse,
 	GetAdminDataResponseSchema,
@@ -14,8 +15,6 @@ import {
 	ModifySubscriptionPublicDataRequest,
 	ModifySubscriptionPublicDataResponseSchema,
 	ModifySubscriptionPublicDataResponse,
-	SettingsErrorSchema,
-	SettingsErrorReason,
 	CategoryRecordSchema,
 	ModifySubscriptionPublicDataRequestSchema,
 	ModifyCMSPublicDataRequestSchema,
@@ -229,9 +228,9 @@ export async function modifyPublicSubscriptionSettings(
 
 		if (!res) {
 			return create(ModifySubscriptionPublicDataResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error: create(APIErrorSchema, {
 					Message: 'Unknown Error',
-					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+					Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 				}),
 			});
 		}
@@ -244,9 +243,9 @@ export async function modifyPublicSubscriptionSettings(
 	} catch (error) {
 		console.error(error);
 		return create(ModifySubscriptionPublicDataResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error: create(APIErrorSchema, {
 				Message: 'Unknown Error',
-				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 			}),
 		});
 	}
@@ -266,9 +265,9 @@ export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 
 		if (!res) {
 			return create(ModifyCMSPublicDataResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error: create(APIErrorSchema, {
 					Message: 'Unknown Error',
-					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+					Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 				}),
 			});
 		}
@@ -280,9 +279,9 @@ export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 	} catch (error) {
 		console.error(error);
 		return create(ModifyCMSPublicDataResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error: create(APIErrorSchema, {
 				Message: 'Unknown Error',
-				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 			}),
 		});
 	}
@@ -304,9 +303,9 @@ export async function modifyOwnerSubscriptionSettings(
 
 		if (!res) {
 			return create(ModifySubscriptionOwnerDataResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error: create(APIErrorSchema, {
 					Message: 'Unknown Error',
-					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+					Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 				}),
 			});
 		}
@@ -318,9 +317,9 @@ export async function modifyOwnerSubscriptionSettings(
 	} catch (error) {
 		console.error(error);
 		return create(ModifySubscriptionOwnerDataResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error: create(APIErrorSchema, {
 				Message: 'Unknown Error',
-				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 			}),
 		});
 	}
@@ -343,9 +342,9 @@ export async function modifyNotificationsOwnerSettings(
 
 		if (!res) {
 			return create(ModifyNotificationOwnerDataResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error: create(APIErrorSchema, {
 					Message: 'Unknown Error',
-					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+					Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 				}),
 			});
 		}
@@ -356,9 +355,9 @@ export async function modifyNotificationsOwnerSettings(
 		return body;
 	} catch (error) {
 		return create(ModifyNotificationOwnerDataResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error: create(APIErrorSchema, {
 				Message: 'Unknown Error',
-				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 			}),
 		});
 	}
@@ -408,9 +407,9 @@ export async function modifyEventsPublicSettings(
 
 		if (!res) {
 			return create(ModifyEventPublicSettingsResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error: create(APIErrorSchema, {
 					Message: 'Unknown Error',
-					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+					Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 				}),
 			});
 		}
@@ -423,9 +422,9 @@ export async function modifyEventsPublicSettings(
 	} catch (error) {
 		console.error('[actions] modifyEventsPublicSettings error', error);
 		return create(ModifyEventPublicSettingsResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error: create(APIErrorSchema, {
 				Message: 'Unknown Error',
-				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 			}),
 		});
 	}
@@ -448,9 +447,9 @@ export async function modifyEventsPrivateSettings(
 
 		if (!res) {
 			return create(ModifyEventPrivateSettingsResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error: create(APIErrorSchema, {
 					Message: 'Unknown Error',
-					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+					Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 				}),
 			});
 		}
@@ -462,9 +461,9 @@ export async function modifyEventsPrivateSettings(
 		return body;
 	} catch (error) {
 		return create(ModifyEventPrivateSettingsResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error: create(APIErrorSchema, {
 				Message: 'Unknown Error',
-				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 			}),
 		});
 	}
@@ -487,9 +486,9 @@ export async function modifyEventsOwnerSettings(
 
 		if (!res) {
 			return create(ModifyEventOwnerSettingsResponseSchema, {
-				Error: create(SettingsErrorSchema, {
+				Error: create(APIErrorSchema, {
 					Message: 'Unknown Error',
-					Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+					Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 				}),
 			});
 		}
@@ -501,9 +500,9 @@ export async function modifyEventsOwnerSettings(
 		return body;
 	} catch (error) {
 		return create(ModifyEventOwnerSettingsResponseSchema, {
-			Error: create(SettingsErrorSchema, {
+			Error: create(APIErrorSchema, {
 				Message: 'Unknown Error',
-				Type: SettingsErrorReason.SETTINGS_ERROR_UNKNOWN,
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 			}),
 		});
 	}

@@ -8,7 +8,6 @@ import {
 	CancelSubscriptionResponseSchema,
 	GetSubscriptionRecordResponseSchema,
 	ListSubscriptionsResponseSchema,
-	PaymentErrorSchema,
 } from '@inverted-tech/fragments/Authorization/Payment/index';
 
 const API_BASE_URL = process.env.API_BASE_URL!;
