@@ -45,6 +45,7 @@ import {
 } from '@inverted-tech/fragments/Authentication';
 import { toIso } from '@/lib/utils';
 import { APIErrorReason, APIErrorSchema } from '@inverted-tech/fragments';
+import { clearToken } from '@/lib/cookies';
 // import {
 // 	APIErrorReason,
 // 	APIErrorSchema,
@@ -55,7 +56,13 @@ const ADMIN_API_BASE = `${API_BASE_URL}/auth/admin`;
 
 export async function logoutAction(): Promise<boolean> {
 	'use server';
-	return true;
+	try {
+		await clearToken();
+		return true;
+	} catch (error) {
+		console.error(error);
+		return false;
+	}
 }
 
 export async function getOwnUser() {
