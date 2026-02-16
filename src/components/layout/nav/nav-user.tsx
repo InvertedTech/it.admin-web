@@ -101,7 +101,7 @@ export function NavUser({
 						<DropdownMenuItem
 							onClick={async () => {
 								await logoutAction();
-								window.location.href = '/login';
+								window.location.href = '/logged-out';
 							}}
 						>
 							<IconLogout />
