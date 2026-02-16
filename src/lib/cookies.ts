@@ -60,6 +60,11 @@ export async function clearToken(): Promise<void> {
 	cookieStore.delete(TOKEN_COOKIE_NAME);
 }
 
+export async function authHeaders(): Promise<HeadersInit> {
+	const token = await getToken();
+	return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 function splitRoles(roles: unknown): string[] {
 	try {
 		if (Array.isArray(roles)) return roles;

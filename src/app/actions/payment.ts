@@ -1,6 +1,7 @@
 'use server';
 
 import { create, toJsonString } from '@bufbuild/protobuf';
+import { authHeaders } from '@/lib/cookies';
 import {
 	CancelOtherSubscriptionRequestSchema,
 	CancelSubscriptionResponse,
@@ -18,6 +19,7 @@ export async function getSubscriptionsForUser(userId: string) {
 		const url = `${API_BASE}/payment/admin/user/${encodeURIComponent(userId)}/subscription`;
 		const res = await fetch(url, {
 			method: 'GET',
+			headers: { ...(await authHeaders()) },
 		});
 
 		if (!res) {
@@ -46,6 +48,7 @@ export async function cancelSubscription(
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			body: toJsonString(CancelOtherSubscriptionRequestSchema, req),
 		});

@@ -3,6 +3,7 @@
 import { cache } from 'react';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
+import { authHeaders } from '@/lib/cookies';
 import {
 	GetAdminDataResponse,
 	GetAdminDataResponseSchema,
@@ -53,10 +54,10 @@ const _getAdminSettings = cache(async () => {
 	try {
 		const res = await fetch(url, {
 			method: 'GET',
-			// Tag + small revalidate window to avoid spamming while enabling mutations to bust cache
 			next: { tags: [ADMIN_SETTINGS_TAG], revalidate: 30 },
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 		});
 
@@ -86,6 +87,7 @@ const _getOwnerSettings = cache(async () => {
 			next: { tags: [ADMIN_SETTINGS_TAG], revalidate: 30 },
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 		});
 
@@ -114,6 +116,7 @@ export async function getPublicSettings() {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 		});
 
@@ -143,6 +146,7 @@ export async function createChannel(req: ChannelRecord) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			body: JSON.stringify(req),
 		});
@@ -169,6 +173,7 @@ export async function getChannels() {
 		const url = `${API_BASE_URL}/settings/channel`;
 		const res = await fetch(url, {
 			method: 'GET',
+			headers: { ...(await authHeaders()) },
 		});
 
 		const body: ChannelRecord[] = await res.json();
@@ -188,6 +193,7 @@ export async function createCategory(req: CategoryRecord) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			body: toJsonString(CategoryRecordSchema, msg),
 		});
@@ -216,6 +222,7 @@ export async function modifyPublicSubscriptionSettings(
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			body: toJsonString(ModifySubscriptionPublicDataRequestSchema, req),
 		});
@@ -252,6 +259,7 @@ export async function modifyCmsPublicSettings(req: ModifyCMSPublicDataRequest) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			body: toJsonString(ModifyCMSPublicDataRequestSchema, req),
 		});
@@ -289,6 +297,7 @@ export async function modifyOwnerSubscriptionSettings(
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			body: toJsonString(ModifySubscriptionOwnerDataRequestSchema, req),
 		});
@@ -327,6 +336,7 @@ export async function modifyNotificationsOwnerSettings(
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			body: toJsonString(ModifyNotificationOwnerDataRequestSchema, msg),
 		});
@@ -391,6 +401,7 @@ export async function modifyEventsPublicSettings(
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			body: toJsonString(ModifyEventPublicSettingsRequestSchema, msg),
 		});
@@ -430,6 +441,7 @@ export async function modifyEventsPrivateSettings(
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			body: toJsonString(ModifyEventPrivateSettingsRequestSchema, msg),
 		});
@@ -468,6 +480,7 @@ export async function modifyEventsOwnerSettings(
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			body: toJsonString(ModifyEventOwnerSettingsRequestSchema, msg),
 		});

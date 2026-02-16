@@ -45,7 +45,7 @@ import {
 } from '@inverted-tech/fragments/Authentication';
 import { toIso } from '@/lib/utils';
 import { APIErrorReason, APIErrorSchema } from '@inverted-tech/fragments';
-import { clearToken } from '@/lib/cookies';
+import { clearToken, authHeaders, getSession } from '@/lib/cookies';
 // import {
 // 	APIErrorReason,
 // 	APIErrorSchema,
@@ -71,6 +71,7 @@ export async function getOwnUser() {
 
 		const res = await fetch(url, {
 			method: 'GET',
+			headers: { ...await authHeaders() },
 		});
 
 		const body: GetOwnUserResponse = await res.json();
@@ -160,6 +161,7 @@ export async function listUsers(
 		const res = await fetch(url, {
 			method: 'GET',
 			cache: 'no-store',
+			headers: { ...await authHeaders() },
 		});
 
 		if (!res.ok) return create(SearchUsersAdminResponseSchema);
@@ -179,6 +181,7 @@ export async function adminGetUser(userId: string) {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
+				...await authHeaders(),
 			},
 		});
 		if (!res) {
@@ -198,6 +201,7 @@ export async function renewToken() {
 		const res = await fetch(url, {
 			headers: {
 				'Content-Type': 'application/json',
+				...await authHeaders(),
 			},
 			method: 'GET',
 		});
@@ -224,6 +228,7 @@ export async function grantRolesToUser(req: ModifyOtherUserRolesRequest) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...await authHeaders(),
 			},
 			body: toJsonString(ModifyOtherUserRolesRequestSchema, req),
 		});
@@ -248,6 +253,7 @@ export async function enableUser(req: DisableEnableOtherUserRequest) {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					...await authHeaders(),
 				},
 				body: toJsonString(DisableEnableOtherUserRequestSchema, req),
 			},
@@ -271,6 +277,7 @@ export async function disableUser(req: DisableEnableOtherUserRequest) {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					...await authHeaders(),
 				},
 				body: toJsonString(DisableEnableOtherUserRequestSchema, req),
 			},
@@ -287,13 +294,18 @@ export async function disableUser(req: DisableEnableOtherUserRequest) {
 }
 
 export async function getSessionUser() {
-	return { id: '', userName: '', displayName: '' };
+	const session = await getSession();
+	return {
+		id: session?.id ?? '',
+		userName: session?.userName ?? '',
+		displayName: session?.displayName ?? '',
+	};
 }
 
 export async function adminGetUserTotpDevices(userId: string) {
 	try {
 		const res = await fetch(ADMIN_API_BASE.concat(`/totp/${userId}`), {
-			headers: {},
+			headers: { ...await authHeaders() },
 		});
 
 		const body: GetOtherTotpListResponse = await res.json();
@@ -310,6 +322,7 @@ export async function adminDisableOtherTotp(req: DisableOtherTotpRequest) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...await authHeaders(),
 			},
 			body: toJsonString(DisableOtherTotpRequestSchema, req),
 		});
@@ -332,6 +345,7 @@ export async function adminEditOtherUserPassword(
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...await authHeaders(),
 			},
 			body: toJsonString(ChangeOtherPasswordRequestSchema, req),
 		});
@@ -355,6 +369,7 @@ export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...await authHeaders(),
 			},
 			body: toJsonString(ModifyOtherUserRequestSchema, req),
 		});

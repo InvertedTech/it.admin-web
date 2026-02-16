@@ -1,6 +1,7 @@
 'use server';
 
 import { create, toJsonString } from '@bufbuild/protobuf';
+import { authHeaders } from '@/lib/cookies';
 
 import {
 	SearchAssetRequest,
@@ -22,6 +23,7 @@ export async function getAsset(assetId: string) {
 		const url = `${API_BASE_URL}/cms/admin/asset/${encodeURIComponent(assetId)}`;
 		const res = await fetch(url, {
 			method: 'GET',
+			headers: { ...(await authHeaders()) },
 		});
 		if (!res) return create(GetAssetAdminResponseSchema);
 		const body: GetAssetAdminResponse = await res.json();
@@ -48,6 +50,7 @@ export async function getImages(
 		}
 		const res = await fetch(url.toString(), {
 			method: 'GET',
+			headers: { ...(await authHeaders()) },
 		});
 
 		if (!res) {
@@ -94,6 +97,7 @@ export async function searchAssets(
 
 		const fetchOptions: RequestInit = {
 			method: 'GET',
+			headers: { ...(await authHeaders()) },
 		};
 
 		const res = await fetch(url.toString(), fetchOptions);
@@ -118,6 +122,7 @@ export async function createAsset(req: CreateAssetRequest) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			body: toJsonString(CreateAssetRequestSchema, msg),
 		});

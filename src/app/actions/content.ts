@@ -1,5 +1,4 @@
 'use server';
-import { revalidatePath, revalidateTag } from 'next/cache';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { isoDate, isoTime, tsToDate, type Item } from '@/lib/utils';
 import {
@@ -43,7 +42,7 @@ import {
 	GetAllContentAdminRequestSchema,
 } from '@inverted-tech/fragments/Content';
 import { APIErrorReason, APIErrorSchema } from '@inverted-tech/fragments';
-import { getToken } from '@/lib/cookies';
+import { authHeaders } from '@/lib/cookies';
 
 const API_BASE_URL = process.env.API_BASE_URL!;
 const API_BASE = `${API_BASE_URL}/cms/admin/content`;
@@ -53,6 +52,7 @@ export async function createContent(req: CreateContentRequest) {
 		const res = await fetch(API_BASE, {
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			method: 'POST',
 			body: toJsonString(CreateContentRequestSchema, req),
@@ -91,9 +91,8 @@ export async function createContent(req: CreateContentRequest) {
 
 export async function getContent() {
 	try {
-		const head: HeadersInit = {};
 		const res = await fetch(API_BASE, {
-			headers: head,
+			headers: { ...(await authHeaders()) },
 			method: 'GET',
 		});
 
@@ -110,13 +109,8 @@ export async function getContent() {
 // TODO: Replace getContentCalls with getAllContent
 export async function getAllContent(req: GetAllContentAdminRequest) {
 	try {
-		const token = await getToken();
-		if (!token) {
-			return;
-			// todo: add case for returning error unauthorized
-		}
 		const head: HeadersInit = {
-			Authorization: `Bearer ${token}`,
+			...(await authHeaders()),
 		};
 		let url = new URL(`${API_BASE}`);
 
@@ -177,13 +171,8 @@ export async function adminSearchContent(
 	req: GetAllContentAdminRequest,
 ): Promise<GetAllContentAdminResponse> {
 	try {
-		const token = await getToken();
-		if (!token) {
-			return create(GetAllContentAdminResponseSchema);
-			// todo: add case for returning error unauthorized
-		}
 		const head: HeadersInit = {
-			Authorization: `Bearer ${token}`,
+			...(await authHeaders()),
 		};
 		const url = new URL(`${API_BASE}`);
 
@@ -226,7 +215,7 @@ export async function adminSearchContent(
 export async function adminGetContent(contentId: string) {
 	try {
 		const res = await fetch(API_BASE.concat(`/${contentId}`), {
-			headers: {},
+			headers: { ...(await authHeaders()) },
 			method: 'GET',
 		});
 
@@ -257,6 +246,7 @@ export async function publishContent(req: PublishContentRequest) {
 		const res = await fetch(url, {
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			method: 'POST',
 			body: bodyJson,
@@ -295,7 +285,7 @@ export async function unpublishContent(req: UnpublishContentRequest) {
 	try {
 		const url = API_BASE.concat(`/${req.ContentID}/unpublish`);
 		const res = await fetch(url, {
-			headers: {},
+			headers: { ...(await authHeaders()) },
 			method: 'POST',
 			body: toJsonString(UnpublishContentRequestSchema, req),
 		});
@@ -320,6 +310,7 @@ export async function announceContent(req: AnnounceContentRequest) {
 		const res = await fetch(url, {
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			method: 'POST',
 			body: toJsonString(AnnounceContentRequestSchema, req),
@@ -345,6 +336,7 @@ export async function unannounceContent(req: UnannounceContentRequest) {
 		const res = await fetch(url, {
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			method: 'POST',
 			body: toJsonString(UnannounceContentRequestSchema, req),
@@ -367,7 +359,7 @@ export async function deleteContent(req: DeleteContentRequest) {
 	try {
 		const url = API_BASE.concat(`/${req.ContentID}/delete`);
 		const res = await fetch(url, {
-			headers: {},
+			headers: { ...(await authHeaders()) },
 			method: 'POST',
 			body: toJsonString(DeleteContentRequestSchema, req),
 		});
@@ -389,7 +381,7 @@ export async function undeleteContent(req: UndeleteContentRequest) {
 	try {
 		const url = API_BASE.concat(`/${req.ContentID}/undelete`);
 		const res = await fetch(url, {
-			headers: {},
+			headers: { ...(await authHeaders()) },
 			method: 'POST',
 			body: toJsonString(UndeleteContentRequestSchema, req),
 		});
@@ -687,11 +679,11 @@ export async function getOverviewActivity(args?: {
 // TODO: Add Error.proto errors
 export async function modifyContent(req: ModifyContentRequest) {
 	try {
-		return create(ModifyContentResponseSchema, {});
 		const url = API_BASE_URL.concat(`/cms/admin/content/${req.ContentID}`);
 		const res = await fetch(url, {
 			headers: {
 				'Content-Type': 'application/json',
+				...(await authHeaders()),
 			},
 			method: 'POST',
 			body: toJsonString(ModifyContentRequestSchema, req),
