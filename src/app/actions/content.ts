@@ -43,6 +43,7 @@ import {
 	GetAllContentAdminRequestSchema,
 } from '@inverted-tech/fragments/Content';
 import { APIErrorReason, APIErrorSchema } from '@inverted-tech/fragments';
+import { getToken } from '@/lib/cookies';
 
 const API_BASE_URL = process.env.API_BASE_URL!;
 const API_BASE = `${API_BASE_URL}/cms/admin/content`;
@@ -90,8 +91,7 @@ export async function createContent(req: CreateContentRequest) {
 
 export async function getContent() {
 	try {
-		const head: HeadersInit = {
-		};
+		const head: HeadersInit = {};
 		const res = await fetch(API_BASE, {
 			headers: head,
 			method: 'GET',
@@ -110,7 +110,13 @@ export async function getContent() {
 // TODO: Replace getContentCalls with getAllContent
 export async function getAllContent(req: GetAllContentAdminRequest) {
 	try {
+		const token = await getToken();
+		if (!token) {
+			return;
+			// todo: add case for returning error unauthorized
+		}
 		const head: HeadersInit = {
+			Authorization: `Bearer ${token}`,
 		};
 		let url = new URL(`${API_BASE}`);
 
@@ -171,7 +177,13 @@ export async function adminSearchContent(
 	req: GetAllContentAdminRequest,
 ): Promise<GetAllContentAdminResponse> {
 	try {
+		const token = await getToken();
+		if (!token) {
+			return create(GetAllContentAdminResponseSchema);
+			// todo: add case for returning error unauthorized
+		}
 		const head: HeadersInit = {
+			Authorization: `Bearer ${token}`,
 		};
 		const url = new URL(`${API_BASE}`);
 
@@ -214,8 +226,7 @@ export async function adminSearchContent(
 export async function adminGetContent(contentId: string) {
 	try {
 		const res = await fetch(API_BASE.concat(`/${contentId}`), {
-			headers: {
-			},
+			headers: {},
 			method: 'GET',
 		});
 
@@ -284,8 +295,7 @@ export async function unpublishContent(req: UnpublishContentRequest) {
 	try {
 		const url = API_BASE.concat(`/${req.ContentID}/unpublish`);
 		const res = await fetch(url, {
-			headers: {
-			},
+			headers: {},
 			method: 'POST',
 			body: toJsonString(UnpublishContentRequestSchema, req),
 		});
@@ -357,8 +367,7 @@ export async function deleteContent(req: DeleteContentRequest) {
 	try {
 		const url = API_BASE.concat(`/${req.ContentID}/delete`);
 		const res = await fetch(url, {
-			headers: {
-			},
+			headers: {},
 			method: 'POST',
 			body: toJsonString(DeleteContentRequestSchema, req),
 		});
@@ -380,8 +389,7 @@ export async function undeleteContent(req: UndeleteContentRequest) {
 	try {
 		const url = API_BASE.concat(`/${req.ContentID}/undelete`);
 		const res = await fetch(url, {
-			headers: {
-			},
+			headers: {},
 			method: 'POST',
 			body: toJsonString(UndeleteContentRequestSchema, req),
 		});
@@ -679,7 +687,7 @@ export async function getOverviewActivity(args?: {
 // TODO: Add Error.proto errors
 export async function modifyContent(req: ModifyContentRequest) {
 	try {
-			return create(ModifyContentResponseSchema, {});
+		return create(ModifyContentResponseSchema, {});
 		const url = API_BASE_URL.concat(`/cms/admin/content/${req.ContentID}`);
 		const res = await fetch(url, {
 			headers: {
@@ -701,5 +709,3 @@ export async function modifyContent(req: ModifyContentRequest) {
 		return create(ModifyContentResponseSchema, {});
 	}
 }
-
-

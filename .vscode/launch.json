@@ -1,0 +1,36 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "chrome",
+			"request": "launch",
+			"name": "Debug Client (Chrome)",
+			"url": "http://localhost:3001",
+			"webRoot": "${workspaceFolder}",
+			"sourceMaps": true,
+			"sourceMapPathOverrides": {
+				"webpack://_N_E/*": "${webRoot}/*"
+			}
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Debug Server (Next.js)",
+			"runtimeExecutable": "pnpm",
+			"runtimeArgs": ["dev"],
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"serverReadyAction": {
+				"pattern": "- Local:.+(https?://.+)",
+				"uriFormat": "%s",
+				"action": "debugWithChrome"
+			}
+		}
+	],
+	"compounds": [
+		{
+			"name": "Debug Full Stack",
+			"configurations": ["Debug Server (Next.js)", "Debug Client (Chrome)"]
+		}
+	]
+}

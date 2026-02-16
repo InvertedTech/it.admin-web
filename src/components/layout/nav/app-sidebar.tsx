@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { NavMain } from './nav-main';
+import { useUser } from '@/components/context/user-context';
 
 const data = {
 	user: {
@@ -141,7 +142,9 @@ export function AppSidebar({
 }: React.ComponentProps<typeof Sidebar> & {
 	headerTitle?: string;
 }) {
+	// TODO: Figure out making the navs rbac
 	const navMain = data.navMain as NavItem[];
+	const user = useUser();
 	return (
 		<Sidebar collapsible='offcanvas' {...props}>
 			<SidebarHeader>
@@ -168,10 +171,11 @@ export function AppSidebar({
 				{/* <NavSecondary items={data.navSecondary} className='mt-auto' /> */}
 			</SidebarContent>
 			<SidebarFooter>
+				{/* Figure out better way to give user data here */}
 				<NavUser
 					user={{
-						name: data.user.name,
-						email: data.user.email,
+						name: user?.displayName || '',
+						email: '',
 						avatar: data.user.avatar,
 					}}
 				/>
