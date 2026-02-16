@@ -42,7 +42,6 @@ export default async function AssetIndexPage({
 	const { PageSize = 10, PageOffset = 0 } = await searchParams;
 	const pageSize = Number(PageSize) || 10;
 	const pageOffset = Number(PageOffset) || 0;
-	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isWriterOrHigher);
 
 	return (

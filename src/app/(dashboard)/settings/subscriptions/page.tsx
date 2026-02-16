@@ -6,7 +6,6 @@ import { requireRole } from '@/lib/rbac';
 import { isAdminOrHigher, isOwner } from '@/lib/roleHelpers';
 
 export default async function SubscriptionSettingsPage() {
-	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isAdminOrHigher);
 	const showOwner = isOwner([]);
 	const { Public } = await getAdminSettings();

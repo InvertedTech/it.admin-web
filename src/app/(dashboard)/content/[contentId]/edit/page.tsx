@@ -10,7 +10,6 @@ type Props = {
 };
 
 export default async function EditContentPage({ params }: Props) {
-	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isWriterOrHigher);
 	const contentId = (await params).contentId;
 	const res = await adminGetContent(contentId);

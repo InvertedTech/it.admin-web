@@ -7,7 +7,6 @@ import { GetAllContentAdminRequestSchema } from '@inverted-tech/fragments/Conten
 import { requireAnyRole } from '@/lib/rbac';
 
 export default async function Page() {
-	// TODO(auth-removal): Remove role/authorization gate.
 	await requireAnyRole();
 	const weekEvents = await getWeekEvents();
 	const recentContent = await adminSearchContent(

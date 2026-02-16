@@ -33,6 +33,12 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { NavMain } from './nav-main';
 import { useUser } from '@/components/context/user-context';
+import {
+	isWriterOrHigher,
+	isAdminOrHigher,
+	isMemberManagerOrHigher,
+	isOwner,
+} from '@/lib/roleHelpers';
 
 const data = {
 	user: {
@@ -142,9 +148,36 @@ export function AppSidebar({
 }: React.ComponentProps<typeof Sidebar> & {
 	headerTitle?: string;
 }) {
-	// TODO: Figure out making the navs rbac
-	const navMain = data.navMain as NavItem[];
 	const user = useUser();
+	const roles = user?.roles ?? [];
+
+	const navMain = (data.navMain as NavItem[])
+		.filter((item) => {
+			switch (item.url) {
+				case '/content/create':
+				case '/content':
+				case '/assets':
+					return isWriterOrHigher(roles);
+				case '/users':
+					return isMemberManagerOrHigher(roles);
+				case '/settings':
+					return isAdminOrHigher(roles);
+				default:
+					return true;
+			}
+		})
+		.map((item) => {
+			if (item.url === '/settings' && item.items) {
+				return {
+					...item,
+					items: item.items.filter((sub) => {
+						if (sub.url === '/settings/notifications') return isOwner(roles);
+						return isAdminOrHigher(roles);
+					}),
+				};
+			}
+			return item;
+		});
 	return (
 		<Sidebar collapsible='offcanvas' {...props}>
 			<SidebarHeader>

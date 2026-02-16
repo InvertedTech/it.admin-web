@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getToken } from './lib/cookies';
 
 const PUBLIC_PATHS = ['/login', '/unauthorized'];
 

@@ -4,6 +4,7 @@ import { ContentDetails } from '@/components/content/content-details';
 import { ContentEmpty } from '@/components/content/content-empty';
 import { ContentTimeline } from '@/components/content/content-timeline';
 import { ViewContentHeader } from '@/components/content/view-content-header';
+import { getSession } from '@/lib/cookies';
 import { requireRole } from '@/lib/rbac';
 import { isPublisherOrHigher, isWriterOrHigher } from '@/lib/roleHelpers';
 import { getApiBase } from '@/lib/apiBase';
@@ -21,10 +22,11 @@ export default async function ViewContentPage({
 }: {
 	params: { contentId: string };
 }) {
-	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isWriterOrHigher);
+	const session = await getSession();
+	const roles = session?.roles ?? [];
 	const { contentId } = await params;
-	const canPublish = isPublisherOrHigher([]);
+	const canPublish = isPublisherOrHigher(roles);
 	const res = await adminGetContent(contentId);
 	const record = (res as any)?.Record;
 	if (!record) {

@@ -425,7 +425,6 @@ export function ContentTable({
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
 	const router = useRouter();
-	// TODO(auth-removal): Remove role/authorization check.
 	const isPublisherOrHigher = roleHelpers.isPublisherOrHigher(roles);
 	const columns = React.useMemo(
 		() => getColumns(isPublisherOrHigher),

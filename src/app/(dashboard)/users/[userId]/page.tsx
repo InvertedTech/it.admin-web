@@ -24,6 +24,7 @@ import {
 	getSubscriptionsForUser,
 	cancelSubscribition,
 } from '@/app/actions/payment';
+import { getSession } from '@/lib/cookies';
 import { requireRole } from '@/lib/rbac';
 import {
 	isMemberManagerOrHigher,
@@ -44,13 +45,14 @@ export default async function ViewUserPage({
 }: {
 	params: { userId: string };
 }) {
-	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(isMemberManagerOrHigher);
-	const canViewSubscriptions = isSubscriptionManagerOrHigher([]);
-	const canGrantRoles = isAdminOrHigher([]);
-	const canEditProfile = isMemberManagerOrHigher([]);
-	const canToggleUser = isAdminOrHigher([]);
-	const canViewTotp = isAdminOrHigher([]);
+	const session = await getSession();
+	const sessionRoles = session?.roles ?? [];
+	const canViewSubscriptions = isSubscriptionManagerOrHigher(sessionRoles);
+	const canGrantRoles = isAdminOrHigher(sessionRoles);
+	const canEditProfile = isMemberManagerOrHigher(sessionRoles);
+	const canToggleUser = isAdminOrHigher(sessionRoles);
+	const canViewTotp = isAdminOrHigher(sessionRoles);
 	const { userId } = await params;
 	const subs = canViewSubscriptions
 		? await getSubscriptionsForUser(userId)

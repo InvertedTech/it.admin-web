@@ -4,7 +4,6 @@ import { requireRole } from '@/lib/rbac';
 import { canCreateContent } from '@/lib/roleHelpers';
 
 export default async function CreateContentPage() {
-	// TODO(auth-removal): Remove role/authorization gate.
 	await requireRole(canCreateContent);
 	return (
 		<div className="space-y-6">

@@ -42,11 +42,9 @@ export async function getImages(
 		const url = new URL(base);
 		if (req?.PageSize != null) {
 			url.searchParams.set('PageSize', String(req.PageSize));
-			url.searchParams.set('req.PageSize', String(req.PageSize));
 		}
 		if (req?.PageOffset != null) {
 			url.searchParams.set('PageOffset', String(req.PageOffset));
-			url.searchParams.set('req.PageOffset', String(req.PageOffset));
 		}
 		const res = await fetch(url.toString(), {
 			method: 'GET',
@@ -78,11 +76,9 @@ export async function searchAssets(
 		const url = new URL(base);
 		if (req?.PageSize != null) {
 			url.searchParams.set('PageSize', String(req.PageSize));
-			url.searchParams.set('req.PageSize', String(req.PageSize));
 		}
 		if (req?.PageOffset != null) {
 			url.searchParams.set('PageOffset', String(req.PageOffset));
-			url.searchParams.set('req.PageOffset', String(req.PageOffset));
 		}
 		if (req?.Query) url.searchParams.set('Query', String(req.Query));
 		if (req?.AssetType != null) {
