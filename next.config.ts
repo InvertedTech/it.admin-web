@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
 				port: '8001',
 				pathname: '/api/cms/asset/**',
 			},
+			{
+				protocol: 'https',
+				hostname: 'combined',
+				port: '80',
+				pathname: '/api/cms/asset/**',
+			},
 		],
 	},
 	experimental: {
