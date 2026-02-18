@@ -86,12 +86,16 @@ export default async function ViewUserPage({
 	async function grantRolesAction(formData: FormData) {
 		'use server';
 		const selected = formData.getAll('roles')?.map((v) => String(v)) ?? [];
-		await grantRolesToUser(
+		const res = await grantRolesToUser(
 			create(ModifyOtherUserRolesRequestSchema, {
 				UserID: id,
 				Roles: selected,
 			}),
 		);
+		const err = (res as any)?.Error;
+		if (err) {
+			throw new Error(err?.Message || 'Failed to update roles');
+		}
 		revalidatePath(`/users/${id}`);
 	}
 

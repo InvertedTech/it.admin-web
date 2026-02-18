@@ -33,6 +33,7 @@ import { Roles as AllRoles, RoleCategories, RoleMeta } from '@/lib/roles';
 import * as React from 'react';
 import { toast } from 'sonner';
 import { ChangeOtherPasswordDialog } from '@/components/users/edit-user/change-other-password-dialog';
+import { useRouter } from 'next/navigation';
 
 type Props = {
 	id: string;
@@ -72,6 +73,7 @@ export function UserHeaderCard({
 	enableUserAction,
 	disableUserAction,
 }: Props) {
+	const router = useRouter();
 	const [isDisabled, setIsDisabled] = React.useState(Boolean(disabled));
 	const statusBadge = isDisabled ? (
 		<Badge variant='secondary'>Disabled</Badge>
@@ -94,9 +96,14 @@ export function UserHeaderCard({
 		try {
 			await grantRolesAction(fd);
 			setOpen(false);
+			router.refresh();
 			toast.success('Roles updated');
 		} catch (err) {
-			toast.error('Failed to update roles');
+			const msg =
+				err instanceof Error && err.message
+					? err.message
+					: 'Failed to update roles';
+			toast.error(msg);
 		}
 	}
 

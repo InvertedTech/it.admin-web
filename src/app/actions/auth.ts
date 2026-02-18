@@ -71,7 +71,7 @@ export async function getOwnUser() {
 
 		const res = await fetch(url, {
 			method: 'GET',
-			headers: { ...await authHeaders() },
+			headers: { ...(await authHeaders()) },
 		});
 
 		const body: GetOwnUserResponse = await res.json();
@@ -161,7 +161,7 @@ export async function listUsers(
 		const res = await fetch(url, {
 			method: 'GET',
 			cache: 'no-store',
-			headers: { ...await authHeaders() },
+			headers: { ...(await authHeaders()) },
 		});
 
 		if (!res.ok) return create(SearchUsersAdminResponseSchema);
@@ -181,7 +181,7 @@ export async function adminGetUser(userId: string) {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				...await authHeaders(),
+				...(await authHeaders()),
 			},
 		});
 		if (!res) {
@@ -201,7 +201,7 @@ export async function renewToken() {
 		const res = await fetch(url, {
 			headers: {
 				'Content-Type': 'application/json',
-				...await authHeaders(),
+				...(await authHeaders()),
 			},
 			method: 'GET',
 		});
@@ -228,20 +228,33 @@ export async function grantRolesToUser(req: ModifyOtherUserRolesRequest) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				...await authHeaders(),
+				...(await authHeaders()),
 			},
 			body: toJsonString(ModifyOtherUserRolesRequestSchema, req),
 		});
 
-		if (!res) {
-			return create(ModifyOtherUserRolesResponseSchema);
+		if (!res || !res.ok) {
+			return create(ModifyOtherUserRolesResponseSchema, {
+				Error: create(APIErrorSchema, {
+					Message: `Failed to update user roles${
+						res ? ` (${res.status})` : ''
+					}`,
+					Reason: APIErrorReason.ERROR_REASON_DELIVERY_FAILED,
+				}),
+			});
 		}
 
 		const body: ModifyOtherUserRolesResponse = await res.json();
+		console.log(body);
 		return body;
 	} catch (error) {
 		console.error(error);
-		return create(ModifyOtherUserRolesResponseSchema);
+		return create(ModifyOtherUserRolesResponseSchema, {
+			Error: create(APIErrorSchema, {
+				Message: 'Unexpected error while updating user roles',
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
+			}),
+		});
 	}
 }
 
@@ -253,7 +266,7 @@ export async function enableUser(req: DisableEnableOtherUserRequest) {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					...await authHeaders(),
+					...(await authHeaders()),
 				},
 				body: toJsonString(DisableEnableOtherUserRequestSchema, req),
 			},
@@ -277,7 +290,7 @@ export async function disableUser(req: DisableEnableOtherUserRequest) {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					...await authHeaders(),
+					...(await authHeaders()),
 				},
 				body: toJsonString(DisableEnableOtherUserRequestSchema, req),
 			},
@@ -305,7 +318,7 @@ export async function getSessionUser() {
 export async function adminGetUserTotpDevices(userId: string) {
 	try {
 		const res = await fetch(ADMIN_API_BASE.concat(`/totp/${userId}`), {
-			headers: { ...await authHeaders() },
+			headers: { ...(await authHeaders()) },
 		});
 
 		const body: GetOtherTotpListResponse = await res.json();
@@ -322,7 +335,7 @@ export async function adminDisableOtherTotp(req: DisableOtherTotpRequest) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				...await authHeaders(),
+				...(await authHeaders()),
 			},
 			body: toJsonString(DisableOtherTotpRequestSchema, req),
 		});
@@ -345,7 +358,7 @@ export async function adminEditOtherUserPassword(
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				...await authHeaders(),
+				...(await authHeaders()),
 			},
 			body: toJsonString(ChangeOtherPasswordRequestSchema, req),
 		});
@@ -369,7 +382,7 @@ export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				...await authHeaders(),
+				...(await authHeaders()),
 			},
 			body: toJsonString(ModifyOtherUserRequestSchema, req),
 		});
