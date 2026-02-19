@@ -25,6 +25,15 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog';
+import { AdminCreateUserForm } from '@/components/forms/admin-create-user-form';
 
 type Props = {
 	pageSize?: number;
@@ -243,10 +252,31 @@ export function UsersSearchView({
 					onNextPage={nextPage}
 					hasPrev={canPrev}
 					hasNext={canNext}
-					filterButton={<UsersFiltersButton roles={ROLE_OPTIONS} />}
+					filterButton={
+						<>
+							<CreateUserDialogButton />
+							<UsersFiltersButton roles={ROLE_OPTIONS} />
+						</>
+					}
 				/>
 			</form.AppForm>
 		</form>
+	);
+}
+
+function CreateUserDialogButton() {
+	return (
+		<Dialog>
+			<DialogTrigger asChild>
+				<Button type="button">Create</Button>
+			</DialogTrigger>
+			<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+				<DialogHeader>
+					<DialogTitle>Create User</DialogTitle>
+				</DialogHeader>
+				<AdminCreateUserForm />
+			</DialogContent>
+		</Dialog>
 	);
 }
 

@@ -54,6 +54,36 @@ const API_BASE_URL = process.env.API_BASE_URL!;
 const API_BASE = `${API_BASE_URL}/auth`;
 const ADMIN_API_BASE = `${API_BASE_URL}/auth/admin`;
 
+export async function createUser(req: CreateUserRequest) {
+	try {
+		const url = API_BASE.concat('/create');
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: toJsonString(CreateUserRequestSchema, req),
+		});
+		if (!res) {
+			return create(CreateUserResponseSchema, {
+				Error: create(APIErrorSchema, {
+					Message: 'No Response Recieved From The Server',
+					Reason: APIErrorReason.ERROR_REASON_SERVICE_UNAVAILABLE,
+				}),
+			});
+		}
+
+		const body: CreateUserResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(CreateUserResponseSchema, {
+			Error: create(APIErrorSchema, {
+				Message: error instanceof Error ? error.message : 'Unknown error',
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
+			}),
+		});
+	}
+}
+
 export async function logoutAction(): Promise<boolean> {
 	'use server';
 	try {
@@ -137,15 +167,13 @@ export async function listUsers(
 			`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`;
 
 		if (req.PageSize != null) parts.push(enc('PageSize', req.PageSize));
-		if (req.PageOffset != null)
-			parts.push(enc('PageOffset', req.PageOffset));
+		if (req.PageOffset != null) parts.push(enc('PageOffset', req.PageOffset));
 		if (req.SearchString?.trim())
 			parts.push(enc('SearchString', req.SearchString.trim()));
 		if (Array.isArray(req.Roles))
 			for (const r of req.Roles) if (r) parts.push(enc('Roles', r));
 		if (Array.isArray(req.UserIDs))
-			for (const id of req.UserIDs)
-				if (id) parts.push(enc('UserIDs', id));
+			for (const id of req.UserIDs) if (id) parts.push(enc('UserIDs', id));
 		const ca = toIso((req as any)?.CreatedAfter);
 		const cb = toIso((req as any)?.CreatedBefore);
 		if (ca) parts.push(enc('CreatedAfter', ca));
