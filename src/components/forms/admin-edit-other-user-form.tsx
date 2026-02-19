@@ -11,12 +11,18 @@ export function AdminEditOtherUserForm({
 	displayName,
 	email,
 	bio,
+	firstName,
+	lastName,
+	postalCode,
 }: {
 	userId: string;
 	userName: string;
 	displayName: string;
 	email: string;
 	bio: string;
+	firstName: string;
+	lastName: string;
+	postalCode: string;
 }) {
 	const form = useAppForm({
 		defaultValues: {
@@ -25,6 +31,9 @@ export function AdminEditOtherUserForm({
 			DisplayName: displayName,
 			Email: email,
 			Bio: bio,
+			FirstName: firstName,
+			LastName: lastName,
+			PostalCode: postalCode,
 		},
 		onSubmit: async ({ value, formApi }) => {
 			try {
@@ -40,6 +49,9 @@ export function AdminEditOtherUserForm({
 						| 'UserName'
 						| 'DisplayName'
 						| 'Email'
+						| 'FirstName'
+						| 'LastName'
+						| 'PostalCode'
 						| 'Bio';
 					const fields: Partial<Record<FieldKey, string | string[]>> =
 						{};
@@ -51,6 +63,9 @@ export function AdminEditOtherUserForm({
 								'UserName',
 								'DisplayName',
 								'Email',
+								'FirstName',
+								'LastName',
+								'PostalCode',
 								'Bio',
 							].includes(key)
 						)
@@ -107,6 +122,9 @@ export function AdminEditOtherUserForm({
 		DisplayName: 'DisplayName',
 		Email: 'Email',
 		Bio: 'Bio',
+		FirstName: 'FirstName',
+		LastName: 'LastName',
+		PostalCode: 'PostalCode',
 	};
 
 	return (

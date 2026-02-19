@@ -17,6 +17,9 @@ export function EditOtherUserDialog({
 	displayName,
 	email,
 	bio,
+	firstName,
+	lastName,
+	postalCode,
 	canOpen = false,
 }: {
 	userId: string;
@@ -24,6 +27,9 @@ export function EditOtherUserDialog({
 	displayName: string;
 	email: string;
 	bio: string;
+	firstName: string;
+	lastName: string;
+	postalCode: string;
 	canOpen?: boolean;
 }) {
 	if (!canOpen) return null;
@@ -46,6 +52,9 @@ export function EditOtherUserDialog({
 					displayName={displayName}
 					email={email}
 					bio={bio}
+					firstName={firstName}
+					lastName={lastName}
+					postalCode={postalCode}
 				/>
 			</DialogContent>
 		</Dialog>

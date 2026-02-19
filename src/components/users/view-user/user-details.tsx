@@ -48,6 +48,9 @@ export function UserDetails({
 	displayName,
 	email,
 	bio,
+	firstName,
+	lastName,
+	postalCode,
 	roles,
 	canEditProfile,
 }: {
@@ -56,6 +59,9 @@ export function UserDetails({
 	displayName: string;
 	email?: string;
 	bio?: string;
+	firstName?: string;
+	lastName?: string;
+	postalCode?: string;
 	roles?: string[];
 	canEditProfile?: boolean;
 }) {
@@ -73,6 +79,9 @@ export function UserDetails({
 						displayName={displayName}
 						email={email ?? ''}
 						bio={bio ?? ''}
+						firstName={firstName ?? ''}
+						lastName={lastName ?? ''}
+						postalCode={postalCode ?? ''}
 						canOpen={canEditProfile}
 					/>
 				) : null}
@@ -90,6 +99,18 @@ export function UserDetails({
 				<Row
 					label="Email"
 					value={email || ''}
+				/>
+				<Row
+					label="First Name"
+					value={firstName || ''}
+				/>
+				<Row
+					label="Last Name"
+					value={lastName || ''}
+				/>
+				<Row
+					label="Postal Code"
+					value={postalCode || ''}
 				/>
 				<Row
 					label="Bio"

@@ -34,7 +34,9 @@ import {
 
 function pick<T = unknown>(obj: any, paths: string[], fb?: T): T | undefined {
 	for (const p of paths) {
-		const v = p.split('.').reduce<any>((o, k) => (o ? o[k] : undefined), obj);
+		const v = p
+			.split('.')
+			.reduce<any>((o, k) => (o ? o[k] : undefined), obj);
 		if (v !== undefined && v !== null && v !== '') return v as T;
 	}
 	return fb;
@@ -62,16 +64,36 @@ export default async function ViewUserPage({
 	if (!user) notFound();
 
 	// inferred fields across Public/Private shapes
-	const id = pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
+	const id =
+		pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
 	const displayName = pick<string>(
 		user,
 		['Public.Data.DisplayName', 'DisplayName'],
-		'—',
+		'',
 	)!;
 	const userName =
-		pick<string>(user, ['Public.Data.UserName', 'UserName'], '') || '—';
-	const email = pick<string>(user, ['Private.Data.Email', 'Email'], '') || '—';
-	const bio = pick<string>(user, ['Public.Data.Bio', 'Bio'], '') || '—';
+		pick<string>(user, ['Public.Data.UserName', 'UserName'], '') || '';
+	const email =
+		pick<string>(user, ['Private.Data.Email', 'Email'], '') || '';
+	const bio = pick<string>(user, ['Public.Data.Bio', 'Bio'], '') || '';
+	const firstName =
+		pick<string>(
+			user,
+			['Private.Data.FirstName', 'Public.Data.FirstName', 'FirstName'],
+			'',
+		) || '';
+	const lastName =
+		pick<string>(
+			user,
+			['Private.Data.LastName', 'Public.Data.LastName', 'LastName'],
+			'',
+		) || '';
+	const postalCode =
+		pick<string>(
+			user,
+			['Private.Data.PostalCode', 'Public.Data.PostalCode', 'PostalCode'],
+			'',
+		) || '';
 	const createdOn = pick(user, ['Public.CreatedOnUTC', 'CreatedOnUTC']);
 	const modifiedOn = pick(user, ['Public.ModifiedOnUTC', 'ModifiedOnUTC']);
 	const disabledOn = pick(user, ['Private.DisabledOnUTC', 'DisabledOnUTC']);
@@ -141,7 +163,7 @@ export default async function ViewUserPage({
 
 	return (
 		<div>
-			<div className="mb-6">
+			<div className='mb-6'>
 				<UserHeaderCard
 					id={id}
 					displayName={displayName}
@@ -153,22 +175,29 @@ export default async function ViewUserPage({
 					grantRolesAction={grantRolesAction}
 					canGrantRoles={canGrantRoles}
 					canEditProfile={canEditProfile}
-					enableUserAction={canToggleUser ? enableUserAction : undefined}
-					disableUserAction={canToggleUser ? disableUserAction : undefined}
+					enableUserAction={
+						canToggleUser ? enableUserAction : undefined
+					}
+					disableUserAction={
+						canToggleUser ? disableUserAction : undefined
+					}
 				/>
 			</div>
-			<div className="mb-4">
+			<div className='mb-4'>
 				<UserTimeline
 					createdOn={createdOn}
 					modifiedOn={modifiedOn}
 					disabledOn={disabledOn}
 				/>
 			</div>
-			<div className="mb-4">
+			<div className='mb-4'>
 				<UserDetails
 					id={id}
 					email={email}
 					bio={bio}
+					firstName={firstName}
+					lastName={lastName}
+					postalCode={postalCode}
 					userName={userName}
 					displayName={displayName}
 					roles={userRoles}
@@ -176,7 +205,7 @@ export default async function ViewUserPage({
 				/>
 			</div>
 			{canViewTotp ? (
-				<div className="mb-4">
+				<div className='mb-4'>
 					<UserTotpDevices
 						totpDevices={totpDevices}
 						disableTotpAction={disableTotpAction}
@@ -185,7 +214,7 @@ export default async function ViewUserPage({
 				</div>
 			) : null}
 			{canViewSubscriptions ? (
-				<div className="mb-4">
+				<div className='mb-4'>
 					<UserSubscriptions
 						subscriptions={subs}
 						cancelSubscriptionAction={cancelSubscriptionAction}
@@ -195,3 +224,4 @@ export default async function ViewUserPage({
 		</div>
 	);
 }
+
