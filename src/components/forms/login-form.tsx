@@ -46,12 +46,9 @@ export function LoginForm({ msftRedirect, from }: Props) {
 	// Read directly from form.state for now (no useStore subscription)
 
 	return (
-		<FormCard
-			cardTitle="Login"
-			cardDescription="Login To Your Account"
-		>
+		<FormCard cardTitle='Login' cardDescription='Login To Your Account'>
 			<form
-				id="login-form"
+				id='login-form'
 				onSubmit={(event) => {
 					event.preventDefault();
 					form.handleSubmit();
@@ -59,85 +56,89 @@ export function LoginForm({ msftRedirect, from }: Props) {
 			>
 				<form.AppForm>
 					{
-						<form.Subscribe selector={(s: any) => s?.submitErrors ?? s?.errors}>
+						<form.Subscribe
+							selector={(s: any) => s?.submitErrors ?? s?.errors}
+						>
 							{(errs: any) => <FormSubmitErrors errors={errs} />}
 						</form.Subscribe>
 					}
 					<FieldGroup>
 						<form.AppField
-							name="UserName"
-							children={(field) => <field.TextField label="Email" />}
+							name='UserName'
+							children={(field) => (
+								<field.TextField label='Email' />
+							)}
 						/>
 
 						<form.AppField
-							name="Password"
+							name='Password'
 							children={(field) => (
 								<div>
-									<div className="flex items-center justify-between">
+									<div className='flex items-center justify-between'>
 										<span />
 										<a
-											href="#"
-											className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+											href='#'
+											className='ml-auto inline-block text-sm underline-offset-4 hover:underline'
 										>
 											Forgot your password?
 										</a>
 									</div>
-									<field.PasswordField label="Password" />
+									<field.PasswordField label='Password' />
 								</div>
 							)}
 						/>
-						<div className="flex items-center gap-2">
+						<div className='flex items-center gap-2'>
 							<Switch
-								id="use-mfa"
+								id='use-mfa'
 								checked={useMfa}
 								onCheckedChange={setUseMfa}
 							/>
-							<Label htmlFor="use-mfa">MFA Enabled?</Label>
+							<Label htmlFor='use-mfa'>MFA Enabled?</Label>
 							<Tooltip>
 								<TooltipTrigger asChild>
 									<button
-										type="button"
-										aria-label="About MFA"
-										className="inline-flex h-5 w-5 items-center justify-center rounded"
+										type='button'
+										aria-label='About MFA'
+										className='inline-flex h-5 w-5 items-center justify-center rounded'
 										tabIndex={-1}
 									>
 										<Info
-											className="h-4 w-4 text-muted-foreground"
-											aria-hidden="true"
+											className='h-4 w-4 text-muted-foreground'
+											aria-hidden='true'
 										/>
 									</button>
 								</TooltipTrigger>
-								<TooltipContent
-									side="top"
-									align="start"
-								>
-									Enable if your account requires an authenticator code.
+								<TooltipContent side='top' align='start'>
+									Enable if your account requires an
+									authenticator code.
 								</TooltipContent>
 							</Tooltip>
 						</div>
 
 						{useMfa ? (
 							<form.AppField
-								name="MFACode"
+								name='MFACode'
 								children={(field) => (
 									<field.MFAField
-										label="MFA Code"
-										description="Code From Your Authenticator "
+										label='MFA Code'
+										description='Code From Your Authenticator '
 									/>
 								)}
 							/>
 						) : null}
-						<div className="flex flex-col gap-2">
+						<div className='flex flex-col gap-2'>
 							{
-								<form.Subscribe selector={(s: any) => !!s?.isSubmitting}>
+								<form.Subscribe
+									selector={(s: any) => !!s?.isSubmitting}
+								>
 									{(isSubmitting: boolean) => (
 										<Button
-											type="submit"
+											type='submit'
 											disabled={isSubmitting}
 										>
 											{isSubmitting ? (
 												<>
-													<Spinner className="mr-2" />
+													<Spinner className='mr-2' />
 													Logging in...
 												</>
 											) : (
@@ -148,46 +149,46 @@ export function LoginForm({ msftRedirect, from }: Props) {
 								</form.Subscribe>
 							}
 							<Button
-								variant="outline"
-								type="button"
-								className="border-[#8C8C8C] bg-white text-[#5E5E5E] hover:bg-[#F3F2F1] hover:text-[#323130]"
+								variant='outline'
+								type='button'
+								className='border-[#8C8C8C] bg-white text-[#5E5E5E] hover:bg-[#F3F2F1] hover:text-[#323130]'
 								onClick={(e) => {
 									e.preventDefault();
 									router.replace(msftRedirect);
 								}}
 							>
 								<svg
-									aria-hidden="true"
-									viewBox="0 0 23 23"
-									className="size-4"
+									aria-hidden='true'
+									viewBox='0 0 23 23'
+									className='size-4'
 								>
 									<rect
-										x="1"
-										y="1"
-										width="10"
-										height="10"
-										fill="#F25022"
+										x='1'
+										y='1'
+										width='10'
+										height='10'
+										fill='#F25022'
 									/>
 									<rect
-										x="12"
-										y="1"
-										width="10"
-										height="10"
-										fill="#7FBA00"
+										x='12'
+										y='1'
+										width='10'
+										height='10'
+										fill='#7FBA00'
 									/>
 									<rect
-										x="1"
-										y="12"
-										width="10"
-										height="10"
-										fill="#00A4EF"
+										x='1'
+										y='12'
+										width='10'
+										height='10'
+										fill='#00A4EF'
 									/>
 									<rect
-										x="12"
-										y="12"
-										width="10"
-										height="10"
-										fill="#FFB900"
+										x='12'
+										y='12'
+										width='10'
+										height='10'
+										fill='#FFB900'
 									/>
 								</svg>
 								Login with Microsoft

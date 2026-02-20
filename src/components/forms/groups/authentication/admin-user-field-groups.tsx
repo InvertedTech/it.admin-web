@@ -1,12 +1,19 @@
 import { FieldGroup } from '@/components/ui/field';
 import { withFieldGroup } from '@/hooks/app-form';
+import { RoleMeta, Roles as AllRoles } from '@/lib/roles';
 import { create } from '@bufbuild/protobuf';
 import {
+	AdminCreateUserRequestSchema,
 	ChangeOtherPasswordRequestSchema,
 	CreateUserRequestSchema,
 	ModifyOtherUserRequestSchema,
 } from '@inverted-tech/fragments/Authentication/index';
+import { RoleOption } from '../admin/admin-search-users-field-group';
 
+const ROLE_OPTIONS: RoleOption[] = AllRoles.map((role) => ({
+	DisplayName: RoleMeta[role]?.label ?? role,
+	RoleValue: role,
+}));
 export const AdminEditOtherUserFieldGroups = withFieldGroup({
 	defaultValues: create(ModifyOtherUserRequestSchema),
 	render: function Render({ group }) {
@@ -69,7 +76,7 @@ export const AdminChangeOtherPasswordFieldGroups = withFieldGroup({
 });
 
 export const CreateUserFieldGroups = withFieldGroup({
-	defaultValues: create(CreateUserRequestSchema),
+	defaultValues: create(AdminCreateUserRequestSchema),
 	render: function Render({ group }) {
 		return (
 			<FieldGroup>
@@ -104,6 +111,15 @@ export const CreateUserFieldGroups = withFieldGroup({
 				<group.AppField
 					name='Bio'
 					children={(f) => <f.TextAreaField label='Bio' />}
+				/>
+				<group.AppField
+					name='Roles'
+					children={(f) => (
+						<f.RoleSelectField
+							label='Roles'
+							options={ROLE_OPTIONS}
+						/>
+					)}
 				/>
 			</FieldGroup>
 		);

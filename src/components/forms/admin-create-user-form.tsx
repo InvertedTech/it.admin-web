@@ -1,6 +1,6 @@
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 import { create } from '@bufbuild/protobuf';
-import { CreateUserRequestSchema } from '@inverted-tech/fragments/Authentication';
+import { AdminCreateUserRequestSchema } from '@inverted-tech/fragments/Authentication';
 import { FormCard } from './form-card';
 import { CreateUserFieldGroups } from './groups/authentication';
 import { createUser } from '@/app/actions/auth';
@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 export function AdminCreateUserForm() {
 	const router = useRouter();
 	const form = useProtoAppForm({
-		schema: CreateUserRequestSchema,
+		schema: AdminCreateUserRequestSchema,
 		defaultInit: {
 			UserName: '',
 			DisplayName: '',
@@ -19,21 +19,24 @@ export function AdminCreateUserForm() {
 			LastName: '',
 			PostalCode: '',
 			Password: '',
+			Roles: [],
 		},
 		onValidSubmit: async ({ value, formApi }) => {
-			const req = create(CreateUserRequestSchema, value);
+			const req = create(AdminCreateUserRequestSchema, value);
 			const res = await createUser(req);
-			if (
-				res.Error &&
-				res.Error.Reason !== APIErrorReason.ERROR_REASON_NO_ERROR
-			) {
-				formApi.setError('root', {
-					type: 'server',
-					message: res.Error.Message || 'An error occurred',
-				});
-				// TODO: better error handling, maybe field specific errors if the API supports it
-				return;
-			}
+			// TODO: Map res.Error to form error if res.Error.Reason !== APIErrorReason.ERROR_REASON_NO_ERROR
+			// if (
+			// 	res.Error &&
+			// 	res.Error.Reason !== APIErrorReason.ERROR_REASON_NO_ERROR
+			// ) {
+			// 	// formApi.setError('root', {
+			// 	// 	type: 'server',
+			// 	// 	message: res.Error.Message || 'An error occurred',
+			// 	// });
+			// 	return;
+			// }
+
+			router.push(`/users/${res.UserId}`);
 			return;
 		},
 	});
@@ -47,20 +50,15 @@ export function AdminCreateUserForm() {
 		LastName: 'LastName',
 		PostalCode: 'PostalCode',
 		Password: 'Password',
+		Roles: 'Roles',
 	} as const;
 
 	return (
-		<FormCard
-			cardTitle="Create User"
-			cardDescription="Create A New User"
-		>
+		<FormCard cardTitle='Create User' cardDescription='Create A New User'>
 			<form onSubmit={form.handleSubmit}>
 				<form.AppForm>
-					<CreateUserFieldGroups
-						fields={fields as any}
-						form={form}
-					/>
-					<form.CreateButton label="Submit" />
+					<CreateUserFieldGroups fields={fields as any} form={form} />
+					<form.CreateButton label='Submit' />
 				</form.AppForm>
 			</form>
 		</FormCard>

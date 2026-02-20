@@ -44,6 +44,7 @@ type Props = {
 	userIDs?: string[];
 	createdAfter?: string;
 	createdBefore?: string;
+	canCreateUser?: boolean;
 };
 
 const ROLE_OPTIONS: RoleOption[] = AllRoles.map((role) => ({
@@ -87,6 +88,7 @@ export function UsersSearchView({
 	userIDs = [],
 	createdAfter = '',
 	createdBefore = '',
+	canCreateUser = false,
 }: Props) {
 	const router = useRouter();
 	const pathname = usePathname();
@@ -254,7 +256,7 @@ export function UsersSearchView({
 					hasNext={canNext}
 					filterButton={
 						<>
-							<CreateUserDialogButton />
+							{canCreateUser ? <CreateUserDialogButton /> : null}
 							<UsersFiltersButton roles={ROLE_OPTIONS} />
 						</>
 					}
