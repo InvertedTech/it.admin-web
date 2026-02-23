@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/sidebar';
 import {
 	Bell,
+	BookLockIcon,
 	CreditCard,
 	FileText,
 	FilesIcon,
@@ -84,6 +85,11 @@ const data = {
 			title: 'Members',
 			icon: UserIcon,
 			url: '/users',
+		},
+		{
+			title: 'Audit Log',
+			icon: BookLockIcon,
+			url: '/audit-log',
 		},
 		{
 			title: 'Settings',
@@ -162,6 +168,8 @@ export function AppSidebar({
 					return isMemberManagerOrHigher(roles);
 				case '/settings':
 					return isAdminOrHigher(roles);
+				case '/audit-log':
+					return isAdminOrHigher(roles);
 				default:
 					return true;
 			}
@@ -171,7 +179,8 @@ export function AppSidebar({
 				return {
 					...item,
 					items: item.items.filter((sub) => {
-						if (sub.url === '/settings/notifications') return isOwner(roles);
+						if (sub.url === '/settings/notifications')
+							return isOwner(roles);
 						return isAdminOrHigher(roles);
 					}),
 				};

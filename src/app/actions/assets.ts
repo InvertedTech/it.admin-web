@@ -17,11 +17,29 @@ import {
 import { AssetType } from '@inverted-tech/fragments/Content/AssetInterface_pb';
 
 const API_BASE_URL = process.env.API_BASE_URL!;
+const DEFAULT_FETCH_TIMEOUT_MS = 15000;
+
+async function fetchWithTimeout(
+	input: string,
+	init: RequestInit,
+	timeoutMs: number = DEFAULT_FETCH_TIMEOUT_MS,
+) {
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), timeoutMs);
+	try {
+		return await fetch(input, {
+			...init,
+			signal: controller.signal,
+		});
+	} finally {
+		clearTimeout(timeout);
+	}
+}
 
 export async function getAsset(assetId: string) {
 	try {
 		const url = `${API_BASE_URL}/cms/admin/asset/${encodeURIComponent(assetId)}`;
-		const res = await fetch(url, {
+		const res = await fetchWithTimeout(url, {
 			method: 'GET',
 			headers: { ...(await authHeaders()) },
 		});
@@ -38,29 +56,14 @@ export async function getImages(
 	req?: Pick<SearchAssetRequest, 'PageSize' | 'PageOffset'>,
 ) {
 	try {
-		const base = `${API_BASE_URL}/cms/admin/asset/image`;
-		const url = new URL(base);
-		if (req?.PageSize != null) {
-			url.searchParams.set('PageSize', String(req.PageSize));
-		}
-		if (req?.PageOffset != null) {
-			url.searchParams.set('PageOffset', String(req.PageOffset));
-		}
-		const res = await fetch(url.toString(), {
-			method: 'GET',
-			headers: { ...(await authHeaders()) },
-		});
-
-		if (!res) {
-			return create(SearchAssetResponseSchema);
-		}
-
-		const body: SearchAssetResponse = await res.json();
-		if (!body) {
-			return create(SearchAssetResponseSchema);
-		}
-
-		return body;
+		return await searchAssets(
+			{
+				AssetType: AssetType.AssetImage,
+				PageSize: req?.PageSize,
+				PageOffset: req?.PageOffset,
+			},
+			{ noCache: true },
+		);
 	} catch (error) {
 		console.error(error);
 		return create(SearchAssetResponseSchema);
@@ -95,12 +98,26 @@ export async function searchAssets(
 			method: 'GET',
 			headers: { ...(await authHeaders()) },
 		};
+		if (opts?.noCache) {
+			fetchOptions.cache = 'no-store';
+			fetchOptions.next = { revalidate: 0 };
+		}
 
-		const res = await fetch(url.toString(), fetchOptions);
+		const res = await fetchWithTimeout(url.toString(), fetchOptions);
 
-		if (!res) return create(SearchAssetResponseSchema);
+		if (!res) {
+			return create(SearchAssetResponseSchema);
+		}
+		if (!res.ok) {
+			return create(SearchAssetResponseSchema);
+		}
+
 		const body: SearchAssetResponse = await res.json();
-		return body ?? create(SearchAssetResponseSchema);
+		if (!body) {
+			return create(SearchAssetResponseSchema);
+		}
+
+		return body;
 	} catch (error) {
 		console.error(error);
 		return create(SearchAssetResponseSchema);
@@ -114,7 +131,7 @@ export async function createAsset(req: CreateAssetRequest) {
 	try {
 		// Ensure proper message instance for JSON encoding
 		const msg = create(CreateAssetRequestSchema, req);
-		const res = await fetch(url, {
+		const res = await fetchWithTimeout(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',

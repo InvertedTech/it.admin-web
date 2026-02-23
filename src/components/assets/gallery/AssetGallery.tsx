@@ -2,6 +2,7 @@ import { AssetGalleryCard } from '@/components/assets/gallery/AssetGalleryCard';
 import { Button } from '@/components/ui/button';
 import { searchAssets } from '@/app/actions/assets';
 import Link from 'next/link';
+import { unstable_noStore as noStore } from 'next/cache';
 import { AssetType } from '@inverted-tech/fragments/Content/AssetInterface_pb';
 import type { ImageAssetPublicRecord } from '@inverted-tech/fragments/Content/ImageAssetRecord_pb';
 
@@ -18,11 +19,12 @@ export async function AssetsGallery({
 	size: number;
 	offset: number;
 }) {
+	noStore();
 	const imagesRes = await searchAssets({
 		AssetType: AssetType.AssetImage,
 		PageSize: size,
 		PageOffset: offset,
-	});
+	}, { noCache: true });
 	const images = ((imagesRes as any)?.Records ??
 		[]) as ImageAssetPublicRecord[];
 	const pageTotalItems = Number((imagesRes as any)?.PageTotalItems ?? 0);

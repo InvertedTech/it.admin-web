@@ -8,8 +8,8 @@ const ROLE_CONTENT_WRITER = 'con_writer';
 const ROLE_COMMENT_MODERATOR = 'com_mod';
 const ROLE_COMMENT_APPELLATE_JUDGE = 'com_appellate';
 const ROLE_BOT_VERIFICATION = 'bot_verification';
-const ROLE_EVENT_CREATOR = 'evt_creator';
-const ROLE_EVENT_MODERATOR = 'evt_moderator';
+const ROLE_EVENT_MANAGER = 'evt_manager';
+const ROLE_EVENT_TICKET_MANAGER = 'evt_tkt_manager';
 const ROLE_MEMBER_MANAGER = 'member_manager';
 const ROLE_SUBSCRIPTION_MANAGER = 'sub_manager';
 
@@ -78,15 +78,15 @@ export const canPublish = (roles: string[]) => isPublisherOrHigher(roles);
 export const canCreateContent = (roles: string[]) => isWriterOrHigher(roles);
 
 export const canCreateEvent = (roles: string[]) =>
-	hasAnyRole(roles, ROLE_OWNER, ROLE_ADMIN, ROLE_EVENT_CREATOR);
+	hasAnyRole(roles, ROLE_OWNER, ROLE_ADMIN, ROLE_EVENT_MANAGER);
 
 export const canModerateEvent = (roles: string[]) =>
 	hasAnyRole(
 		roles,
 		ROLE_OWNER,
 		ROLE_ADMIN,
-		ROLE_EVENT_MODERATOR,
-		ROLE_EVENT_CREATOR,
+		ROLE_EVENT_TICKET_MANAGER,
+		ROLE_EVENT_MANAGER,
 	);
 
 export const canManageMembers = (roles: string[]) =>
