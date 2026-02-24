@@ -2,6 +2,7 @@ import { ContentWeekView } from '@/components/content/content-week-view';
 import { RecentContentCard } from '@/components/dashboard/recent-content-card';
 import { SectionCards } from '@/components/section-cards';
 import { adminSearchContent, getWeekEvents } from '@/app/actions/content';
+import { getKpis } from '@/app/actions/dashboard';
 import { create } from '@bufbuild/protobuf';
 import { GetAllContentAdminRequestSchema } from '@inverted-tech/fragments/Content';
 import { requireAnyRole } from '@/lib/rbac';
@@ -9,6 +10,7 @@ import { requireAnyRole } from '@/lib/rbac';
 export default async function Page() {
 	await requireAnyRole();
 	const weekEvents = await getWeekEvents();
+	const kpis = await getKpis();
 	const recentContent = await adminSearchContent(
 		create(GetAllContentAdminRequestSchema, {
 			PageSize: 5,
@@ -19,11 +21,11 @@ export default async function Page() {
 			},
 		}),
 	);
-	// TODO: Put actual data in Section Cards
+
 	return (
 		<div>
-			<div className="space-y-6">
-				<SectionCards />
+			<div className='space-y-6'>
+				<SectionCards kpis={kpis} />
 				<ContentWeekView events={weekEvents} />
 				<RecentContentCard items={recentContent.Records ?? []} />
 			</div>

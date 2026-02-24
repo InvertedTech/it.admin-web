@@ -1,46 +1,20 @@
-import { MetricCard, MetricCardProps } from './dashboard/metric-card';
+import type { GetKpisResponse } from '@inverted-tech/fragments/Dashboard';
+import { UsersKpis } from './dashboard/users-kpis';
+import { SubscriptionsKpis } from './dashboard/subscriptions-kpis';
+import { ContentKpisCards } from './dashboard/content-kpis';
 
-const metrics: MetricCardProps[] = [
-	{
-		title: 'Total Revenue',
-		value: '$1,250.00',
-		trend: 'up',
-		percent: '+12.5%',
-		subtitle: 'Trending up this month',
-		description: 'Visitors for the last 6 months',
-	},
-	{
-		title: 'New Customers',
-		value: '1,234',
-		trend: 'down',
-		percent: '-20%',
-		subtitle: 'Down 20% this period',
-		description: 'Acquisition needs attention',
-	},
-	{
-		title: 'Active Accounts',
-		value: '45,678',
-		trend: 'up',
-		percent: '+12.5%',
-		subtitle: 'Strong user retention',
-		description: 'Engagement exceed targets',
-	},
-	{
-		title: 'Growth Rate',
-		value: '4.5%',
-		trend: 'up',
-		percent: '+4.5%',
-		subtitle: 'Steady performance increase',
-		description: 'Meets growth projections',
-	},
-];
+type SectionCardsProps = {
+	kpis?: GetKpisResponse;
+};
 
-export function SectionCards() {
-    return (
-        <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 auto-rows-fr items-stretch *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:shadow-xs">
-            {metrics.map((m) => (
-                <MetricCard key={m.title} {...m} className="h-full" />
-            ))}
-        </div>
-    );
+export function SectionCards({ kpis }: SectionCardsProps) {
+	return (
+		<div className='grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 auto-rows-fr items-stretch *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:shadow-xs'>
+			{kpis?.Users && <UsersKpis kpis={kpis.Users} />}
+			{kpis?.Subscriptions && (
+				<SubscriptionsKpis kpis={kpis.Subscriptions} />
+			)}
+			{kpis?.Content && <ContentKpisCards kpis={kpis.Content} />}
+		</div>
+	);
 }
