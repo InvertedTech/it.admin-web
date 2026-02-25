@@ -1,33 +1,18 @@
-import { ContentWeekView } from '@/components/content/content-week-view';
-import { RecentContentCard } from '@/components/dashboard/recent-content-card';
-import { SectionCards } from '@/components/section-cards';
-import { adminSearchContent, getWeekEvents } from '@/app/actions/content';
-import { getKpis } from '@/app/actions/dashboard';
-import { create } from '@bufbuild/protobuf';
-import { GetAllContentAdminRequestSchema } from '@inverted-tech/fragments/Content';
+'use server';
 import { requireAnyRole } from '@/lib/rbac';
+import DashboardServer from '@/components/dashboard/dashboard-server';
+import { RecentContentServer } from '@/components/dashboard/recent-content-server';
+import { ContentWeekViewServer } from '@/components/dashboard/content-week-view-server';
 
 export default async function Page() {
 	await requireAnyRole();
-	const weekEvents = await getWeekEvents();
-	const kpis = await getKpis();
-	const recentContent = await adminSearchContent(
-		create(GetAllContentAdminRequestSchema, {
-			PageSize: 5,
-			PageOffset: 0,
-			SubscriptionSearch: {
-				MinimumLevel: 0,
-				MaximumLevel: 9999,
-			},
-		}),
-	);
 
 	return (
 		<div>
 			<div className='space-y-6'>
-				<SectionCards kpis={kpis} />
-				<ContentWeekView events={weekEvents} />
-				<RecentContentCard items={recentContent.Records ?? []} />
+				<DashboardServer />
+				<ContentWeekViewServer />
+				<RecentContentServer />
 			</div>
 		</div>
 	);

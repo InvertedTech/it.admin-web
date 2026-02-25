@@ -1,5 +1,6 @@
 import { UserKpis } from '@inverted-tech/fragments/Dashboard';
 import { CountComparisonCard, RatioComparisonCard } from './metric-card';
+import { Separator } from '../ui/separator';
 
 export function UsersKpis({ kpis }: { kpis: UserKpis }) {
 	return (
