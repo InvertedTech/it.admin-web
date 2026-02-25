@@ -4,10 +4,21 @@ import { ContentDetails } from '@/components/content/content-details';
 import { ContentEmpty } from '@/components/content/content-empty';
 import { ContentTimeline } from '@/components/content/content-timeline';
 import { ViewContentHeader } from '@/components/content/view-content-header';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
 import { getSession } from '@/lib/cookies';
 import { requireRole } from '@/lib/rbac';
 import { isPublisherOrHigher, isWriterOrHigher } from '@/lib/roleHelpers';
 import { getApiBase } from '@/lib/apiBase';
+import { getCommentsForContent } from '@/app/actions/comments';
+import { create } from '@bufbuild/protobuf';
+import { GetCommentsForContentRequestSchema } from '@inverted-tech/fragments/Comment';
+import { CommentsTable } from '@/components/tables/comments-table';
 
 // Simple asset URL helper
 function getAssetUrl(assetId?: string): string | undefined {
@@ -56,6 +67,14 @@ export default async function ViewContentPage({
 
 	const coarseTypeLabel = 'Content';
 
+	const comments = await getCommentsForContent(
+		create(GetCommentsForContentRequestSchema, {
+			PageSize: 25,
+			PageOffset: 0,
+			ContentID: contentId,
+		}),
+	);
+
 	return (
 		<div>
 			<div className='mb-6'>
@@ -84,6 +103,23 @@ export default async function ViewContentPage({
 			</div>
 			<div className='mb-4'>
 				<ContentData pubData={pubData} privData={privData} />
+			</div>
+			<div className='mb-4'>
+				<Card>
+					<CardHeader>
+						<CardTitle>Comments</CardTitle>
+						<CardDescription>
+							Review and manage comments for this content.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<CommentsTable
+							pageSize={25}
+							response={comments}
+							contentId={contentId}
+						/>
+					</CardContent>
+				</Card>
 			</div>
 		</div>
 	);
