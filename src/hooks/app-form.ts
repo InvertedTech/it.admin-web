@@ -30,7 +30,9 @@ import {
 	PageSizeField,
 	CategorySelectField,
 	RoleSelectField,
+	JobTypeSelect,
 	ContentTypeSelectField,
+	ResponsibilitiesInputField,
 } from '@/components/forms/fields';
 import {
 	CreateButton,
@@ -51,6 +53,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
 		ImagePickerField,
 		ChannelSelectField,
 		MultiSelectField,
+		JobTypeSelect,
 		ChannelMultiSelectField,
 		CategoryMultiSelectField,
 		DateTimeField,
@@ -69,6 +72,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
 		CategorySelectField,
 		RoleSelectField,
 		ContentTypeSelectField,
+		ResponsibilitiesInputField,
 	},
 	formComponents: {
 		SubmitErrors,

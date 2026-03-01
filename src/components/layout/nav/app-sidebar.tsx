@@ -21,6 +21,7 @@ import {
 import {
 	Bell,
 	BookLockIcon,
+	BriefcaseBusiness,
 	CreditCard,
 	FileText,
 	FilesIcon,
@@ -90,6 +91,11 @@ const data = {
 			title: 'Audit Log',
 			icon: BookLockIcon,
 			url: '/audit-log',
+		},
+		{
+			title: 'Careers',
+			icon: BriefcaseBusiness,
+			url: '/careers',
 		},
 		{
 			title: 'Settings',
@@ -170,6 +176,9 @@ export function AppSidebar({
 					return isAdminOrHigher(roles);
 				case '/audit-log':
 					return isAdminOrHigher(roles);
+				case '/careers':
+					return isAdminOrHigher(roles);
+
 				default:
 					return true;
 			}
