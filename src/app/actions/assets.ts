@@ -17,7 +17,7 @@ import {
 import { AssetType } from '@inverted-tech/fragments/Content/AssetInterface_pb';
 
 const API_BASE_URL = process.env.API_BASE_URL!;
-const DEFAULT_FETCH_TIMEOUT_MS = 15000;
+const DEFAULT_FETCH_TIMEOUT_MS = 30000;
 
 async function fetchWithTimeout(
 	input: string,
