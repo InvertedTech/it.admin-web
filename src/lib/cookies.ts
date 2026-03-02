@@ -60,7 +60,7 @@ export async function clearToken(): Promise<void> {
 	cookieStore.delete(TOKEN_COOKIE_NAME);
 }
 
-export async function authHeaders(): Promise<HeadersInit> {
+export async function authHeaders(): Promise<Record<string, string>> {
 	const token = await getToken();
 	return token ? { Authorization: `Bearer ${token}` } : {};
 }
