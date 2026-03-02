@@ -7,12 +7,11 @@ import {
 	SearchEntriesResponse,
 	SearchEntriesResponseSchema,
 } from '@inverted-tech/fragments/AuditLog';
-
-const API_BASE_URL = process.env.API_BASE_URL!;
+import { apiClient } from '@/lib/apiBase';
 
 export async function searchAuditLogEntries(req: SearchEntriesRequest) {
 	try {
-		const url = new URL(`${API_BASE_URL}/admin/audit-log`);
+		const url = new URL(apiClient.endpoints.auditLog.adminGetAuditLog);
 		if (req.PageSize != null) {
 			url.searchParams.set('PageSize', String(req.PageSize));
 		}
@@ -20,22 +19,17 @@ export async function searchAuditLogEntries(req: SearchEntriesRequest) {
 			url.searchParams.set('PageOffset', String(req.PageOffset));
 		}
 
-		const res = await fetch(url.toString(), {
-			method: 'GET',
-			headers: { ...(await authHeaders()) },
-		});
+		const res = await apiClient.call<SearchEntriesResponse>(
+			url.toString(),
+			{
+				method: 'GET',
+				headers: {
+					...(await authHeaders()),
+				},
+			},
+		);
 
-		if (!res) {
-			return create(SearchEntriesResponseSchema, {
-				Error: create(APIErrorSchema, {
-					Reason: APIErrorReason.ERROR_REASON_DELIVERY_FAILED,
-					Message: 'Server did not respond',
-				}),
-			});
-		}
-
-		const body: SearchEntriesResponse = await res.json();
-		return body;
+		return res;
 	} catch (error) {
 		console.error(`Error searching audit logs: `, error);
 		return create(SearchEntriesResponseSchema, {

@@ -27,16 +27,13 @@ import {
 	APIErrorReasonSchema,
 	APIErrorSchema,
 } from '@inverted-tech/fragments';
-
-const API_BASE_URL = process.env.API_BASE_URL!;
-const API_BASE = `${API_BASE_URL}/careers`;
-const API_ADMIN_BASE = `${API_BASE_URL}/admin/careers`;
+import { apiClient } from '@/lib/apiBase';
 
 export async function listCareers(
 	req: AdminListCareersRequest,
 ): Promise<ListCareersResponse> {
 	try {
-		const url = new URL(API_ADMIN_BASE);
+		const url = new URL(apiClient.endpoints.careers.getCareersAdmin);
 
 		if (req.PageSize) {
 			url.searchParams.append('PageSize', req.PageSize.toString());
@@ -50,16 +47,14 @@ export async function listCareers(
 			url.searchParams.append('IncludeDeleted', 'true');
 		}
 
-		const res = await fetch(url.toString(), {
+		const res = await apiClient.call<ListCareersResponse>(url.toString(), {
 			method: 'GET',
 			headers: {
 				...(await authHeaders()),
 			},
 		});
 
-		if (!res) return create(ListCareersResponseSchema);
-		const body: ListCareersResponse = await res.json();
-		return body;
+		return res;
 	} catch (error) {
 		console.error(error);
 		return create(ListCareersResponseSchema);
@@ -70,13 +65,17 @@ export async function getCareer(
 	req: GetCareerRequest,
 ): Promise<GetCareerResponse> {
 	try {
-		const res = await fetch(`${API_BASE}/${req.CareerId}`, {
-			method: 'GET',
-		});
+		const res = await apiClient.call<GetCareerResponse>(
+			apiClient.endpoints.careers.getCareer(req.CareerId),
+			{
+				method: 'GET',
+				headers: {
+					...(await authHeaders()),
+				},
+			},
+		);
 
-		if (!res) return create(GetCareerResponseSchema);
-		const body = fromJson(GetCareerResponseSchema, await res.json());
-		return body;
+		return res;
 	} catch (error) {
 		console.error(error);
 		return create(GetCareerResponseSchema);
@@ -87,18 +86,18 @@ export async function createCareer(
 	req: CreateCareerRequest,
 ): Promise<CreateCareerResponse> {
 	try {
-		const res = await fetch(API_ADMIN_BASE, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				...(await authHeaders()),
+		const res = await apiClient.call<CreateCareerResponse>(
+			apiClient.endpoints.careers.createCareer,
+			{
+				method: 'POST',
+				headers: {
+					...(await authHeaders()),
+				},
+				body: toJsonString(CreateCareerRequestSchema, req),
 			},
-			body: toJsonString(CreateCareerRequestSchema, req),
-		});
+		);
 
-		if (!res) return create(CreateCareerResponseSchema);
-		const body: CreateCareerResponse = await res.json();
-		return body;
+		return res;
 	} catch (error) {
 		console.error(error);
 		return create(CreateCareerResponseSchema);
@@ -109,23 +108,18 @@ export async function updateCareer(
 	req: UpdateCareerRequest,
 ): Promise<UpdateCareerResponse> {
 	try {
-		const res = await fetch(`${API_ADMIN_BASE}/${req.CareerId}`, {
-			method: 'PUT',
-			headers: {
-				'Content-Type': 'application/json',
-				...(await authHeaders()),
+		const res = await apiClient.call<UpdateCareerResponse>(
+			apiClient.endpoints.careers.adminUpdateCareer(req.CareerId),
+			{
+				method: 'PUT',
+				headers: {
+					...(await authHeaders()),
+				},
+				body: toJsonString(UpdateCareerRequestSchema, req),
 			},
-			body: toJsonString(UpdateCareerRequestSchema, req),
-		});
-		if (!res)
-			return create(UpdateCareerResponseSchema, {
-				Error: create(APIErrorSchema, {
-					Reason: APIErrorReason.ERROR_REASON_DELIVERY_FAILED,
-					Message: 'Server Did Not Send A Response, Try Again Later',
-				}),
-			});
-		const body: UpdateCareerResponse = await res.json();
-		return body;
+		);
+
+		return res;
 	} catch (error: any) {
 		console.error(error);
 		return create(UpdateCareerResponseSchema, {
@@ -141,27 +135,18 @@ export async function deleteCareer(
 	req: DeleteCareerRequest,
 ): Promise<DeleteCareerResponse> {
 	try {
-		console.log(`${API_BASE_URL}/admin/careers/${req.CareerId}`);
-		const res = await fetch(
-			`${API_BASE_URL}/admin/careers/${req.CareerId}`,
+		const res = await apiClient.call<DeleteCareerResponse>(
+			apiClient.endpoints.careers.adminDeleteCareer(req.CareerId),
 			{
 				method: 'DELETE',
 				headers: {
-					'Content-Type': 'application/json',
 					...(await authHeaders()),
 				},
 				body: toJsonString(DeleteCareerRequestSchema, req),
 			},
 		);
-		if (!res)
-			return create(DeleteCareerResponseSchema, {
-				Error: create(APIErrorSchema, {
-					Reason: APIErrorReason.ERROR_REASON_DELIVERY_FAILED,
-					Message: 'Server Did Not Respond',
-				}),
-			});
-		const body: DeleteCareerResponse = await res.json();
-		return body;
+
+		return res;
 	} catch (error) {
 		console.error(error);
 		return create(DeleteCareerResponseSchema);

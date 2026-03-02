@@ -32,7 +32,7 @@ import {
 	RoleSelectField,
 	JobTypeSelect,
 	ContentTypeSelectField,
-	ResponsibilitiesInputField,
+	TextListField,
 } from '@/components/forms/fields';
 import {
 	CreateButton,
@@ -72,7 +72,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
 		CategorySelectField,
 		RoleSelectField,
 		ContentTypeSelectField,
-		ResponsibilitiesInputField,
+		TextListField,
 	},
 	formComponents: {
 		SubmitErrors,

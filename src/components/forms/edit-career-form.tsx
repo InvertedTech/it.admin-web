@@ -9,34 +9,37 @@ import {
 } from '@inverted-tech/fragments/Careers';
 import { ListingLocationFieldGroup } from './groups/careers/listing-location-field-group';
 import { updateCareer } from '@/app/actions/careers';
-import { APIErrorReason } from '@inverted-tech/fragments';
 import { useRouter } from 'next/navigation';
 import { WeeklyDeliverablesList } from './groups/careers/weekly-deliverables-list';
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function UpdateCareerForm({ career }: { career: CareerRecord }) {
 	const router = useRouter();
 	const form = useProtoAppForm({
 		schema: CareerRecordSchema,
 		defaultValues: create(CareerRecordSchema, career),
+		normalizeBeforeValidate: (value) => {
+			// Strip server-managed timestamps — they're undefined on active records
+			// and cause ForeignFieldError when the proto validator inspects them.
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { CreatedOnUTC, ModifiedOnUTC, DeletedOnUTC, ...rest } =
+				value as any;
+			return rest as typeof value;
+		},
 		onSubmitAsync: async ({ value }) => {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { CreatedOnUTC, ModifiedOnUTC, DeletedOnUTC, ...careerFields } =
+				value as any;
 			const req = create(UpdateCareerRequestSchema, {
 				CareerId: career.CareerId,
-				Career: value,
+				Career: careerFields,
 			});
 			const res = await updateCareer(req);
-			if (
-				res.Error &&
-				res.Error.Reason !== APIErrorReason.ERROR_REASON_NO_ERROR
-			) {
+			const reason = res.Error?.Reason as unknown;
+			if (reason && reason !== 'ERROR_REASON_NO_ERROR') {
 				return {
 					form:
-						res.Error.Message || 'Failed to update career listing',
+						res.Error!.Message || 'Failed to update career listing',
 				};
 			}
 			router.push(`/careers/${res.Record?.CareerId}`);
@@ -134,7 +137,21 @@ export function UpdateCareerForm({ career }: { career: CareerRecord }) {
 							<form.AppField
 								name='Responsibilities'
 								children={(f) => (
-									<f.ResponsibilitiesInputField label='' />
+									<f.TextListField label='Responsibilities' />
+								)}
+							/>
+						</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader>
+							<CardTitle>Qualifications</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<form.AppField
+								name='Qualifications'
+								children={(f) => (
+									<f.TextListField label='Qualifications' />
 								)}
 							/>
 						</CardContent>

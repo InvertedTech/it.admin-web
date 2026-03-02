@@ -55,7 +55,7 @@ export function AdminCreateUserForm() {
 
 	return (
 		<FormCard cardTitle='Create User' cardDescription='Create A New User'>
-			<form onSubmit={form.handleSubmit}>
+			<form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}>
 				<form.AppForm>
 					<CreateUserFieldGroups fields={fields as any} form={form} />
 					<form.CreateButton label='Submit' />

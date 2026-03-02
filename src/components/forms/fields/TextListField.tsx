@@ -6,7 +6,6 @@ import {
 	FieldError,
 } from '@/components/ui/field';
 import { normalizeFieldErrors } from '@/hooks/use-proto-validation';
-import { matchFieldErrors } from './utils';
 import { Card, CardContent } from '@/components/ui/card';
 import {
 	Item,
@@ -16,7 +15,7 @@ import {
 	ItemSeparator,
 } from '@/components/ui/item';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { InputGroup, InputGroupButton } from '@/components/ui/input-group';
@@ -24,7 +23,7 @@ type FieldProps = {
 	label?: string;
 };
 
-function ResponsibilitiesList({
+function TextList({
 	vals,
 	onDelete,
 	onAdd,
@@ -77,7 +76,7 @@ function ResponsibilitiesList({
 									setInput('');
 								}
 							}}
-							placeholder='Add responsibility…'
+							placeholder='Add item…'
 							className='border-0 shadow-none focus-visible:ring-0 bg-transparent'
 						/>
 						<InputGroupButton
@@ -100,9 +99,7 @@ function ResponsibilitiesList({
 	);
 }
 
-export function ResponsibilitiesInputField({
-	label = 'Responsibilities',
-}: FieldProps) {
+export function TextListField({ label }: FieldProps) {
 	const field = useFieldContext<string[] | undefined>();
 	const form = useFormContext();
 
@@ -119,31 +116,10 @@ export function ResponsibilitiesInputField({
 
 	return (
 		<form.Subscribe
-			selector={(s: any) => ({
-				submit: s?.submitErrors,
-				sync: s?.errors,
-			})}
+			selector={(s: any) => s?.fieldMeta?.[field.name]?.errors ?? []}
 		>
-			{(errState: any) => {
-				const submitField =
-					matchFieldErrors(
-						errState?.submit?.fields as any,
-						field.name,
-					) ?? [];
-				const syncField =
-					matchFieldErrors(
-						errState?.sync?.fields as any,
-						field.name,
-					) ?? [];
-				const base = Array.isArray(field.state.meta.errors)
-					? (field.state.meta.errors as any)
-					: [];
-				const errors =
-					normalizeFieldErrors([
-						...base,
-						...submitField,
-						...syncField,
-					] as any) ?? [];
+			{(fieldErrors: any[]) => {
+				const errors = normalizeFieldErrors(fieldErrors) ?? [];
 				const isInvalid = errors.length > 0;
 				return (
 					<UIField data-invalid={isInvalid}>
@@ -152,11 +128,12 @@ export function ResponsibilitiesInputField({
 								{label}
 							</FieldLabel>
 						)}
-						<ResponsibilitiesList
+						<TextList
 							vals={field.state.value ?? []}
 							onDelete={removeValue}
 							onAdd={addValue}
 						/>
+						{isInvalid && <FieldError errors={errors} />}
 					</UIField>
 				);
 			}}

@@ -2,11 +2,14 @@
 
 import { create } from '@bufbuild/protobuf';
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
-import { CreateCareerRequestSchema } from '@inverted-tech/fragments/Careers';
-import { FormCard } from './form-card';
+import {
+	CreateCareerRequestSchema,
+	ListingLocationSchema,
+} from '@inverted-tech/fragments/Careers';
 import { ListingLocationFieldGroup } from './groups/careers/listing-location-field-group';
 import { createCareer } from '@/app/actions/careers';
-import { APIErrorReason } from '@inverted-tech/fragments';
+
+import { violationsToTanStackErrors } from '@/hooks/use-proto-validation';
 import { useRouter } from 'next/navigation';
 import { WeeklyDeliverablesList } from './groups/careers/weekly-deliverables-list';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -15,24 +18,40 @@ export function CreateCareerForm() {
 	const router = useRouter();
 	const form = useProtoAppForm({
 		schema: CreateCareerRequestSchema,
-		defaultValues: create(CreateCareerRequestSchema),
-		onSubmitAsync: async ({ value }) => {
-			const res = await createCareer(value);
-			if (
-				res.Error &&
-				res.Error.Reason !== APIErrorReason.ERROR_REASON_NO_ERROR
-			) {
-				console.log(res);
-				return;
+		defaultValues: create(CreateCareerRequestSchema, {
+			Location: create(ListingLocationSchema),
+		}),
+		mapViolations: (violations) => {
+			const result = violationsToTanStackErrors(violations);
+			const fields: Record<string, string | string[]> = {
+				...result.fields,
+			};
+			// Proto validator flags the entire Location message; remap to Location.Area
+			const locErr = fields['Location'] ?? fields['location'];
+			if (locErr) {
+				fields['Location.Area'] = locErr as string | string[];
+				delete fields['Location'];
+				delete fields['location'];
 			}
-
+			return { form: result.form, fields };
+		},
+		onValidSubmit: async ({ value }) => {
+			const res = await createCareer(value);
+			const reason = res.Error?.Reason as unknown;
+			// if (reason && reason !== 'ERROR_REASON_NO_ERROR') {
+			// 	return { form: res.Error!.Message || 'Failed to create career listing' };
+			// }
 			router.push(`/careers`);
-			return;
 		},
 	});
 
 	return (
-		<form onSubmit={form.handleSubmit}>
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				form.handleSubmit();
+			}}
+		>
 			<form.AppForm>
 				<div className='flex flex-col gap-6'>
 					<Card>
@@ -69,10 +88,11 @@ export function CreateCareerForm() {
 								form={form}
 								fields={
 									{
-										Area: 'Area',
+										Area: 'Location.Area',
 										RelocationRequired:
-											'RelocationRequired',
-										EmploymentType: 'EmploymentType',
+											'Location.RelocationRequired',
+										EmploymentType:
+											'Location.EmploymentType',
 									} as never
 								}
 							/>
@@ -105,7 +125,20 @@ export function CreateCareerForm() {
 						<form.AppField
 							name='Responsibilities'
 							children={(f) => (
-								<f.ResponsibilitiesInputField label='' />
+								<f.TextListField label='Responsibilities' />
+							)}
+						/>
+					</CardContent>
+				</Card>
+				<Card>
+					<CardHeader>
+						<CardTitle>Qualifications</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<form.AppField
+							name='Qualifications'
+							children={(f) => (
+								<f.TextListField label='Qualifications' />
 							)}
 						/>
 					</CardContent>

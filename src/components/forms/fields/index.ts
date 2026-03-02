@@ -28,4 +28,4 @@ export * from './CategorySelectField';
 export * from './RoleSelectField';
 export * from './ContentTypeSelectField';
 export * from './JobTypeSelect';
-export * from './ResponsibilitiesInputField';
+export * from './TextListField';
