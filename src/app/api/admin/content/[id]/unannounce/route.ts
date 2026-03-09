@@ -4,12 +4,10 @@ import { requireApiBase } from '@/lib/apiBase';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { UnannounceContentRequestSchema } from '@inverted-tech/fragments/Content';
 
-const API_BASE = `${requireApiBase()}/cms/admin/content`;
-
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const url = `${API_BASE}/${id}/unannounce`;
+    const url = `${requireApiBase()}/cms/admin/content/${id}/unannounce`;
 
     const msg = create(UnannounceContentRequestSchema as any, { ContentID: id } as any);
     const bodyJson = toJsonString(UnannounceContentRequestSchema as any, msg as any);

@@ -4,12 +4,10 @@ import { requireApiBase } from '@/lib/apiBase';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { DeleteContentRequestSchema } from '@inverted-tech/fragments/Content';
 
-const API_BASE = `${requireApiBase()}/cms/admin/content`;
-
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const url = `${API_BASE}/${id}/delete`;
+    const url = `${requireApiBase()}/cms/admin/content/${id}/delete`;
     const msg = create(DeleteContentRequestSchema as any, { ContentID: id } as any);
     const res = await fetch(url, {
       method: 'POST',

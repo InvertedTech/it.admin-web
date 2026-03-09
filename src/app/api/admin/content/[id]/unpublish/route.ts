@@ -4,12 +4,10 @@ import { requireApiBase } from '@/lib/apiBase';
 import { create, toJsonString } from '@bufbuild/protobuf';
 import { UnpublishContentRequestSchema } from '@inverted-tech/fragments/Content';
 
-const API_BASE = `${requireApiBase()}/cms/admin/content`;
-
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const url = `${API_BASE}/${id}/unpublish`;
+    const url = `${requireApiBase()}/cms/admin/content/${id}/unpublish`;
     const msg = create(UnpublishContentRequestSchema as any, { ContentID: id } as any);
     const res = await fetch(url, {
       method: 'POST',
