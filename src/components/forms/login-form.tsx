@@ -1,25 +1,14 @@
-'use client';
-
-import { Button } from '@/components/ui/button';
 import { FormCard } from './form-card';
-import { useRouter } from 'next/navigation';
 
 type Props = { msftRedirect: string; from?: string };
 
 export function LoginForm({ msftRedirect }: Props) {
-	const router = useRouter();
-
 	return (
 		<FormCard cardTitle='Login' cardDescription='Login To Your Account'>
 			<div className='flex flex-col gap-2'>
-				<Button
-					variant='outline'
-					type='button'
-					className='border-[#8C8C8C] bg-white text-[#5E5E5E] hover:bg-[#F3F2F1] hover:text-[#323130]'
-					onClick={(e) => {
-						e.preventDefault();
-						router.push(msftRedirect);
-					}}
+				<a
+					href={msftRedirect}
+					className='inline-flex items-center justify-center gap-2 rounded-md border border-[#8C8C8C] bg-background px-4 py-2 text-sm text-[#5E5E5E] transition-colors hover:bg-[#F3F2F1] hover:text-[#323130]'
 				>
 					<svg
 						aria-hidden='true'
@@ -56,7 +45,7 @@ export function LoginForm({ msftRedirect }: Props) {
 						/>
 					</svg>
 					Login with Microsoft
-				</Button>
+				</a>
 			</div>
 		</FormCard>
 	);
