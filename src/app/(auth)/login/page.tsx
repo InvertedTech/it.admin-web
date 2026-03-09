@@ -7,7 +7,7 @@ export default async function Page() {
 		(process.env.AUTH_MODE as 'azure' | 'form') ?? 'form';
 	const msftRedirect = process.env.IT_LOGIN_REDIRECT!;
 
-	if (mode === 'azure') return redirect(msftRedirect);
+	// if (mode === 'azure') return redirect(msftRedirect);
 
 	return (
 		<div className='flex min-h-svh w-full items-center justify-center p-6 md:p-10'>
