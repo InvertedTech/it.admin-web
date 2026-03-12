@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -32,18 +33,20 @@ export function EditOtherUserDialog({
 	postalCode: string;
 	canOpen?: boolean;
 }) {
+	const [open, setOpen] = useState(false);
+
 	if (!canOpen) return null;
 
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant='outline'>Edit Profile</Button>
+				<Button variant="outline">Edit Profile</Button>
 			</DialogTrigger>
-			<DialogContent className='sm:max-w-2xl'>
+			<DialogContent className="sm:max-w-2xl">
 				<DialogHeader>
 					<DialogTitle>Edit Profile</DialogTitle>
 					<DialogDescription>
-						Update this user’s public profile details.
+						Update this user&apos;s public profile details.
 					</DialogDescription>
 				</DialogHeader>
 				<AdminEditOtherUserForm
@@ -55,6 +58,7 @@ export function EditOtherUserDialog({
 					firstName={firstName}
 					lastName={lastName}
 					postalCode={postalCode}
+					onSuccess={() => setOpen(false)}
 				/>
 			</DialogContent>
 		</Dialog>

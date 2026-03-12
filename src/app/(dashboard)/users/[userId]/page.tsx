@@ -94,6 +94,15 @@ export default async function ViewUserPage({
 			['Private.Data.PostalCode', 'Public.Data.PostalCode', 'PostalCode'],
 			'',
 		) || '';
+	const microsoftUserId =
+		pick<string>(
+			user,
+			[
+				'Private.AuthProviders.Microsoft.UserId',
+				'AuthProviders.Microsoft.UserId',
+			],
+			'',
+		) || '';
 	const createdOn = pick(user, ['Public.CreatedOnUTC', 'CreatedOnUTC']);
 	const modifiedOn = pick(user, ['Public.ModifiedOnUTC', 'ModifiedOnUTC']);
 	const disabledOn = pick(user, ['Private.DisabledOnUTC', 'DisabledOnUTC']);
@@ -114,9 +123,9 @@ export default async function ViewUserPage({
 				Roles: selected,
 			}),
 		);
-		const err = (res as any)?.Error;
-		if (err) {
-			throw new Error(err?.Message || 'Failed to update roles');
+		const reason = res.Error?.Reason as unknown;
+		if (reason && reason !== 'ERROR_REASON_NO_ERROR') {
+			throw new Error(res.Error?.Message || 'Failed to update roles');
 		}
 		revalidatePath(`/users/${id}`);
 	}
@@ -202,6 +211,7 @@ export default async function ViewUserPage({
 					displayName={displayName}
 					roles={userRoles}
 					canEditProfile={canEditProfile}
+					microsoftUserId={microsoftUserId}
 				/>
 			</div>
 			{canViewTotp ? (

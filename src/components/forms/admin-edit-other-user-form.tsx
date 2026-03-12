@@ -5,6 +5,7 @@ import { ModifyOtherUserRequestSchema } from '@inverted-tech/fragments/Authentic
 import { adminEditOtherUser } from '@/app/actions/auth';
 import { toast } from 'sonner';
 import { APIErrorReason } from '@inverted-tech/fragments';
+
 export function AdminEditOtherUserForm({
 	userId,
 	userName,
@@ -14,6 +15,7 @@ export function AdminEditOtherUserForm({
 	firstName,
 	lastName,
 	postalCode,
+	onSuccess,
 }: {
 	userId: string;
 	userName: string;
@@ -23,6 +25,7 @@ export function AdminEditOtherUserForm({
 	firstName: string;
 	lastName: string;
 	postalCode: string;
+	onSuccess?: () => void;
 }) {
 	const form = useAppForm({
 		defaultValues: {
@@ -39,11 +42,10 @@ export function AdminEditOtherUserForm({
 			try {
 				const req = create(ModifyOtherUserRequestSchema, value);
 				const res = await adminEditOtherUser(req);
-				console.log(res);
 
-				const err = (res as any)?.Error;
-				if (err) {
-					const message = err?.Message ?? 'Failed to update the user';
+				const reason = res.Error?.Reason as unknown;
+				if (reason && reason !== 'ERROR_REASON_NO_ERROR') {
+					const message = res.Error?.Message ?? 'Failed to update the user';
 					type FieldKey =
 						| 'UserID'
 						| 'UserName'
@@ -78,8 +80,8 @@ export function AdminEditOtherUserForm({
 								: [fields[k] as string, msg];
 					};
 
-					if (Array.isArray(err?.Validation)) {
-						for (const v of err.Validation) {
+					if (Array.isArray(res.Error?.Validation)) {
+						for (const v of res.Error.Validation) {
 							addFieldError(
 								(v as any)?.field ?? '',
 								(v as any)?.message ?? 'Invalid value',
@@ -88,13 +90,9 @@ export function AdminEditOtherUserForm({
 					}
 
 					if (
-						err?.Type === APIErrorReason.ERROR_REASON_ALREADY_EXISTS
+						(reason as APIErrorReason) === APIErrorReason.ERROR_REASON_ALREADY_EXISTS
 					) {
 						addFieldError('UserName', 'Username already taken');
-					}
-					if (
-						err?.Type === APIErrorReason.ERROR_REASON_ALREADY_EXISTS
-					) {
 						addFieldError('Email', 'Email already in use');
 					}
 
@@ -110,6 +108,7 @@ export function AdminEditOtherUserForm({
 				}
 
 				toast('User updated');
+				onSuccess?.();
 			} catch (error) {
 				console.error(error);
 			}
@@ -129,7 +128,7 @@ export function AdminEditOtherUserForm({
 
 	return (
 		<form
-			id='edit-other-user'
+			id="edit-other-user"
 			onSubmit={(e) => {
 				e.preventDefault();
 				form.handleSubmit();
@@ -140,7 +139,7 @@ export function AdminEditOtherUserForm({
 					form={form}
 					fields={fields as any}
 				/>
-				<form.CreateButton label='Submit' />
+				<form.CreateButton label="Submit" />
 			</form.AppForm>
 		</form>
 	);

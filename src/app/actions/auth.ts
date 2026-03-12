@@ -42,6 +42,10 @@ import {
 	AdminCreateUserRequestSchema,
 	AdminCreateUserResponse,
 	AdminCreateUserResponseSchema,
+	ModifyOtherUserAuthProvidersRequest,
+	ModifyOtherUserAuthProvidersRequestSchema,
+	ModifyOtherUserAuthProvidersResponse,
+	ModifyOtherUserAuthProvidersResponseSchema,
 } from '@inverted-tech/fragments/Authentication';
 import { toIso } from '@/lib/utils';
 import { APIErrorReason, APIErrorSchema } from '@inverted-tech/fragments';
@@ -429,6 +433,33 @@ export async function adminEditOtherUser(req: ModifyOtherUserRequest) {
 	} catch (error) {
 		console.error(error);
 		return create(ModifyOtherUserResponseSchema, {
+			Error: create(APIErrorSchema, {
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
+				Message: 'An Error Ocurred While Trying To Modify Other User',
+				Validation: [],
+			}),
+		});
+	}
+}
+
+export async function adminEditOtherAuthProviders(
+	req: ModifyOtherUserAuthProvidersRequest,
+) {
+	try {
+		const res = await fetch(ADMIN_API_BASE.concat('/user/providers'), {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				...(await authHeaders()),
+			},
+			body: toJsonString(ModifyOtherUserAuthProvidersRequestSchema, req),
+		});
+
+		const body: ModifyOtherUserAuthProvidersResponse = await res.json();
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(ModifyOtherUserAuthProvidersResponseSchema, {
 			Error: create(APIErrorSchema, {
 				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
 				Message: 'An Error Ocurred While Trying To Modify Other User',

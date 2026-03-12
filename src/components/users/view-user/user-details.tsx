@@ -8,6 +8,7 @@ import {
 	CardContent,
 } from '@/components/ui/card';
 import { EditOtherUserDialog } from '@/components/users/edit-user/edit-other-user-dialog';
+import { EditAuthProvidersDialog } from '@/components/users/edit-user/edit-auth-providers-dialog';
 import { Button } from '@/components/ui/button';
 
 // small row renderer
@@ -53,6 +54,7 @@ export function UserDetails({
 	postalCode,
 	roles,
 	canEditProfile,
+	microsoftUserId,
 }: {
 	id: string;
 	userName: string;
@@ -64,6 +66,7 @@ export function UserDetails({
 	postalCode?: string;
 	roles?: string[];
 	canEditProfile?: boolean;
+	microsoftUserId?: string;
 }) {
 	return (
 		<Card>
@@ -73,17 +76,24 @@ export function UserDetails({
 					<CardDescription>Public information</CardDescription>
 				</div>
 				{canEditProfile ? (
-					<EditOtherUserDialog
-						userId={id}
-						userName={userName}
-						displayName={displayName}
-						email={email ?? ''}
-						bio={bio ?? ''}
-						firstName={firstName ?? ''}
-						lastName={lastName ?? ''}
-						postalCode={postalCode ?? ''}
-						canOpen={canEditProfile}
-					/>
+					<div className="flex gap-2">
+						<EditOtherUserDialog
+							userId={id}
+							userName={userName}
+							displayName={displayName}
+							email={email ?? ''}
+							bio={bio ?? ''}
+							firstName={firstName ?? ''}
+							lastName={lastName ?? ''}
+							postalCode={postalCode ?? ''}
+							canOpen={canEditProfile}
+						/>
+						<EditAuthProvidersDialog
+							userId={id}
+							microsoftUserId={microsoftUserId}
+							canOpen={canEditProfile}
+						/>
+					</div>
 				) : null}
 			</CardHeader>
 			<CardContent className="space-y-3">
