@@ -24,8 +24,8 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@19.1.0)
       '@inverted-tech/fragments':
-        specifier: ^0.11.3
-        version: 0.11.3
+        specifier: ^0.12.3
+        version: 0.12.3
       '@lexical/html':
         specifier: ^0.40.0
         version: 0.40.0
@@ -257,10 +257,10 @@ packages:
     peerDependencies:
       '@bufbuild/protobuf': ^2.8.0
 
-  '@connectrpc/connect@1.7.0':
-    resolution: {integrity: sha512-iNKdJRi69YP3mq6AePRT8F/HrxWCewrhxnLMNm0vpqXAR8biwzRtO6Hjx80C6UvtKJ5sFmffQT7I4Baecz389w==}
+  '@connectrpc/connect@2.1.1':
+    resolution: {integrity: sha512-JzhkaTvM73m2K1URT6tv53k2RwngSmCXLZJgK580qNQOXRzZRR/BCMfZw3h+90JpnG6XksP5bYT+cz0rpUzUWQ==}
     peerDependencies:
-      '@bufbuild/protobuf': ^1.10.0
+      '@bufbuild/protobuf': ^2.7.0
 
   '@csstools/color-helpers@5.1.0':
     resolution: {integrity: sha512-S11EXWJyy0Mz5SYvRmY8nJYTFFd1LCNV+7cXyAgQtOOuzb4EsgfqDufL+9esx72/eLhsRdGZwaldu/h+E4t4BA==}
@@ -489,8 +489,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@inverted-tech/fragments@0.11.3':
-    resolution: {integrity: sha512-WDVWmZN4AKgaFLEw+4R/KFroIRw+sNB0uzz8XssRDujHj7jCd1ZiwqBPQS/zUi9M/C5iGmxpEVVg+X4PlSHlKA==}
+  '@inverted-tech/fragments@0.12.3':
+    resolution: {integrity: sha512-h9b8aTsZXWXZPB+ILSnyLRcJ09Dqpl7J0Op8Y1a5qxd93UQjTYmBfCgbNLLkFxi2ENmAqnbsMm28RjE7XhObGQ==}
 
   '@isaacs/fs-minipass@4.0.1':
     resolution: {integrity: sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w==}
@@ -2414,7 +2414,7 @@ snapshots:
       '@bufbuild/cel': 0.4.0(@bufbuild/protobuf@2.10.0)
       '@bufbuild/protobuf': 2.10.0
 
-  '@connectrpc/connect@1.7.0(@bufbuild/protobuf@2.10.0)':
+  '@connectrpc/connect@2.1.1(@bufbuild/protobuf@2.10.0)':
     dependencies:
       '@bufbuild/protobuf': 2.10.0
 
@@ -2610,11 +2610,11 @@ snapshots:
   '@img/sharp-win32-x64@0.34.4':
     optional: true
 
-  '@inverted-tech/fragments@0.11.3':
+  '@inverted-tech/fragments@0.12.3':
     dependencies:
       '@bufbuild/protobuf': 2.10.0
       '@bufbuild/protovalidate': 1.1.1(@bufbuild/protobuf@2.10.0)
-      '@connectrpc/connect': 1.7.0(@bufbuild/protobuf@2.10.0)
+      '@connectrpc/connect': 2.1.1(@bufbuild/protobuf@2.10.0)
       pino: 10.3.1
 
   '@isaacs/fs-minipass@4.0.1':

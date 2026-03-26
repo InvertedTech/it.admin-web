@@ -2,7 +2,7 @@
 
 import { SettingsForm, SettingsSection } from '@/components/settings';
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
-import { EventOwnerSettingsSchema } from '@inverted-tech/fragments/Authorization/Events/index';
+import { EventOwnerSettingsSchema } from '@inverted-tech/fragments/Authorization/Events';
 import { useRouter } from 'next/navigation';
 
 export function EventOwnerSettingsForm({ base }: { base?: any }) {

@@ -37,7 +37,7 @@ import {
 	SubscriptionStatus,
 	type GenericPaymentRecord,
 	type GenericSubscriptionFullRecord,
-} from '@inverted-tech/fragments/Authorization/Payment/index';
+} from '@inverted-tech/fragments/Authorization/Payment';
 
 const subscriptionStatusMap = {
 	Subscription_Unknown: { label: 'Unknown', variant: 'secondary' },

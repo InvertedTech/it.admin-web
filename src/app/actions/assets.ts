@@ -13,8 +13,8 @@ import {
 	CreateAssetRequestSchema,
 	GetAssetAdminResponse,
 	GetAssetAdminResponseSchema,
-} from '@inverted-tech/fragments/Content/index';
-import { AssetType } from '@inverted-tech/fragments/Content/AssetInterface_pb';
+} from '@inverted-tech/fragments/Content';
+import { AssetType } from '@inverted-tech/fragments/Content';
 
 const API_BASE_URL = process.env.API_BASE_URL!;
 const DEFAULT_FETCH_TIMEOUT_MS = 30000;

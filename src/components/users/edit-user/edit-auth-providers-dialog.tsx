@@ -16,7 +16,7 @@ import {
 	AuthProvidersSchema,
 	MicrosoftAuthProviderSchema,
 	ModifyOtherUserAuthProvidersRequestSchema,
-} from '@inverted-tech/fragments/Authentication/index';
+} from '@inverted-tech/fragments/Authentication';
 import { adminEditOtherAuthProviders } from '@/app/actions/auth';
 import { toast } from 'sonner';
 

@@ -3,7 +3,7 @@ import { create } from '@bufbuild/protobuf';
 import {
 	AdminCreateEventRequestSchema,
 	CreateEventDataSchema,
-} from '@inverted-tech/fragments/Authorization/Events/AdminEventInterface_pb';
+} from '@inverted-tech/fragments/Authorization/Events';
 
 // TODO: Add Ticket Class Fields and Event Venue Fields
 export function CreateEventForm() {

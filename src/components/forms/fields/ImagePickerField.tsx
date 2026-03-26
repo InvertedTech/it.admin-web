@@ -22,8 +22,7 @@ import { toast } from 'sonner';
 import { createAsset, getAsset, searchAssets } from '@/app/actions/assets';
 import { create } from '@bufbuild/protobuf';
 import { CreateAssetRequestSchema } from '@inverted-tech/fragments/Content';
-import { ImageAssetDataSchema } from '@inverted-tech/fragments/Content/ImageAssetRecord_pb';
-import { AssetType } from '@inverted-tech/fragments/Content/AssetInterface_pb';
+import { ImageAssetDataSchema, AssetType } from '@inverted-tech/fragments/Content';
 import { slugify } from '@/lib/slugify';
 
 type ImageRecord = {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
-import { SubscriptionTierSchema } from '@inverted-tech/fragments/Authorization/index';
+import { SubscriptionTierSchema } from '@inverted-tech/fragments/Authorization';
 
 import { Button } from '@/components/ui/button';
 import {

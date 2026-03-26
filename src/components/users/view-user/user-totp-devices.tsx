@@ -1,6 +1,6 @@
 'use client';
 
-import type { TOTPDeviceLimited } from '@inverted-tech/fragments/protos/Authentication/UserInterface_pb';
+import type { TOTPDeviceLimited } from '@inverted-tech/fragments/Authentication';
 import { Button } from '@/components/ui/button';
 import {
 	Accordion,
@@ -52,9 +52,7 @@ export function UserTotpDevices({
 					className="w-full"
 				>
 					<AccordionItem value="totp-devices">
-						<AccordionTrigger>
-							Devices ({devices.length})
-						</AccordionTrigger>
+						<AccordionTrigger>Devices ({devices.length})</AccordionTrigger>
 						<AccordionContent>
 							<div className="mt-2 space-y-2">
 								{devices.length ? (
@@ -94,13 +92,12 @@ export function UserTotpDevices({
 																	Disable TOTP device?
 																</AlertDialogTitle>
 																<AlertDialogDescription>
-																	This will remove access for this device and cannot be undone.
+																	This will remove access for this device and
+																	cannot be undone.
 																</AlertDialogDescription>
 															</AlertDialogHeader>
 															<AlertDialogFooter>
-																<AlertDialogCancel>
-																	Cancel
-																</AlertDialogCancel>
+																<AlertDialogCancel>Cancel</AlertDialogCancel>
 																<AlertDialogAction asChild>
 																	<Button
 																		type="submit"

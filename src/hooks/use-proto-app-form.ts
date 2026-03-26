@@ -223,11 +223,11 @@ export function useProtoAppForm<TSchema, TValues extends Record<string, any>>({
 
 	return form;
 }
-import { StripePublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Stripe/index';
-import { PaypalPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Paypal/index';
-import { FortisPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Fortis/index';
-import { ManualPaymentPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Manual/index';
-import { CryptoPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Crypto/index';
+import { StripePublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Stripe';
+import { PaypalPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Paypal';
+import { FortisPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Fortis';
+import { ManualPaymentPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Manual';
+import { CryptoPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Crypto';
 
 // Subscription Settings Specific Normalization
 export function normalizeProviders(value: any) {

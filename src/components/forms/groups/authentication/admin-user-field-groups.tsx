@@ -7,7 +7,7 @@ import {
 	ChangeOtherPasswordRequestSchema,
 	CreateUserRequestSchema,
 	ModifyOtherUserRequestSchema,
-} from '@inverted-tech/fragments/Authentication/index';
+} from '@inverted-tech/fragments/Authentication';
 import { RoleOption } from '../admin/admin-search-users-field-group';
 
 const ROLE_OPTIONS: RoleOption[] = AllRoles.map((role) => ({

@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { centsToCurrency } from './utils';
-import { EventTicketClassType } from '@inverted-tech/fragments/Authorization/Events/index';
+import { EventTicketClassType } from '@inverted-tech/fragments/Authorization/Events';
 
 type TicketClass = {
 	Type: EventTicketClassType;

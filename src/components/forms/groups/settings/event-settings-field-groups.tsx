@@ -4,7 +4,7 @@ import { create } from '@bufbuild/protobuf';
 import {
 	EventPrivateSettingsSchema,
 	EventPublicSettingsSchema,
-} from '@inverted-tech/fragments/Authorization/Events/index';
+} from '@inverted-tech/fragments/Authorization/Events';
 
 export const EventPublicSettingsFieldGroup = withFieldGroup({
 	defaultValues: create(EventPublicSettingsSchema),

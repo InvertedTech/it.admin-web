@@ -1,7 +1,7 @@
 import { useAppForm } from '@/hooks/app-form';
 import { create } from '@bufbuild/protobuf';
 import { AdminEditOtherUserFieldGroups } from './groups/authentication/admin-user-field-groups';
-import { ModifyOtherUserRequestSchema } from '@inverted-tech/fragments/Authentication/index';
+import { ModifyOtherUserRequestSchema } from '@inverted-tech/fragments/Authentication';
 import { adminEditOtherUser } from '@/app/actions/auth';
 import { toast } from 'sonner';
 import { APIErrorReason } from '@inverted-tech/fragments';

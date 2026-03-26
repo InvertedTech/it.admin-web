@@ -5,7 +5,7 @@ import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 import {
   EventPublicSettings,
   EventPublicSettingsSchema,
-} from '@inverted-tech/fragments/Authorization/Events/index';
+} from '@inverted-tech/fragments/Authorization/Events';
 import { EventPublicSettingsFieldGroup } from './groups/settings/event-settings-field-groups';
 import { useRouter } from 'next/navigation';
 

@@ -1,7 +1,7 @@
 import { FieldGroup } from '@/components/ui/field';
 import { withFieldGroup } from '@/hooks/app-form';
 import { create } from '@bufbuild/protobuf';
-import { SubscriptionTierSchema } from '@inverted-tech/fragments/Authorization/index';
+import { SubscriptionTierSchema } from '@inverted-tech/fragments/Authorization';
 
 export const SubscriptionTierFieldGroup = withFieldGroup({
 	defaultValues: create(SubscriptionTierSchema),

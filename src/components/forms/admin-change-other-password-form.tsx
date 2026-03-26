@@ -2,7 +2,7 @@ import { useAppForm } from '@/hooks/app-form';
 import { create } from '@bufbuild/protobuf';
 import { adminEditOtherUserPassword } from '@/app/actions/auth';
 import { AdminChangeOtherPasswordFieldGroups } from './groups/authentication/admin-user-field-groups';
-import { ChangeOtherPasswordRequestSchema } from '@inverted-tech/fragments/Authentication/index';
+import { ChangeOtherPasswordRequestSchema } from '@inverted-tech/fragments/Authentication';
 
 export function AdminChangeOtherPasswordForm({ userId }: { userId: string }) {
 	const form = useAppForm({

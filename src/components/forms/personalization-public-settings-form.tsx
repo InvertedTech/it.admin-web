@@ -7,7 +7,7 @@ import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 import {
 	PersonalizationPublicRecord,
 	PersonalizationPublicRecordSchema,
-} from '@inverted-tech/fragments/Settings/SettingsRecord_pb';
+} from '@inverted-tech/fragments/Settings';
 
 // shared wrappers
 import { SettingsForm, SettingsSection } from '@/components/settings';

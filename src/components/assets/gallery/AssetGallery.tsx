@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { searchAssets } from '@/app/actions/assets';
 import Link from 'next/link';
 import { unstable_noStore as noStore } from 'next/cache';
-import { AssetType } from '@inverted-tech/fragments/Content/AssetInterface_pb';
-import type { ImageAssetPublicRecord } from '@inverted-tech/fragments/Content/ImageAssetRecord_pb';
+import { AssetType } from '@inverted-tech/fragments/Content';
+import type { ImageAssetPublicRecord } from '@inverted-tech/fragments/Content';
 
 type GalleryItem = {
 	type: 'image';

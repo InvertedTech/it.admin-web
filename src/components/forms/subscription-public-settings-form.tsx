@@ -18,7 +18,7 @@ import {
 	SubscriptionProviderPublicCryptoFieldGroup,
 } from './groups/settings';
 import { ModifySubscriptionPublicDataRequestSchema } from '@inverted-tech/fragments/Settings';
-import { SubscriptionTierSchema } from '@inverted-tech/fragments/Authorization/index';
+import { SubscriptionTierSchema } from '@inverted-tech/fragments/Authorization';
 import { create } from '@bufbuild/protobuf';
 import { modifyPublicSubscriptionSettings } from '@/app/actions/settings';
 

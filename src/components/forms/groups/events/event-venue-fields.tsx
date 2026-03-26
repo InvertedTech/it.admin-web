@@ -4,7 +4,7 @@ import { create } from '@bufbuild/protobuf';
 import {
 	PhysicalEventVenueSchema,
 	VirtualEventVenueSchema,
-} from '@inverted-tech/fragments/protos/Authorization/Events/EventRecord_pb';
+} from '@inverted-tech/fragments/Authorization/Events';
 
 export const PhysicalVenueFields = withFieldGroup({
 	defaultValues: create(PhysicalEventVenueSchema),

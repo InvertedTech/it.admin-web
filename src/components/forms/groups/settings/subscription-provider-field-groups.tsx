@@ -6,17 +6,17 @@ import { create } from '@bufbuild/protobuf';
 import {
 	StripeOwnerSettingsSchema,
 	StripePublicSettingsSchema,
-} from '@inverted-tech/fragments/Authorization/Payment/Stripe/index';
-import { ManualPaymentPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Manual/index';
+} from '@inverted-tech/fragments/Authorization/Payment/Stripe';
+import { ManualPaymentPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Manual';
 import {
 	PaypalOwnerSettingsSchema,
 	PaypalPublicSettingsSchema,
-} from '@inverted-tech/fragments/Authorization/Payment/Paypal/index';
+} from '@inverted-tech/fragments/Authorization/Payment/Paypal';
 import {
 	FortisOwnerSettingsSchema,
 	FortisPublicSettingsSchema,
-} from '@inverted-tech/fragments/Authorization/Payment/Fortis/index';
-import { CryptoPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Crypto/index';
+} from '@inverted-tech/fragments/Authorization/Payment/Fortis';
+import { CryptoPublicSettingsSchema } from '@inverted-tech/fragments/Authorization/Payment/Crypto';
 
 export const SubscriptionProviderPublicStripeFieldGroup = withFieldGroup({
 	props: { title: 'Stripe' },

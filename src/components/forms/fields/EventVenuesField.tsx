@@ -23,7 +23,7 @@ import {
 	EventVenueOneOfType,
 	PhysicalEventVenue,
 	VirtualEventVenue,
-} from '@inverted-tech/fragments/Authorization/Events/index';
+} from '@inverted-tech/fragments/Authorization/Events';
 
 type VenueOneOf =
 	| { case: 'Physical'; value: PhysicalEventVenue }

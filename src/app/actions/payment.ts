@@ -8,7 +8,7 @@ import {
 	CancelSubscriptionResponseSchema,
 	GetSubscriptionRecordResponseSchema,
 	ListSubscriptionsResponseSchema,
-} from '@inverted-tech/fragments/Authorization/Payment/index';
+} from '@inverted-tech/fragments/Authorization/Payment';
 
 const API_BASE_URL = process.env.API_BASE_URL!;
 const API_BASE = `${API_BASE_URL}`;

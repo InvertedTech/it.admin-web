@@ -5,7 +5,7 @@ import {
 	adminGetUser,
 	adminGetUserTotpDevices,
 } from '@/app/actions/auth';
-import type { UserNormalRecord } from '@inverted-tech/fragments/protos/Authentication/UserRecord_pb';
+import type { UserNormalRecord } from '@inverted-tech/fragments/Authentication';
 import { UserTimeline } from '@/components/users/view-user/user-timeline';
 import { UserDetails } from '@/components/users/view-user/user-details';
 import { UserHeaderCard } from '@/components/users/view-user/user-header';
@@ -34,9 +34,7 @@ import {
 
 function pick<T = unknown>(obj: any, paths: string[], fb?: T): T | undefined {
 	for (const p of paths) {
-		const v = p
-			.split('.')
-			.reduce<any>((o, k) => (o ? o[k] : undefined), obj);
+		const v = p.split('.').reduce<any>((o, k) => (o ? o[k] : undefined), obj);
 		if (v !== undefined && v !== null && v !== '') return v as T;
 	}
 	return fb;
@@ -64,8 +62,7 @@ export default async function ViewUserPage({
 	if (!user) notFound();
 
 	// inferred fields across Public/Private shapes
-	const id =
-		pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
+	const id = pick<string>(user, ['UserID', 'Public.UserID'], userId) ?? userId;
 	const displayName = pick<string>(
 		user,
 		['Public.Data.DisplayName', 'DisplayName'],
@@ -73,8 +70,7 @@ export default async function ViewUserPage({
 	)!;
 	const userName =
 		pick<string>(user, ['Public.Data.UserName', 'UserName'], '') || '';
-	const email =
-		pick<string>(user, ['Private.Data.Email', 'Email'], '') || '';
+	const email = pick<string>(user, ['Private.Data.Email', 'Email'], '') || '';
 	const bio = pick<string>(user, ['Public.Data.Bio', 'Bio'], '') || '';
 	const firstName =
 		pick<string>(
@@ -112,8 +108,7 @@ export default async function ViewUserPage({
 		'',
 	);
 	const totpDevices = (await adminGetUserTotpDevices(userId)).Devices ?? [];
-	const userRoles =
-		pick<string[]>(user, ['Private.Roles', 'Roles'], []) ?? [];
+	const userRoles = pick<string[]>(user, ['Private.Roles', 'Roles'], []) ?? [];
 	async function grantRolesAction(formData: FormData) {
 		'use server';
 		const selected = formData.getAll('roles')?.map((v) => String(v)) ?? [];
@@ -172,7 +167,7 @@ export default async function ViewUserPage({
 
 	return (
 		<div>
-			<div className='mb-6'>
+			<div className="mb-6">
 				<UserHeaderCard
 					id={id}
 					displayName={displayName}
@@ -184,22 +179,18 @@ export default async function ViewUserPage({
 					grantRolesAction={grantRolesAction}
 					canGrantRoles={canGrantRoles}
 					canEditProfile={canEditProfile}
-					enableUserAction={
-						canToggleUser ? enableUserAction : undefined
-					}
-					disableUserAction={
-						canToggleUser ? disableUserAction : undefined
-					}
+					enableUserAction={canToggleUser ? enableUserAction : undefined}
+					disableUserAction={canToggleUser ? disableUserAction : undefined}
 				/>
 			</div>
-			<div className='mb-4'>
+			<div className="mb-4">
 				<UserTimeline
 					createdOn={createdOn}
 					modifiedOn={modifiedOn}
 					disabledOn={disabledOn}
 				/>
 			</div>
-			<div className='mb-4'>
+			<div className="mb-4">
 				<UserDetails
 					id={id}
 					email={email}
@@ -215,7 +206,7 @@ export default async function ViewUserPage({
 				/>
 			</div>
 			{canViewTotp ? (
-				<div className='mb-4'>
+				<div className="mb-4">
 					<UserTotpDevices
 						totpDevices={totpDevices}
 						disableTotpAction={disableTotpAction}
@@ -224,7 +215,7 @@ export default async function ViewUserPage({
 				</div>
 			) : null}
 			{canViewSubscriptions ? (
-				<div className='mb-4'>
+				<div className="mb-4">
 					<UserSubscriptions
 						subscriptions={subs}
 						cancelSubscriptionAction={cancelSubscriptionAction}
@@ -234,4 +225,3 @@ export default async function ViewUserPage({
 		</div>
 	);
 }
-
