@@ -41,6 +41,12 @@ import {
 	ModifyNotificationOwnerDataRequestSchema,
 	ModifyNotificationOwnerDataResponse,
 	ModifyNotificationOwnerDataResponseSchema,
+	ModifyMerchPublicSettingsRequest,
+	ModifyMerchPublicSettingsRequestSchema,
+	ModifyMerchPublicSettingsResponseSchema,
+	ModifyMerchOwnerSettingsRequest,
+	ModifyMerchOwnerSettingsRequestSchema,
+	ModifyMerchOwnerSettingsResponseSchema,
 	GetPublicDataResponseSchema,
 	GetPublicDataResponse,
 } from '@inverted-tech/fragments/Settings';
@@ -461,6 +467,84 @@ export async function modifyEventsPrivateSettings(
 		return body;
 	} catch (error) {
 		return create(ModifyEventPrivateSettingsResponseSchema, {
+			Error: create(APIErrorSchema, {
+				Message: 'Unknown Error',
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
+			}),
+		});
+	}
+}
+
+export async function modifyMerchPublicSettings(
+	req: ModifyMerchPublicSettingsRequest,
+) {
+	try {
+		const url = `${API_BASE_URL}/settings/merch/public`;
+		const msg = create(ModifyMerchPublicSettingsRequestSchema, req as any);
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				...(await authHeaders()),
+			},
+			body: toJsonString(ModifyMerchPublicSettingsRequestSchema, msg),
+		});
+
+		if (!res) {
+			return create(ModifyMerchPublicSettingsResponseSchema, {
+				Error: create(APIErrorSchema, {
+					Message: 'Unknown Error',
+					Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
+				}),
+			});
+		}
+
+		const body = await res.json();
+		revalidateTag(ADMIN_SETTINGS_TAG);
+		revalidatePath('/settings/merch');
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(ModifyMerchPublicSettingsResponseSchema, {
+			Error: create(APIErrorSchema, {
+				Message: 'Unknown Error',
+				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
+			}),
+		});
+	}
+}
+
+export async function modifyMerchOwnerSettings(
+	req: ModifyMerchOwnerSettingsRequest,
+) {
+	try {
+		const url = `${API_BASE_URL}/settings/merch/owner`;
+		const msg = create(ModifyMerchOwnerSettingsRequestSchema, req as any);
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				...(await authHeaders()),
+			},
+			body: toJsonString(ModifyMerchOwnerSettingsRequestSchema, msg),
+		});
+
+		if (!res) {
+			return create(ModifyMerchOwnerSettingsResponseSchema, {
+				Error: create(APIErrorSchema, {
+					Message: 'Unknown Error',
+					Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
+				}),
+			});
+		}
+
+		const body = await res.json();
+		revalidateTag(ADMIN_SETTINGS_TAG);
+		revalidatePath('/settings/merch');
+		return body;
+	} catch (error) {
+		console.error(error);
+		return create(ModifyMerchOwnerSettingsResponseSchema, {
 			Error: create(APIErrorSchema, {
 				Message: 'Unknown Error',
 				Reason: APIErrorReason.ERROR_REASON_UNKNOWN,
