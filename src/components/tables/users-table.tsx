@@ -107,7 +107,36 @@ export const userColumns: ColumnDef<any>[] = [
 	// 	enableHiding: false,
 	// 	size: 32,
 	// },
-
+	{
+		id: 'FirstName',
+		accessorFn: (r) => g(r, ['FirstName', 'Private.Data.FirstName'], ''),
+		header: ({ column }) => (
+			<Button
+				type='button'
+				variant='ghost'
+				onClick={() =>
+					column.toggleSorting(column.getIsSorted() === 'asc')
+				}
+			>
+				First Name <ArrowUpDown className='ml-2 h-4 w-4' />
+			</Button>
+		),
+	},
+	{
+		id: 'LastName',
+		accessorFn: (r) => g(r, ['LastName', 'Private.Data.LastName'], ''),
+		header: ({ column }) => (
+			<Button
+				type='button'
+				variant='ghost'
+				onClick={() =>
+					column.toggleSorting(column.getIsSorted() === 'asc')
+				}
+			>
+				Last Name <ArrowUpDown className='ml-2 h-4 w-4' />
+			</Button>
+		),
+	},
 	{
 		id: 'DisplayName',
 		accessorFn: (r) => g(r, ['DisplayName', 'Public.Data.DisplayName'], ''),
