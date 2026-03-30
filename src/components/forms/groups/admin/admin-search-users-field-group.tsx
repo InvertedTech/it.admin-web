@@ -8,12 +8,20 @@ import {
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
+	DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { ChevronDown } from 'lucide-react';
 import { withFieldGroup } from '@/hooks/app-form';
 import { useFormContext } from '@/hooks/form-context';
 import { create } from '@bufbuild/protobuf';
 import { SearchUsersAdminRequestSchema } from '@inverted-tech/fragments/Authentication';
 import { RoleMeta, Roles as AllRoles } from '@/lib/roles';
+import { AdminCreateUserForm } from '@/components/forms/admin-create-user-form';
 
 export type RoleOption = { DisplayName: string; RoleValue: string };
 
@@ -22,37 +30,52 @@ const defaultRoleOptions: RoleOption[] = AllRoles.map((role) => ({
 	RoleValue: role,
 }));
 
-// Separate component for the Filters button to be used in table headers
-export function UsersFiltersButton({ roles }: { roles?: RoleOption[] }) {
+export function UsersFiltersButton({
+	roles,
+	canCreateUser,
+	columnsButton,
+}: {
+	roles?: RoleOption[];
+	canCreateUser?: boolean;
+	columnsButton?: React.ReactNode;
+}) {
 	const form = useFormContext();
 	const AppForm = form as any;
-	const [filterDialogOpen, setFilterDialogOpen] = React.useState(false);
+	const [open, setOpen] = React.useState(false);
 	const roleOptions =
 		Array.isArray(roles) && roles.length > 0 ? roles : defaultRoleOptions;
 
 	return (
-		<>
-			<Button
-				type='button'
-				variant='outline'
-				onClick={() => setFilterDialogOpen(true)}
-			>
-				Filters
-			</Button>
+		<div className='flex-1 space-y-1'>
+			{/* Inline toolbar row: search bar on the left, optional Create button */}
+			<div className='flex items-end gap-2'>
+				<div className='flex-1'>
+					<AppForm.AppField name='SearchString'>
+						{(f: any) => (
+							<f.TextField label='Search' />
+						)}
+					</AppForm.AppField>
+				</div>
+				{canCreateUser && <CreateUserDialogButton />}
+				{columnsButton}
+			</div>
 
-			{/* TODO: Experiment with shadcn Sheet component for better mobile/spacing experience */}
-			<Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
-				<DialogContent className='max-h-[80vh] overflow-y-auto'>
-					<DialogHeader>
-						<DialogTitle>Search Filters</DialogTitle>
-					</DialogHeader>
-					<div className='space-y-8 py-4'>
-						<div className='grid gap-6 md:grid-cols-2 lg:grid-cols-4'>
-							<div className='lg:col-span-1'>
-								<AppForm.AppField name='SearchString'>
-									{(f: any) => <f.TextField label='Search' />}
-								</AppForm.AppField>
-							</div>
+			{/* Collapsible filter row */}
+			<Collapsible open={open} onOpenChange={setOpen}>
+				<CollapsibleTrigger asChild>
+					<button
+						type='button'
+						className='flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors'
+					>
+						<ChevronDown
+							className={`h-4 w-4 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+						/>
+						Filters
+					</button>
+				</CollapsibleTrigger>
+				<CollapsibleContent className='overflow-hidden data-[state=closed]:animate-none'>
+					<div className='space-y-4 rounded-md border bg-card p-4 mt-1'>
+						<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
 							<div className='lg:col-span-2'>
 								<AppForm.AppField name='Roles'>
 									{(f: any) => (
@@ -70,36 +93,29 @@ export function UsersFiltersButton({ roles }: { roles?: RoleOption[] }) {
 									)}
 								</AppForm.AppField>
 							</div>
+							<div className='lg:col-span-1'>
+								<AppForm.AppField name='PageSize'>
+									{(f: any) => (
+										<f.PageSizeField label='Page Size' value={25} />
+									)}
+								</AppForm.AppField>
+							</div>
 						</div>
 
-						<div className='grid gap-6 md:grid-cols-2'>
+						<div className='grid gap-4 md:grid-cols-2'>
 							<AppForm.AppField name='CreatedAfter'>
-								{(f: any) => (
-									<f.TextField label='Created after' />
-								)}
+								{(f: any) => <f.TextField label='Created after' />}
 							</AppForm.AppField>
 							<AppForm.AppField name='CreatedBefore'>
-								{(f: any) => (
-									<f.TextField label='Created before' />
-								)}
+								{(f: any) => <f.TextField label='Created before' />}
 							</AppForm.AppField>
 						</div>
 
-						<div className='lg:col-span-1'>
-							<AppForm.AppField name='PageSize'>
-								{(f: any) => (
-									<f.PageSizeField
-										label='Page Size'
-										value={25}
-									/>
-								)}
-							</AppForm.AppField>
-						</div>
-
-						<div className='flex items-center justify-end gap-2 pt-4'>
+						<div className='flex items-center justify-end gap-2 pt-2'>
 							<Button
 								type='button'
 								variant='outline'
+								size='sm'
 								onClick={() => {
 									AppForm.reset?.();
 									AppForm.setFieldValue('PageOffset', 0);
@@ -109,19 +125,36 @@ export function UsersFiltersButton({ roles }: { roles?: RoleOption[] }) {
 							</Button>
 							<Button
 								type='button'
+								size='sm'
 								onClick={() => {
 									AppForm.setFieldValue('PageOffset', 0);
 									AppForm.handleSubmit();
-									setFilterDialogOpen(false);
+									setOpen(false);
 								}}
 							>
-								Save Changes
+								Apply
 							</Button>
 						</div>
 					</div>
-				</DialogContent>
-			</Dialog>
-		</>
+				</CollapsibleContent>
+			</Collapsible>
+		</div>
+	);
+}
+
+function CreateUserDialogButton() {
+	return (
+		<Dialog>
+			<DialogTrigger asChild>
+				<Button type='button'>Create</Button>
+			</DialogTrigger>
+			<DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'>
+				<DialogHeader>
+					<DialogTitle>Create User</DialogTitle>
+				</DialogHeader>
+				<AdminCreateUserForm />
+			</DialogContent>
+		</Dialog>
 	);
 }
 

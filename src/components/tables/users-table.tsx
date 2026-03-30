@@ -446,32 +446,37 @@ export function UsersTable({
 		<div>
 			{/* optional column picker, no filters or local pagination */}
 			{showColumnPicker ? (
-				<div className='flex justify-end gap-2 py-2'>
-					{filterButton}
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button type='button' variant='outline'>
-								Columns
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align='end'>
-							{table
-								.getAllColumns()
-								.filter((c) => c.getCanHide())
-								.map((c) => (
-									<DropdownMenuCheckboxItem
-										key={c.id}
-										checked={c.getIsVisible()}
-										onCheckedChange={(v) =>
-											c.toggleVisibility(!!v)
-										}
-										className='capitalize'
-									>
-										{c.id}
-									</DropdownMenuCheckboxItem>
-								))}
-						</DropdownMenuContent>
-					</DropdownMenu>
+				<div className='py-2'>
+					{filterButton && React.isValidElement(filterButton)
+						? React.cloneElement(filterButton as React.ReactElement<any>, {
+							columnsButton: (
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button type='button' variant='outline'>
+											Columns
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align='end'>
+										{table
+											.getAllColumns()
+											.filter((c) => c.getCanHide())
+											.map((c) => (
+												<DropdownMenuCheckboxItem
+													key={c.id}
+													checked={c.getIsVisible()}
+													onCheckedChange={(v) =>
+														c.toggleVisibility(!!v)
+													}
+													className='capitalize'
+												>
+													{c.id}
+												</DropdownMenuCheckboxItem>
+											))}
+									</DropdownMenuContent>
+								</DropdownMenu>
+							),
+						  })
+						: filterButton}
 				</div>
 			) : null}
 

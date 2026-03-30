@@ -11,29 +11,12 @@ import {
 } from '@inverted-tech/fragments/Authentication';
 import type { UserSearchRecord } from '@inverted-tech/fragments/Authentication';
 import {
-	AdminSearchUsersSearchBarFieldGroup,
 	UsersFiltersButton,
 	type RoleOption,
 } from '../forms/groups/admin/admin-search-users-field-group';
 import { UsersTable } from '../tables/users-table';
 import { listUsers } from '@/app/actions/auth';
 import { RoleMeta, Roles as AllRoles } from '@/lib/roles';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog';
-import { AdminCreateUserForm } from '@/components/forms/admin-create-user-form';
 
 type Props = {
 	pageSize?: number;
@@ -255,10 +238,7 @@ export function UsersSearchView({
 					hasPrev={canPrev}
 					hasNext={canNext}
 					filterButton={
-						<>
-							{canCreateUser ? <CreateUserDialogButton /> : null}
-							<UsersFiltersButton roles={ROLE_OPTIONS} />
-						</>
+						<UsersFiltersButton roles={ROLE_OPTIONS} canCreateUser={canCreateUser} />
 					}
 				/>
 			</form.AppForm>
@@ -266,21 +246,6 @@ export function UsersSearchView({
 	);
 }
 
-function CreateUserDialogButton() {
-	return (
-		<Dialog>
-			<DialogTrigger asChild>
-				<Button type="button">Create</Button>
-			</DialogTrigger>
-			<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-				<DialogHeader>
-					<DialogTitle>Create User</DialogTitle>
-				</DialogHeader>
-				<AdminCreateUserForm />
-			</DialogContent>
-		</Dialog>
-	);
-}
 
 function IncludeDeletedUrlEffect({
 	includeDeletedValue,
