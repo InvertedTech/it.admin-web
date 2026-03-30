@@ -81,24 +81,21 @@ export function MetricCard({
 		<Card className={`@container/card ${className ?? ''}`}>
 			<CardHeader>
 				<CardDescription>{title}</CardDescription>
-				<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+				<CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
 					{value}
 				</CardTitle>
 				<CardAction>
-					<Badge
-						variant="outline"
-						className={trendColor}
-					>
-						<TrendIcon className="size-4" />
+					<Badge variant='outline' className={trendColor}>
+						<TrendIcon className='size-4' />
 						{percent}
 					</Badge>
 				</CardAction>
 			</CardHeader>
-			<CardFooter className="flex-col items-start gap-1.5 text-sm">
-				<div className="line-clamp-1 flex gap-2 font-medium">
-					{subtitle} <TrendIcon className="size-4" />
+			<CardFooter className='flex-col items-start gap-1.5 text-sm'>
+				<div className='line-clamp-1 flex gap-2 font-medium'>
+					{subtitle} <TrendIcon className='size-4' />
 				</div>
-				<div className="text-muted-foreground">{description}</div>
+				<div className='text-muted-foreground'>{description}</div>
 			</CardFooter>
 		</Card>
 	);
@@ -172,7 +169,8 @@ export function RatioComparisonCard({
 	const trend = getTrend(percentageChange);
 
 	const toDisplay = (value: number) => {
-		if (ratioScale === 'percent') return `${(value * 100).toFixed(ratioDecimals)}%`;
+		if (ratioScale === 'percent')
+			return `${(value * 100).toFixed(ratioDecimals)}%`;
 		return value.toFixed(ratioDecimals);
 	};
 
