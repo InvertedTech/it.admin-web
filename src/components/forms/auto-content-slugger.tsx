@@ -8,7 +8,10 @@ export function AutoContentSlugger({ form }: { form: any }) {
 			{(pub: any) => {
 				const title = pub?.Title ?? '';
 				const url = pub?.URL ?? '';
-				const desired = slugify(title);
+				const contentType = pub?.ContentDataOneof?.case as string | undefined;
+				const prefix = contentType ? contentType.toLowerCase() : '';
+				const slug = slugify(title);
+				const desired = prefix && slug ? `${prefix}/${slug}` : slug;
 				if (
 					desired !== url &&
 					typeof form?.setFieldValue === 'function'

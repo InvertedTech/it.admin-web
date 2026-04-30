@@ -32,9 +32,9 @@ import { PublishContentForm } from './publish-content-form';
 export function CreateContentForm() {
 	const router = useRouter();
 	const [postSubmitOpen, setPostSubmitOpen] = React.useState(false);
-	const [createdContentId, setCreatedContentId] = React.useState<string | null>(
-		null,
-	);
+	const [createdContentId, setCreatedContentId] = React.useState<
+		string | null
+	>(null);
 	const [nextStep, setNextStep] = React.useState<'choice' | 'publish'>(
 		'choice',
 	);
@@ -114,11 +114,11 @@ export function CreateContentForm() {
 	return (
 		<>
 			<FormCard
-				cardTitle="Create Content"
-				cardDescription="Set the details, metadata, and body for your content."
+				cardTitle='Create Content'
+				cardDescription='Set the details, metadata, and body for your content.'
 			>
 				<form
-					id="create-content"
+					id='create-content'
 					onSubmit={(e) => {
 						e.preventDefault();
 						form.handleSubmit();
@@ -126,166 +126,220 @@ export function CreateContentForm() {
 				>
 					<form.AppForm>
 						<AutoContentSlugger form={form} />
-						<div className="space-y-8">
-							<section className="space-y-4">
+						<div className='space-y-8'>
+							<section className='space-y-4'>
 								<ContentDetailsFields
 									form={form}
 									fields={detailsFields as any}
 								/>
 							</section>
 
-						<Separator />
+							<Separator />
 
-						<section className="space-y-4">
-							<div className="space-y-1">
-								<h3 className="text-base font-semibold">Content Type</h3>
-								<p className="text-muted-foreground text-sm">
-									Choose how this content should render.
-								</p>
-							</div>
-							<form.Subscribe
-								selector={(s: any) =>
-									s.values?.Public?.ContentDataOneof?.case as
-										| 'Video'
-										| 'Written'
-										| 'Audio'
-										| 'Picture'
-										| undefined
-								}
-							>
-								{(current) => {
-									const selected = (current as any) ?? 'Video';
-									return (
-										<div className="space-y-6">
-											<ToggleGroup
-												type="single"
-												value={selected}
-												onValueChange={(v) => {
-													if (!v) return;
-													if (v === 'Video') {
-														form.setFieldValue('Public.ContentDataOneof', {
-															case: 'Video',
-															value: create(
-																VideoContentPublicDataSchema,
-															) as any,
-														} as any);
-														form.setFieldValue('Private.ContentDataOneof', {
-															case: 'Video',
-															value: {},
-														} as any);
-													} else if (v === 'Written') {
-														form.setFieldValue('Public.ContentDataOneof', {
-															case: 'Written',
-															value: create(
-																WrittenContentPublicDataSchema,
-															) as any,
-														} as any);
-														form.setFieldValue('Private.ContentDataOneof', {
-															case: 'Written',
-															value: {},
-														} as any);
-													} else if (v === 'Audio') {
-														form.setFieldValue('Public.ContentDataOneof', {
-															case: 'Audio',
-															value: create(
-																AudioContentPublicDataSchema,
-															) as any,
-														} as any);
-														form.setFieldValue('Private.ContentDataOneof', {
-															case: 'Audio',
-															value: {},
-														} as any);
-													} else if (v === 'Picture') {
-														form.setFieldValue('Public.ContentDataOneof', {
-															case: 'Picture',
-															value: create(
-																PictureContentPublicDataSchema,
-															) as any,
-														} as any);
-														form.setFieldValue('Private.ContentDataOneof', {
-															case: 'Picture',
-															value: {},
-														} as any);
-													}
-												}}
-												className="flex w-fit flex-wrap gap-2"
-												variant="outline"
-												size="lg"
-											>
-												<ToggleGroupItem value="Video">Video</ToggleGroupItem>
-												<ToggleGroupItem value="Written">
-													Written
-												</ToggleGroupItem>
-												<ToggleGroupItem value="Audio">Audio</ToggleGroupItem>
-												<ToggleGroupItem value="Picture">
-													Picture
-												</ToggleGroupItem>
-											</ToggleGroup>
+							<section className='space-y-4'>
+								<div className='space-y-1'>
+									<h3 className='text-base font-semibold'>
+										Content Type
+									</h3>
+									<p className='text-muted-foreground text-sm'>
+										Choose how this content should render.
+									</p>
+								</div>
+								<form.Subscribe
+									selector={(s: any) =>
+										s.values?.Public?.ContentDataOneof
+											?.case as
+											| 'Video'
+											| 'Written'
+											| 'Audio'
+											| 'Picture'
+											| undefined
+									}
+								>
+									{(current) => {
+										const selected =
+											(current as any) ?? 'Video';
+										return (
+											<div className='space-y-6'>
+												<ToggleGroup
+													type='single'
+													value={selected}
+													onValueChange={(v) => {
+														if (!v) return;
+														if (v === 'Video') {
+															form.setFieldValue(
+																'Public.ContentDataOneof',
+																{
+																	case: 'Video',
+																	value: create(
+																		VideoContentPublicDataSchema,
+																	) as any,
+																} as any,
+															);
+															form.setFieldValue(
+																'Private.ContentDataOneof',
+																{
+																	case: 'Video',
+																	value: {},
+																} as any,
+															);
+														} else if (
+															v === 'Written'
+														) {
+															form.setFieldValue(
+																'Public.ContentDataOneof',
+																{
+																	case: 'Written',
+																	value: create(
+																		WrittenContentPublicDataSchema,
+																	) as any,
+																} as any,
+															);
+															form.setFieldValue(
+																'Private.ContentDataOneof',
+																{
+																	case: 'Written',
+																	value: {},
+																} as any,
+															);
+														} else if (
+															v === 'Audio'
+														) {
+															form.setFieldValue(
+																'Public.ContentDataOneof',
+																{
+																	case: 'Audio',
+																	value: create(
+																		AudioContentPublicDataSchema,
+																	) as any,
+																} as any,
+															);
+															form.setFieldValue(
+																'Private.ContentDataOneof',
+																{
+																	case: 'Audio',
+																	value: {},
+																} as any,
+															);
+														} else if (
+															v === 'Picture'
+														) {
+															form.setFieldValue(
+																'Public.ContentDataOneof',
+																{
+																	case: 'Picture',
+																	value: create(
+																		PictureContentPublicDataSchema,
+																	) as any,
+																} as any,
+															);
+															form.setFieldValue(
+																'Private.ContentDataOneof',
+																{
+																	case: 'Picture',
+																	value: {},
+																} as any,
+															);
+														}
+													}}
+													className='flex w-fit flex-wrap gap-2'
+													variant='outline'
+													size='lg'
+												>
+													<ToggleGroupItem value='Video'>
+														Video
+													</ToggleGroupItem>
+													<ToggleGroupItem value='Written'>
+														Written
+													</ToggleGroupItem>
+													<ToggleGroupItem value='Audio'>
+														Audio
+													</ToggleGroupItem>
+													<ToggleGroupItem value='Picture'>
+														Picture
+													</ToggleGroupItem>
+												</ToggleGroup>
 
-											<div className="rounded-lg border bg-muted/20 p-4">
-												{selected === 'Video' && (
-													<ContentPublicDataFieldGroups.VideoContentPublicDataFields
-														title="Video"
-														form={form}
-														fields={videoFields as any}
-													/>
-												)}
-												{selected === 'Written' && (
-													<ContentPublicDataFieldGroups.WrittenContentPublicDataFields
-														title="Written"
-														form={form}
-														fields={writtenFields as any}
-													/>
-												)}
-												{selected === 'Audio' && (
-													<ContentPublicDataFieldGroups.AudioContentPublicDataFields
-														title="Audio"
-														form={form}
-														fields={audioFields as any}
-													/>
-												)}
-												{selected === 'Picture' && (
-													<ContentPublicDataFieldGroups.PictureContentPublicDataFields
-														title="Picture"
-														form={form}
-														fields={pictureFields as any}
-													/>
-												)}
+												<div className='rounded-lg border bg-muted/20 p-4'>
+													{selected === 'Video' && (
+														<ContentPublicDataFieldGroups.VideoContentPublicDataFields
+															title='Video'
+															form={form}
+															fields={
+																videoFields as any
+															}
+														/>
+													)}
+													{selected === 'Written' && (
+														<ContentPublicDataFieldGroups.WrittenContentPublicDataFields
+															title='Written'
+															form={form}
+															fields={
+																writtenFields as any
+															}
+														/>
+													)}
+													{selected === 'Audio' && (
+														<ContentPublicDataFieldGroups.AudioContentPublicDataFields
+															title='Audio'
+															form={form}
+															fields={
+																audioFields as any
+															}
+														/>
+													)}
+													{selected === 'Picture' && (
+														<ContentPublicDataFieldGroups.PictureContentPublicDataFields
+															title='Picture'
+															form={form}
+															fields={
+																pictureFields as any
+															}
+														/>
+													)}
+												</div>
 											</div>
-										</div>
-									);
+										);
+									}}
+								</form.Subscribe>
+							</section>
+
+							{/* Show any validation/submit errors */}
+							<form.SubmitErrors />
+							{
+								// Debug subscriptions to verify submitErrors and errors
+							}
+							<form.Subscribe
+								selector={(s: any) => s?.submitErrors}
+							>
+								{(se: any) => {
+									try {
+										// eslint-disable-next-line no-console
+										console.log(
+											'[CreateContentForm] submitErrors',
+											se,
+										);
+									} catch {}
+									return null;
 								}}
 							</form.Subscribe>
-						</section>
+							<form.Subscribe selector={(s: any) => s?.errors}>
+								{(e: any) => {
+									try {
+										// eslint-disable-next-line no-console
+										console.log(
+											'[CreateContentForm] errors',
+											e,
+										);
+									} catch {}
+									return null;
+								}}
+							</form.Subscribe>
 
-						{/* Show any validation/submit errors */}
-						<form.SubmitErrors />
-						{
-							// Debug subscriptions to verify submitErrors and errors
-						}
-						<form.Subscribe selector={(s: any) => s?.submitErrors}>
-							{(se: any) => {
-								try {
-									// eslint-disable-next-line no-console
-									console.log('[CreateContentForm] submitErrors', se);
-								} catch {}
-								return null;
-							}}
-						</form.Subscribe>
-						<form.Subscribe selector={(s: any) => s?.errors}>
-							{(e: any) => {
-								try {
-									// eslint-disable-next-line no-console
-									console.log('[CreateContentForm] errors', e);
-								} catch {}
-								return null;
-							}}
-						</form.Subscribe>
-
-						<div className="flex items-center justify-end pt-2">
-							<form.CreateButton label="Create" />
+							<div className='flex items-center justify-end pt-2'>
+								<form.CreateButton label='Create' />
+							</div>
 						</div>
-					</div>
 					</form.AppForm>
 				</form>
 			</FormCard>
@@ -293,24 +347,28 @@ export function CreateContentForm() {
 				open={postSubmitOpen}
 				onOpenChange={(open) => setPostSubmitOpen(open)}
 			>
-				<DialogContent className="sm:max-w-2xl">
+				<DialogContent className='sm:max-w-2xl'>
 					<DialogHeader>
 						<DialogTitle>Publish now?</DialogTitle>
 						<DialogDescription>
-							Your content is created. You can publish it now, or skip this
-							step.
+							Your content is created. You can publish it now, or
+							skip this step.
 						</DialogDescription>
 					</DialogHeader>
 
 					{nextStep === 'choice' && (
-						<div className="grid gap-3 sm:grid-cols-2">
-							<Button onClick={() => setNextStep('publish')}>Publish</Button>
+						<div className='grid gap-3 sm:grid-cols-2'>
+							<Button onClick={() => setNextStep('publish')}>
+								Publish
+							</Button>
 							<Button
-								variant="ghost"
+								variant='ghost'
 								onClick={() => {
 									setPostSubmitOpen(false);
 									if (createdContentId) {
-										router.push(`/content/${createdContentId}`);
+										router.push(
+											`/content/${createdContentId}`,
+										);
 									}
 								}}
 							>
@@ -320,7 +378,7 @@ export function CreateContentForm() {
 					)}
 
 					{nextStep === 'publish' && createdContentId && (
-						<div className="space-y-4">
+						<div className='space-y-4'>
 							<PublishContentForm
 								contentId={createdContentId}
 								onComplete={() => {
@@ -329,16 +387,22 @@ export function CreateContentForm() {
 								}}
 							/>
 							<DialogFooter>
-								<Button variant="ghost" onClick={() => setNextStep('choice')}>
+								<Button
+									variant='ghost'
+									onClick={() => setNextStep('choice')}
+								>
 									Back
 								</Button>
-								<Button variant="outline" type="submit" form="publish-content">
+								<Button
+									variant='outline'
+									type='submit'
+									form='publish-content'
+								>
 									Done
 								</Button>
 							</DialogFooter>
 						</div>
 					)}
-
 				</DialogContent>
 			</Dialog>
 		</>

@@ -55,6 +55,12 @@ const ContentDetailsFields = withFieldGroup({
 		CategoryIds: [] as string[],
 	},
 	render: function Render({ group }) {
+		const form = useFormContext();
+		const contentTypeCase = useStore(
+			(form as any).store,
+			(s: any) => s?.values?.Public?.ContentDataOneof?.case as string | undefined,
+		);
+
 		// Load channels and categories for selectors
 		const [channels, setChannels] = React.useState<ChannelOption[]>([]);
 		const [categories, setCategories] = React.useState<CategoryOption[]>(
@@ -177,9 +183,12 @@ const ContentDetailsFields = withFieldGroup({
 									>
 										{(title: string) => {
 											const slug = slugify(title ?? '');
+											const prefix = contentTypeCase
+												? contentTypeCase.toLowerCase()
+												: '';
 											return (
 												<div className='text-muted-foreground mt-1 text-xs'>
-													URL: /{slug}
+													URL: {prefix ? `/${prefix}/${slug}` : `/${slug}`}
 												</div>
 											);
 										}}
