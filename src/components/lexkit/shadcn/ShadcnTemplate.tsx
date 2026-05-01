@@ -1,6 +1,13 @@
 'use client';
 import React from 'react';
-import { $getRoot, $getSelection, $isRangeSelection } from 'lexical';
+import {
+	$getRoot,
+	$getSelection,
+	$isRangeSelection,
+	COMMAND_PRIORITY_EDITOR,
+	KEY_TAB_COMMAND,
+	OUTDENT_CONTENT_COMMAND,
+} from 'lexical';
 import {
 	ALL_MARKDOWN_TRANSFORMERS,
 	blockFormatExtension,
@@ -30,7 +37,11 @@ import { indentExtension } from './indent-extension';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Toggle } from '@/components/ui/toggle';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip';
 import {
 	CommandDialog,
 	CommandEmpty,
@@ -139,7 +150,7 @@ function IconButton({
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>{children}</TooltipTrigger>
-			<TooltipContent side="top">{label}</TooltipContent>
+			<TooltipContent side='top'>{label}</TooltipContent>
 		</Tooltip>
 	);
 }
@@ -179,7 +190,8 @@ function formatHtml(input: string) {
 		function walk(node: Node, depth: number) {
 			const indent = '  '.repeat(depth);
 			if (node.nodeType === Node.TEXT_NODE) {
-				const text = node.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+				const text =
+					node.textContent?.replace(/\s+/g, ' ').trim() ?? '';
 				if (text) lines.push(`${indent}${text}`);
 				return;
 			}
@@ -226,7 +238,14 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 		ref,
 	) {
 		const ctx = useEditor();
-		const { commands, activeStates, hasExtension, listeners, plugins, editor } = ctx;
+		const {
+			commands,
+			activeStates,
+			hasExtension,
+			listeners,
+			plugins,
+			editor,
+		} = ctx;
 		const focusEditor = React.useCallback(() => {
 			editor?.focus();
 		}, [editor]);
@@ -275,7 +294,8 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 				injectHTML: (html: string) => {
 					void commands.importFromHTML?.(html ?? '');
 				},
-				getMarkdown: () => Promise.resolve(commands.exportToMarkdown?.() ?? ''),
+				getMarkdown: () =>
+					Promise.resolve(commands.exportToMarkdown?.() ?? ''),
 				getHTML: () => Promise.resolve(commands.exportToHTML?.() ?? ''),
 			}),
 			[commands],
@@ -315,15 +335,35 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 			return () => window.removeEventListener('keydown', handler);
 		}, []);
 
+		React.useEffect(() => {
+			if (!editor) return;
+			return editor.registerCommand(
+				KEY_TAB_COMMAND,
+				(event: KeyboardEvent) => {
+					event.preventDefault();
+					if (event.shiftKey) {
+						editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
+					} else {
+						const selection = $getSelection();
+						if ($isRangeSelection(selection)) {
+							selection.insertText('\t');
+						}
+					}
+					return true;
+				},
+				COMMAND_PRIORITY_EDITOR,
+			);
+		}, [editor]);
+
 		return (
 			<div className={cn('lexkit-container', className)}>
-				<div className="lexkit-toolbar">
-					<div className="lexkit-toolbar-group">
-						<IconButton label="Undo">
+				<div className='lexkit-toolbar'>
+					<div className='lexkit-toolbar-group'>
+						<IconButton label='Undo'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									commands.undo?.();
@@ -333,11 +373,11 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 								<Undo2 />
 							</Button>
 						</IconButton>
-						<IconButton label="Redo">
+						<IconButton label='Redo'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									commands.redo?.();
@@ -349,12 +389,12 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 						</IconButton>
 					</div>
 
-					<div className="lexkit-toolbar-group">
-						<IconButton label="Indent">
+					<div className='lexkit-toolbar-group'>
+						<IconButton label='Indent'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									ensureSelection();
@@ -365,11 +405,11 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 								<IndentIncrease />
 							</Button>
 						</IconButton>
-						<IconButton label="Outdent">
+						<IconButton label='Outdent'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									ensureSelection();
@@ -382,11 +422,11 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 						</IconButton>
 					</div>
 
-					<div className="lexkit-toolbar-group">
-						<IconButton label="Bold">
+					<div className='lexkit-toolbar-group'>
+						<IconButton label='Bold'>
 							<Toggle
-								size="sm"
-								variant="outline"
+								size='sm'
+								variant='outline'
 								pressed={Boolean(activeStates?.bold)}
 								onPressedChange={() => {
 									focusEditor();
@@ -398,10 +438,10 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 								<Bold />
 							</Toggle>
 						</IconButton>
-						<IconButton label="Italic">
+						<IconButton label='Italic'>
 							<Toggle
-								size="sm"
-								variant="outline"
+								size='sm'
+								variant='outline'
 								pressed={Boolean(activeStates?.italic)}
 								onPressedChange={() => {
 									focusEditor();
@@ -413,10 +453,10 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 								<Italic />
 							</Toggle>
 						</IconButton>
-						<IconButton label="Underline">
+						<IconButton label='Underline'>
 							<Toggle
-								size="sm"
-								variant="outline"
+								size='sm'
+								variant='outline'
 								pressed={Boolean(activeStates?.underline)}
 								onPressedChange={() => {
 									focusEditor();
@@ -428,10 +468,10 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 								<Underline />
 							</Toggle>
 						</IconButton>
-						<IconButton label="Strikethrough">
+						<IconButton label='Strikethrough'>
 							<Toggle
-								size="sm"
-								variant="outline"
+								size='sm'
+								variant='outline'
 								pressed={Boolean(activeStates?.strikethrough)}
 								onPressedChange={() => {
 									focusEditor();
@@ -445,12 +485,12 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 						</IconButton>
 					</div>
 
-					<div className="lexkit-toolbar-group">
-						<IconButton label="Heading 1">
+					<div className='lexkit-toolbar-group'>
+						<IconButton label='Heading 1'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									ensureSelection();
@@ -461,11 +501,11 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 								<Heading1 />
 							</Button>
 						</IconButton>
-						<IconButton label="Heading 2">
+						<IconButton label='Heading 2'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									ensureSelection();
@@ -476,11 +516,11 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 								<Heading2 />
 							</Button>
 						</IconButton>
-						<IconButton label="Heading 3">
+						<IconButton label='Heading 3'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									ensureSelection();
@@ -491,11 +531,11 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 								<Heading3 />
 							</Button>
 						</IconButton>
-						<IconButton label="Quote">
+						<IconButton label='Quote'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									ensureSelection();
@@ -508,12 +548,12 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 						</IconButton>
 					</div>
 
-					<div className="lexkit-toolbar-group">
-						<IconButton label="Bulleted List">
+					<div className='lexkit-toolbar-group'>
+						<IconButton label='Bulleted List'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									ensureSelection();
@@ -524,11 +564,11 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 								<List />
 							</Button>
 						</IconButton>
-						<IconButton label="Numbered List">
+						<IconButton label='Numbered List'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									ensureSelection();
@@ -539,11 +579,11 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 								<ListOrdered />
 							</Button>
 						</IconButton>
-						<IconButton label="Horizontal Rule">
+						<IconButton label='Horizontal Rule'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									ensureSelection();
@@ -556,19 +596,20 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 						</IconButton>
 					</div>
 
-					<div className="lexkit-toolbar-group">
-						<IconButton label="Link">
+					<div className='lexkit-toolbar-group'>
+						<IconButton label='Link'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => {
 									focusEditor();
 									ensureSelection();
 									const url = window.prompt('Link URL');
 									if (!url) return;
 									const text =
-										window.prompt('Link text (optional)') ?? undefined;
+										window.prompt('Link text (optional)') ??
+										undefined;
 									commands.insertLink?.(url, text);
 								}}
 								disabled={readOnly}
@@ -578,12 +619,12 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 						</IconButton>
 					</div>
 
-					<div className="lexkit-toolbar-group">
-						<IconButton label="Command Palette">
+					<div className='lexkit-toolbar-group'>
+						<IconButton label='Command Palette'>
 							<Button
-								type="button"
-								variant="outline"
-								size="icon-sm"
+								type='button'
+								variant='outline'
+								size='icon-sm'
 								onClick={() => setCommandOpen(true)}
 							>
 								<Command />
@@ -591,108 +632,111 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 						</IconButton>
 					</div>
 
-					<div className="lexkit-toolbar-group">
-						<span className="text-xs text-muted-foreground tabular-nums">
+					<div className='lexkit-toolbar-group'>
+						<span className='text-xs text-muted-foreground tabular-nums'>
 							{wordCount} words
 						</span>
 					</div>
 				</div>
 
-				<Tabs
-					value={mode}
-					onValueChange={(v) => setMode(v as Mode)}
-				>
+				<Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
 					<TabsList>
-						<IconButton label="Visual">
-							<TabsTrigger value="visual">
+						<IconButton label='Visual'>
+							<TabsTrigger value='visual'>
 								<Eye />
 							</TabsTrigger>
 						</IconButton>
-						<IconButton label="HTML">
-							<TabsTrigger value="html">
+						<IconButton label='HTML'>
+							<TabsTrigger value='html'>
 								<Code2 />
 							</TabsTrigger>
 						</IconButton>
-						<IconButton label="Markdown">
-							<TabsTrigger value="markdown">
+						<IconButton label='Markdown'>
+							<TabsTrigger value='markdown'>
 								<AlignLeft />
 							</TabsTrigger>
 						</IconButton>
 					</TabsList>
 
-					<TabsContent value="visual">
-						<div className="lexkit-editor-surface">
+					<TabsContent value='visual'>
+						<div className='lexkit-editor-surface'>
 							<RichTextView placeholder={placeholder} />
 							{plugins?.map((plugin, idx) => (
-								<React.Fragment key={idx}>{plugin}</React.Fragment>
+								<React.Fragment key={idx}>
+									{plugin}
+								</React.Fragment>
 							))}
 						</div>
 					</TabsContent>
 
-					<TabsContent value="html">
-						<div className="lexkit-source-editor">
+					<TabsContent value='html'>
+						<div className='lexkit-source-editor'>
 							<textarea
-								className="lexkit-source-textarea"
+								className='lexkit-source-textarea'
 								value={htmlSource}
 								onChange={(e) => setHtmlSource(e.target.value)}
 								disabled={readOnly}
 							/>
 						</div>
-						<div className="mt-2 flex justify-end">
+						<div className='mt-2 flex justify-end'>
 							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setHtmlSource(formatHtml(htmlSource))}
+								type='button'
+								variant='outline'
+								onClick={() =>
+									setHtmlSource(formatHtml(htmlSource))
+								}
 								disabled={readOnly}
-								className="mr-2"
+								className='mr-2'
 							>
 								Format HTML
 							</Button>
 							<Button
-								type="button"
-								variant="secondary"
-								onClick={() => commands.importFromHTML?.(htmlSource)}
+								type='button'
+								variant='secondary'
+								onClick={() =>
+									commands.importFromHTML?.(htmlSource)
+								}
 								disabled={readOnly}
-						>
-							Apply HTML
+							>
+								Apply HTML
 							</Button>
 						</div>
 					</TabsContent>
 
-					<TabsContent value="markdown">
-						<div className="lexkit-source-editor">
+					<TabsContent value='markdown'>
+						<div className='lexkit-source-editor'>
 							<textarea
-								className="lexkit-source-textarea"
+								className='lexkit-source-textarea'
 								value={markdownSource}
-								onChange={(e) => setMarkdownSource(e.target.value)}
+								onChange={(e) =>
+									setMarkdownSource(e.target.value)
+								}
 								disabled={readOnly}
 							/>
 						</div>
-						<div className="mt-2 flex justify-end">
+						<div className='mt-2 flex justify-end'>
 							<Button
-								type="button"
-								variant="secondary"
-							onClick={() => commands.importFromMarkdown?.(markdownSource)}
-							disabled={readOnly}
-						>
-							Apply Markdown
+								type='button'
+								variant='secondary'
+								onClick={() =>
+									commands.importFromMarkdown?.(
+										markdownSource,
+									)
+								}
+								disabled={readOnly}
+							>
+								Apply Markdown
 							</Button>
 						</div>
 					</TabsContent>
 				</Tabs>
 
-				<CommandDialog
-					open={commandOpen}
-					onOpenChange={setCommandOpen}
-				>
-					<CommandInput placeholder="Search editor commands..." />
+				<CommandDialog open={commandOpen} onOpenChange={setCommandOpen}>
+					<CommandInput placeholder='Search editor commands...' />
 					<CommandList>
 						<CommandEmpty>No matching commands.</CommandEmpty>
 						{Object.entries(paletteGroups).map(([group, items]) => (
-							<CommandGroup
-								key={group}
-								heading={group}
-							>
+							<CommandGroup key={group} heading={group}>
 								{items.map((item) => (
 									<CommandItem
 										key={item.id}
@@ -705,7 +749,9 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 									>
 										<span>{item.label}</span>
 										{item.shortcut && (
-											<CommandShortcut>{item.shortcut}</CommandShortcut>
+											<CommandShortcut>
+												{item.shortcut}
+											</CommandShortcut>
 										)}
 									</CommandItem>
 								))}
@@ -747,10 +793,7 @@ export const ShadcnTemplate = React.forwardRef<
 				editable: props.readOnly ? false : true,
 			}}
 		>
-			<EditorSurface
-				{...props}
-				ref={ref}
-			/>
+			<EditorSurface {...props} ref={ref} />
 		</Provider>
 	);
 });
