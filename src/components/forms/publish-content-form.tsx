@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { create } from '@bufbuild/protobuf';
 import { useRouter } from 'next/navigation';
 import { publishContent } from '@/app/actions/content';
@@ -31,18 +32,24 @@ function formatMaybeTimestamp(value: any): string | undefined {
 	return undefined;
 }
 
-export function PublishContentForm({
-	contentId,
-	onComplete,
-}: {
-	contentId: string;
-	onComplete?: (info?: { when?: string }) => void;
-}) {
+export type PublishContentFormHandle = {
+	submit: () => void;
+};
+
+export const PublishContentForm = React.forwardRef<
+	PublishContentFormHandle,
+	{
+		contentId: string;
+		onComplete?: (info?: { when?: string }) => void;
+		hideSubmit?: boolean;
+	}
+>(function PublishContentForm({ contentId, onComplete, hideSubmit }, ref) {
 	const router = useRouter();
+	const nowSeconds = Math.floor(Date.now() / 1000);
 	const form = useAppForm({
 		defaultValues: {
 			ContentID: contentId,
-			PublishOnUTC: { seconds: 0, nanos: 0 } as any,
+			PublishOnUTC: { seconds: nowSeconds, nanos: 0 } as any,
 		} as Record<string, any>,
 		onSubmit: async ({ value }) => {
 			const req = create(PublishContentRequestSchema as any, value as any);
@@ -58,11 +65,16 @@ export function PublishContentForm({
 		},
 	});
 
+	React.useImperativeHandle(ref, () => ({
+		submit: () => form.handleSubmit(),
+	}));
+
 	return (
 		<form
 			id="publish-content"
 			onSubmit={(e) => {
 				e.preventDefault();
+				e.stopPropagation();
 				form.handleSubmit();
 			}}
 		>
@@ -80,8 +92,8 @@ export function PublishContentForm({
 					name="PublishOnUTC"
 					children={(f: any) => <f.DateTimeField label="Publishing Date" />}
 				/>
-				<form.CreateButton label="Publish" />
+				{!hideSubmit && <form.CreateButton label="Publish" />}
 			</form.AppForm>
 		</form>
 	);
-}
+});

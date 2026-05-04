@@ -27,10 +27,11 @@ import {
 } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
 import { AutoContentSlugger } from './auto-content-slugger';
-import { PublishContentForm } from './publish-content-form';
+import { PublishContentForm, type PublishContentFormHandle } from './publish-content-form';
 
 export function CreateContentForm() {
 	const router = useRouter();
+	const publishFormRef = React.useRef<PublishContentFormHandle>(null);
 	const [postSubmitOpen, setPostSubmitOpen] = React.useState(false);
 	const [createdContentId, setCreatedContentId] = React.useState<
 		string | null
@@ -358,10 +359,14 @@ export function CreateContentForm() {
 
 					{nextStep === 'choice' && (
 						<div className='grid gap-3 sm:grid-cols-2'>
-							<Button onClick={() => setNextStep('publish')}>
+							<Button
+								type='button'
+								onClick={() => setNextStep('publish')}
+							>
 								Publish
 							</Button>
 							<Button
+								type='button'
 								variant='ghost'
 								onClick={() => {
 									setPostSubmitOpen(false);
@@ -380,7 +385,9 @@ export function CreateContentForm() {
 					{nextStep === 'publish' && createdContentId && (
 						<div className='space-y-4'>
 							<PublishContentForm
+								ref={publishFormRef}
 								contentId={createdContentId}
+								hideSubmit
 								onComplete={() => {
 									setPostSubmitOpen(false);
 									router.push(`/content/${createdContentId}`);
@@ -388,15 +395,16 @@ export function CreateContentForm() {
 							/>
 							<DialogFooter>
 								<Button
+									type='button'
 									variant='ghost'
 									onClick={() => setNextStep('choice')}
 								>
 									Back
 								</Button>
 								<Button
+									type='button'
 									variant='outline'
-									type='submit'
-									form='publish-content'
+									onClick={() => publishFormRef.current?.submit()}
 								>
 									Done
 								</Button>

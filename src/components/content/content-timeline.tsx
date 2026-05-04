@@ -20,6 +20,9 @@ import {
 } from '@/components/ui/dialog';
 import { PublishContentForm } from '@/components/forms/publish-content-form';
 import { AnnounceContentForm } from '@/components/forms/announce-content-form';
+import { unpublishContent, unannounceContent } from '@/app/actions/content';
+import { create } from '@bufbuild/protobuf';
+import { UnpublishContentRequestSchema, UnannounceContentRequestSchema } from '@inverted-tech/fragments/Content';
 
 type MaybeTimestamp = unknown;
 
@@ -69,13 +72,7 @@ export function ContentTimeline({
         if (isUnpublishing) return;
         setUnpublishing(true);
         try {
-            const res = await fetch(`/api/admin/content/${contentId}/unpublish`, {
-                method: 'POST',
-            });
-            if (!res.ok) {
-                // eslint-disable-next-line no-console
-                console.error('Unpublish failed', res.status);
-            }
+            await unpublishContent(create(UnpublishContentRequestSchema, { ContentID: contentId }));
         } catch (e) {
             // eslint-disable-next-line no-console
             console.error('Unpublish error', e);
@@ -89,13 +86,7 @@ export function ContentTimeline({
         if (isUnannouncing) return;
         setUnannouncing(true);
         try {
-            const res = await fetch(`/api/admin/content/${contentId}/unannounce`, {
-                method: 'POST',
-            });
-            if (!res.ok) {
-                // eslint-disable-next-line no-console
-                console.error('Unannounce failed', res.status);
-            }
+            await unannounceContent(create(UnannounceContentRequestSchema, { ContentID: contentId }));
         } catch (e) {
             // eslint-disable-next-line no-console
             console.error('Unannounce error', e);

@@ -27,7 +27,7 @@ import { Separator } from '@/components/ui/separator';
 import { useRouter } from 'next/navigation';
 import { AutoContentSlugger } from './auto-content-slugger';
 import { FileText, Image as ImageIcon, Mic2, Video } from 'lucide-react';
-import { PublishContentForm } from './publish-content-form';
+import { PublishContentForm, type PublishContentFormHandle } from './publish-content-form';
 /** ——————— Inline body export ——————— */
 export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 	const [step, setStep] = React.useState<1 | 2 | 3 | 4>(1);
@@ -39,6 +39,7 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 		'choice',
 	);
 	const router = useRouter();
+	const publishFormRef = React.useRef<PublishContentFormHandle>(null);
 	const form = useProtoAppForm({
 		schema: CreateContentRequestSchema,
 		defaultInit: {
@@ -426,8 +427,9 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 
 					{nextStep === 'choice' && (
 						<div className="grid gap-3 sm:grid-cols-2">
-							<Button onClick={() => setNextStep('publish')}>Publish</Button>
+							<Button type="button" onClick={() => setNextStep('publish')}>Publish</Button>
 							<Button
+								type="button"
 								variant="ghost"
 								onClick={() => {
 									setPostSubmitOpen(false);
@@ -445,7 +447,9 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 					{nextStep === 'publish' && createdContentId && (
 						<div className="space-y-4">
 							<PublishContentForm
+								ref={publishFormRef}
 								contentId={createdContentId}
+								hideSubmit
 								onComplete={() => {
 									setPostSubmitOpen(false);
 									onDone?.();
@@ -453,10 +457,14 @@ export function CreateContentWizard({ onDone }: { onDone?: () => void }) {
 								}}
 							/>
 							<DialogFooter>
-								<Button variant="ghost" onClick={() => setNextStep('choice')}>
+								<Button type="button" variant="ghost" onClick={() => setNextStep('choice')}>
 									Back
 								</Button>
-								<Button variant="outline" type="submit" form="publish-content">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => publishFormRef.current?.submit()}
+								>
 									Done
 								</Button>
 							</DialogFooter>
