@@ -155,5 +155,14 @@ export function buildCommandPaletteItems({
 		});
 	}
 
+	if (hasExtension('htmlEmbed')) {
+		push({
+			id: 'html-embed',
+			label: 'Insert HTML / Script Embed',
+			category: 'Insert',
+			action: () => (commands as any).insertHTMLEmbed?.(),
+		});
+	}
+
 	return items;
 }

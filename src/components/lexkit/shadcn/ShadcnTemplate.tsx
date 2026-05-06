@@ -76,6 +76,7 @@ import {
 	Code2,
 	Command,
 	AlignLeft,
+	FileCode,
 } from 'lucide-react';
 
 const markdownExt =
@@ -592,6 +593,21 @@ const EditorSurface = React.forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(
 								disabled={readOnly}
 							>
 								<Minus />
+							</Button>
+						</IconButton>
+						<IconButton label='Insert HTML / Script Embed'>
+							<Button
+								type='button'
+								variant='outline'
+								size='icon-sm'
+								onClick={() => {
+									focusEditor();
+									ensureSelection();
+									(commands as any).insertHTMLEmbed?.();
+								}}
+								disabled={readOnly}
+							>
+								<FileCode />
 							</Button>
 						</IconButton>
 					</div>

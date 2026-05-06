@@ -213,9 +213,51 @@
 
 .lexkit-html-embed-textarea {
 	width: 100%;
-	min-height: 6rem;
+	min-height: 8rem;
 	resize: vertical;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
 		"Courier New", monospace;
 	font-size: 0.8125rem;
+	background: var(--muted);
+	border: 1px solid var(--border);
+	border-radius: 0.375rem;
+	padding: 0.5rem;
+	color: var(--foreground);
+}
+
+.lexkit-html-embed-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.lexkit-html-embed-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 0.75rem;
+	color: var(--muted-foreground);
+	cursor: pointer;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	border: 1px solid var(--border);
+	background: var(--background);
+	margin-bottom: 0.25rem;
+}
+
+.lexkit-html-embed-toggle:hover {
+	background: var(--muted);
+}
+
+.lexkit-html-embed-preview {
+	min-height: 2rem;
+	font-size: 0.8125rem;
+	color: var(--muted-foreground);
+	background: var(--muted);
+	border-radius: 0.25rem;
+	padding: 0.375rem 0.5rem;
+}
+
+.lexkit-html-embed-content {
+	pointer-events: none;
 }
