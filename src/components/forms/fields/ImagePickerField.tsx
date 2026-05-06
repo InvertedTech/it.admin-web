@@ -24,6 +24,7 @@ import { create } from '@bufbuild/protobuf';
 import { CreateAssetRequestSchema } from '@inverted-tech/fragments/Content';
 import { ImageAssetDataSchema, AssetType } from '@inverted-tech/fragments/Content';
 import { slugify } from '@/lib/slugify';
+import { compressImage } from '@/lib/imageCompression';
 
 type ImageRecord = {
 	AssetID?: string;
@@ -434,25 +435,24 @@ export function ImagePickerField({ label = 'Image' }: { label?: string }) {
 
 	async function onFileSelected(file: File) {
 		setUploadError(null);
-		const buffer = new Uint8Array(await file.arrayBuffer());
-		setUploadMime(file.type || '');
-		setUploadData(buffer);
-		setFileMeta({ name: file.name, size: file.size });
-		if (!uploadTitle) {
-			const baseName = file.name.replace(/\.[^.]+$/, '');
-			setUploadTitle(baseName);
-		}
 		try {
-			const url = URL.createObjectURL(file);
+			const compressed = await compressImage(file);
+			setUploadMime(compressed.mimeType);
+			setUploadData(compressed.data);
+			setUploadWidth(compressed.width);
+			setUploadHeight(compressed.height);
+			setFileMeta({ name: file.name, size: compressed.data.byteLength });
+			if (!uploadTitle) {
+				setUploadTitle(file.name.replace(/\.[^.]+$/, ''));
+			}
 			if (previewUrl) URL.revokeObjectURL(previewUrl);
-			setPreviewUrl(url);
-			const img = new Image();
-			img.onload = () => {
-				setUploadWidth((img as any).naturalWidth || img.width || 0);
-				setUploadHeight((img as any).naturalHeight || img.height || 0);
-			};
-			img.src = url;
-		} catch {}
+			setPreviewUrl(URL.createObjectURL(new Blob([compressed.data.buffer as ArrayBuffer], { type: compressed.mimeType })));
+			if (compressed.data.byteLength >= 1_048_576) {
+				setUploadError('Image could not be compressed below 1 MB — uploading best available version.');
+			}
+		} catch {
+			setUploadError('Could not process image.');
+		}
 	}
 
 	function resetUploadState() {

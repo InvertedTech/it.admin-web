@@ -14,6 +14,7 @@ import { create } from '@bufbuild/protobuf';
 import { CreateAssetRequestSchema } from '@inverted-tech/fragments/Content';
 import { useRouter } from 'next/navigation';
 import { AutoSlugger } from './auto-slugger';
+import { compressImage } from '@/lib/imageCompression';
 
 export function NewAssetForm() {
 	const [tab, setTab] = useState<'image' | 'audio'>('image');
@@ -172,32 +173,23 @@ export function NewImageAssetForm() {
 	} | null>(null);
 
 	async function onFileSelected(file: File) {
-		const buffer = new Uint8Array(await file.arrayBuffer());
-		form.setFieldValue('Public.MimeType', file.type || '');
-		const baseName = file.name.replace(/\.[^.]+$/, '');
-		const title = form.getFieldValue('Public.Title') || baseName;
-		form.setFieldValue('Public.Title', title);
-		form.setFieldValue('Public.Data', buffer);
-		setFileMeta({ name: file.name, size: file.size });
-		// Try to infer dimensions
 		try {
-			const url = URL.createObjectURL(file);
+			const compressed = await compressImage(file);
+			form.setFieldValue('Public.MimeType', compressed.mimeType);
+			form.setFieldValue('Public.Data', compressed.data);
+			form.setFieldValue('Public.Width', compressed.width);
+			form.setFieldValue('Public.Height', compressed.height);
+			const baseName = file.name.replace(/\.[^.]+$/, '');
+			form.setFieldValue('Public.Title', form.getFieldValue('Public.Title') || baseName);
+			setFileMeta({ name: file.name, size: compressed.data.byteLength });
 			if (previewUrl) URL.revokeObjectURL(previewUrl);
-			setPreviewUrl(url);
-			const img = new Image();
-			img.onload = () => {
-				form.setFieldValue(
-					'Public.Width',
-					(img as any).naturalWidth || img.width || 0,
-				);
-				form.setFieldValue(
-					'Public.Height',
-					(img as any).naturalHeight || img.height || 0,
-				);
-				// keep URL for preview, revoke on next select/unmount
-			};
-			img.src = url;
-		} catch {}
+			setPreviewUrl(URL.createObjectURL(new Blob([compressed.data.buffer as ArrayBuffer], { type: compressed.mimeType })));
+			if (compressed.data.byteLength >= 1_048_576) {
+				toast.warning('Image could not be compressed below 1 MB.');
+			}
+		} catch {
+			toast.error('Could not process image.');
+		}
 	}
 
 	return (
