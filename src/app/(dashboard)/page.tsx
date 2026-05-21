@@ -10,7 +10,7 @@ export default async function Page() {
 	return (
 		<div>
 			<div className='space-y-6'>
-				{/* <DashboardServer /> */}
+				<DashboardServer />
 				<ContentWeekViewServer />
 				<RecentContentServer />
 			</div>

@@ -8,6 +8,7 @@ import { Separator } from '../ui/separator';
 
 export default async function DashboardServer() {
 	const { Users, Subscriptions, Content } = await getKpis();
+	console.log(Subscriptions);
 	return (
 		<>
 			{Users && (
@@ -24,10 +25,7 @@ export default async function DashboardServer() {
 				<div>
 					<h2>Subscription Metrics</h2>
 					<Separator className='my-3' />
-
-					<div className='grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 auto-rows-fr items-stretch *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:shadow-xs'>
-						<SubscriptionsKpis kpis={Subscriptions} />
-					</div>
+					<SubscriptionsKpis kpis={Subscriptions} />
 				</div>
 			)}
 
