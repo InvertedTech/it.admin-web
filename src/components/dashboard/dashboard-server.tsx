@@ -8,7 +8,7 @@ import { Separator } from '../ui/separator';
 
 export default async function DashboardServer() {
 	const { Users, Subscriptions, Content } = await getKpis();
-	console.log(Subscriptions);
+	// console.log(Subscriptions);
 	return (
 		<>
 			{Users && (
