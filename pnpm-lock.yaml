@@ -29,8 +29,8 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@19.1.0)
       '@inverted-tech/fragments':
-        specifier: ^0.12.7
-        version: 0.12.7
+        specifier: ^0.14.0
+        version: 0.14.0
       '@lexical/html':
         specifier: ^0.40.0
         version: 0.40.0
@@ -257,13 +257,13 @@ packages:
   '@bufbuild/protobuf@2.10.0':
     resolution: {integrity: sha512-fdRs9PSrBF7QUntpZpq6BTw58fhgGJojgg39m9oFOJGZT+nip9b0so5cYY1oWl5pvemDLr0cPPsH46vwThEbpQ==}
 
-  '@bufbuild/protovalidate@1.1.1':
-    resolution: {integrity: sha512-sE6CojU25nfeb1w88Sm+jRnmk4GvQTeEZvLDHHDPvIHbj2NsDJWFAUJdJr+RcuMnjdWmbur+rAS38VuEK/XviQ==}
+  '@bufbuild/protovalidate@1.2.0':
+    resolution: {integrity: sha512-tD08DwGrHIV88khLz1Kdz9DYUwEo1TsoepaIg7/B/zd//AymaTx67kvCS1jlkcG/+vgQaSOl6f0HCE3sL8vI7w==}
     peerDependencies:
       '@bufbuild/protobuf': ^2.8.0
 
-  '@connectrpc/connect@2.1.1':
-    resolution: {integrity: sha512-JzhkaTvM73m2K1URT6tv53k2RwngSmCXLZJgK580qNQOXRzZRR/BCMfZw3h+90JpnG6XksP5bYT+cz0rpUzUWQ==}
+  '@connectrpc/connect@2.1.2':
+    resolution: {integrity: sha512-MXkBijtcX09R10Eb6sFeIetc6w6746eio6xtfuyVOH7oQAacT1X0GzMIQFux6Qy8cq3W/T5qX5Bei8YbFtmRGA==}
     peerDependencies:
       '@bufbuild/protobuf': ^2.7.0
 
@@ -494,8 +494,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@inverted-tech/fragments@0.12.7':
-    resolution: {integrity: sha512-/wq2wCBfAGa25UHsAFOLRw9HelCpZasBBswzDqWFgLBKogd4m5UuwA5yVw16bl8ZPluoIbO0yDnikm/baNGmYQ==}
+  '@inverted-tech/fragments@0.14.0':
+    resolution: {integrity: sha512-mi5XCVox3zA2tPLnhAVj+NzmXQo5JPsUSvFtQvqs24DNagUwcLDKMIvjGX61MyWoWnH7xWM5R4Biak+Cb8eP6A==}
 
   '@isaacs/fs-minipass@4.0.1':
     resolution: {integrity: sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w==}
@@ -2106,6 +2106,9 @@ packages:
     resolution: {integrity: sha512-57frrGM/OCTLqLOAh0mhVA9VBMHd+9U7Zb2THMGdBUoZVOtGbJzjxsYGDJ3A9AYYCP4hn6y1TVbaOfzWtm5GFg==}
     engines: {node: '>= 12.13.0'}
 
+  real-require@1.0.0:
+    resolution: {integrity: sha512-P4nbQYQfePJxRSmY+v/KINxVucm4NF3p3s7pJveMTtom52FR4YGltUQLB8idDXwDDWW+eYrWDFbuzUnjoWHF7g==}
+
   recharts-scale@0.4.5:
     resolution: {integrity: sha512-kivNFO+0OcUNu7jQquLXAxz1FIwZj8nrj+YkOKc5694NbjCvcT6aSZiIzNzd2Kul4o4rTto8QVR9lMNtxD4G1w==}
 
@@ -2220,8 +2223,8 @@ packages:
     resolution: {integrity: sha512-tOG/7GyXpFevhXVh8jOPJrmtRpOTsYqUIkVdVooZYJS/z8WhfQUX8RJILmeuJNinGAMSu1veBr4asSHFt5/hng==}
     engines: {node: '>=18'}
 
-  thread-stream@4.0.0:
-    resolution: {integrity: sha512-4iMVL6HAINXWf1ZKZjIPcz5wYaOdPhtO8ATvZ+Xqp3BTdaqtAwQkNmKORqcIo5YkQqGXq5cwfswDwMqqQNrpJA==}
+  thread-stream@4.2.0:
+    resolution: {integrity: sha512-e2zZ96wSChazBsbENf/Pcm/4swHt2cEKQ92rhUjkL9GCKiTDJIaTBenjE/m9DXi0QBmTMDkFDdOomUy20A1tDQ==}
     engines: {node: '>=20'}
 
   tiny-invariant@1.3.3:
@@ -2412,12 +2415,12 @@ snapshots:
 
   '@bufbuild/protobuf@2.10.0': {}
 
-  '@bufbuild/protovalidate@1.1.1(@bufbuild/protobuf@2.10.0)':
+  '@bufbuild/protovalidate@1.2.0(@bufbuild/protobuf@2.10.0)':
     dependencies:
       '@bufbuild/cel': 0.4.0(@bufbuild/protobuf@2.10.0)
       '@bufbuild/protobuf': 2.10.0
 
-  '@connectrpc/connect@2.1.1(@bufbuild/protobuf@2.10.0)':
+  '@connectrpc/connect@2.1.2(@bufbuild/protobuf@2.10.0)':
     dependencies:
       '@bufbuild/protobuf': 2.10.0
 
@@ -2613,11 +2616,11 @@ snapshots:
   '@img/sharp-win32-x64@0.34.4':
     optional: true
 
-  '@inverted-tech/fragments@0.12.7':
+  '@inverted-tech/fragments@0.14.0':
     dependencies:
       '@bufbuild/protobuf': 2.10.0
-      '@bufbuild/protovalidate': 1.1.1(@bufbuild/protobuf@2.10.0)
-      '@connectrpc/connect': 2.1.1(@bufbuild/protobuf@2.10.0)
+      '@bufbuild/protovalidate': 1.2.0(@bufbuild/protobuf@2.10.0)
+      '@connectrpc/connect': 2.1.2(@bufbuild/protobuf@2.10.0)
       pino: 10.3.1
 
   '@isaacs/fs-minipass@4.0.1':
@@ -4377,7 +4380,7 @@ snapshots:
       real-require: 0.2.0
       safe-stable-stringify: 2.5.0
       sonic-boom: 4.2.1
-      thread-stream: 4.0.0
+      thread-stream: 4.2.0
 
   postcss@8.4.31:
     dependencies:
@@ -4492,6 +4495,8 @@ snapshots:
   react@19.1.0: {}
 
   real-require@0.2.0: {}
+
+  real-require@1.0.0: {}
 
   recharts-scale@0.4.5:
     dependencies:
@@ -4642,9 +4647,9 @@ snapshots:
       minizlib: 3.1.0
       yallist: 5.0.0
 
-  thread-stream@4.0.0:
+  thread-stream@4.2.0:
     dependencies:
-      real-require: 0.2.0
+      real-require: 1.0.0
 
   tiny-invariant@1.3.3: {}
 

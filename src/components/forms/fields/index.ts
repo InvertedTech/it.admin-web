@@ -16,6 +16,7 @@ export * from './DateTimeField';
 export * from './MoneyCentsField';
 export * from './ColorField';
 export * from './RichTextField';
+export * from './MarkdownField';
 export * from './YoutubeLinkField';
 export * from './RumbleLinkField';
 export * from './NumberField';

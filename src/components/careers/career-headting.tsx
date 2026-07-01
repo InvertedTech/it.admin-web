@@ -23,14 +23,14 @@ export function CareerHeading({
 	id,
 	title,
 	jobType,
-	reportsTo,
+	department,
 	relocationRequired,
 	location,
 }: {
 	id: string;
 	title: string;
 	jobType: 'Full-Time' | 'Hybrid' | 'Remote' | 'Part-Time';
-	reportsTo: string;
+	department: string;
 	relocationRequired: boolean;
 	location: string;
 }) {
@@ -69,6 +69,7 @@ export function CareerHeading({
 						{location}
 					</span>
 					<Badge variant='outline'>{jobType}</Badge>
+					{department && <Badge variant='outline'>{department}</Badge>}
 					{relocationRequired && (
 						<Badge className='text-xs'>Relocation Required</Badge>
 					)}

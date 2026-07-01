@@ -35,7 +35,7 @@ export default async function CareerPage(props: Props) {
 				id={career.Career.CareerId}
 				title={career.Career.Title}
 				jobType={'Full-Time'}
-				reportsTo={career.Career.ReportsTo}
+				department={career.Career.Department}
 				relocationRequired={career.Career.Location?.RelocationRequired!}
 				location={career.Career.Location?.Area!}
 			/>

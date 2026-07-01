@@ -11,8 +11,22 @@ import { createCareer } from '@/app/actions/careers';
 
 import { violationsToTanStackErrors } from '@/hooks/use-proto-validation';
 import { useRouter } from 'next/navigation';
-import { WeeklyDeliverablesList } from './groups/careers/weekly-deliverables-list';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+
+const BODY_MARKDOWN_TEMPLATE = `## About
+
+
+## Role Overview
+
+
+## Responsibilities
+
+-
+
+## Qualifications
+
+-
+`;
 
 export function CreateCareerForm() {
 	const router = useRouter();
@@ -20,6 +34,7 @@ export function CreateCareerForm() {
 		schema: CreateCareerRequestSchema,
 		defaultValues: create(CreateCareerRequestSchema, {
 			Location: create(ListingLocationSchema),
+			BodyMarkdown: BODY_MARKDOWN_TEMPLATE,
 		}),
 		mapViolations: (violations) => {
 			const result = violationsToTanStackErrors(violations);
@@ -68,10 +83,8 @@ export function CreateCareerForm() {
 								children={(f) => <f.TextField />}
 							/>
 							<form.AppField
-								name='ReportsTo'
-								children={(f) => (
-									<f.TextField label='Reports To' />
-								)}
+								name='Department'
+								children={(f) => <f.TextField label='Department' />}
 							/>
 							<form.AppField
 								name='Contact'
@@ -98,62 +111,26 @@ export function CreateCareerForm() {
 							/>
 						</CardContent>
 					</Card>
-				</div>
-				<Card>
-					<CardHeader>
-						<CardTitle>About the Role</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<form.AppField
-							name='About'
-							children={(f) => <f.RichTextField />}
-						/>
-
-						<form.AppField
-							name='RoleOverview'
-							children={(f) => (
-								<f.RichTextField label='Role Overview' />
-							)}
-						/>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader>
-						<CardTitle>Responsibilities</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<form.AppField
-							name='Responsibilities'
-							children={(f) => (
-								<f.TextListField label='Responsibilities' />
-							)}
-						/>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader>
-						<CardTitle>Qualifications</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<form.AppField
-							name='Qualifications'
-							children={(f) => (
-								<f.TextListField label='Qualifications' />
-							)}
-						/>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader>
-						<CardTitle>Weekly Deliverables</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<WeeklyDeliverablesList form={form} />
-					</CardContent>
-				</Card>
-				<div className='flex flex-col gap-2'>
-					<form.SubmitErrors />
-					<form.CreateButton label='Create' />
+					<Card>
+						<CardHeader>
+							<CardTitle>Listing Body</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<form.AppField
+								name='BodyMarkdown'
+								children={(f) => (
+									<f.MarkdownField
+										label='Body'
+										description='Markdown. Use ## About, ## Role Overview, ## Responsibilities, and ## Qualifications sections.'
+									/>
+								)}
+							/>
+						</CardContent>
+					</Card>
+					<div className='flex flex-col gap-2'>
+						<form.SubmitErrors />
+						<form.CreateButton label='Create' />
+					</div>
 				</div>
 			</form.AppForm>
 		</form>

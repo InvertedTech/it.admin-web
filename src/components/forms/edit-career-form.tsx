@@ -10,7 +10,6 @@ import {
 import { ListingLocationFieldGroup } from './groups/careers/listing-location-field-group';
 import { updateCareer } from '@/app/actions/careers';
 import { useRouter } from 'next/navigation';
-import { WeeklyDeliverablesList } from './groups/careers/weekly-deliverables-list';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function UpdateCareerForm({ career }: { career: CareerRecord }) {
@@ -76,10 +75,8 @@ export function UpdateCareerForm({ career }: { career: CareerRecord }) {
 								children={(f) => <f.TextField />}
 							/>
 							<form.AppField
-								name='ReportsTo'
-								children={(f) => (
-									<f.TextField label='Reports To' />
-								)}
+								name='Department'
+								children={(f) => <f.TextField label='Department' />}
 							/>
 							<form.AppField
 								name='Contact'
@@ -109,61 +106,21 @@ export function UpdateCareerForm({ career }: { career: CareerRecord }) {
 						</CardContent>
 					</Card>
 
-					{/* About the Role */}
+					{/* Listing Body */}
 					<Card>
 						<CardHeader>
-							<CardTitle>About the Role</CardTitle>
-						</CardHeader>
-						<CardContent className='flex flex-col gap-4'>
-							<form.AppField
-								name='About'
-								children={(f) => <f.RichTextField />}
-							/>
-							<form.AppField
-								name='RoleOverview'
-								children={(f) => (
-									<f.RichTextField label='Role Overview' />
-								)}
-							/>
-						</CardContent>
-					</Card>
-
-					{/* Responsibilities */}
-					<Card>
-						<CardHeader>
-							<CardTitle>Responsibilities</CardTitle>
+							<CardTitle>Listing Body</CardTitle>
 						</CardHeader>
 						<CardContent>
 							<form.AppField
-								name='Responsibilities'
+								name='BodyMarkdown'
 								children={(f) => (
-									<f.TextListField label='Responsibilities' />
+									<f.MarkdownField
+										label='Body'
+										description='Markdown. Use ## About, ## Role Overview, ## Responsibilities, and ## Qualifications sections.'
+									/>
 								)}
 							/>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader>
-							<CardTitle>Qualifications</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<form.AppField
-								name='Qualifications'
-								children={(f) => (
-									<f.TextListField label='Qualifications' />
-								)}
-							/>
-						</CardContent>
-					</Card>
-
-					{/* Weekly Deliverables */}
-					<Card>
-						<CardHeader>
-							<CardTitle>Weekly Deliverables</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<WeeklyDeliverablesList form={form} />
 						</CardContent>
 					</Card>
 

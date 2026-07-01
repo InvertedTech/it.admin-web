@@ -101,6 +101,29 @@ const careerColumns: ColumnDef<CareerListRecord>[] = [
 		},
 	},
 	{
+		id: 'Department',
+		accessorKey: 'Department',
+		header: 'Department',
+		cell: ({ row }) => {
+			const department = row.original.Department;
+			return department ? (
+				<Badge variant='outline'>{department}</Badge>
+			) : (
+				<span className='text-muted-foreground'>—</span>
+			);
+		},
+	},
+	{
+		id: 'Summary',
+		accessorKey: 'Summary',
+		header: 'Summary',
+		cell: ({ row }) => (
+			<span className='line-clamp-2 max-w-xs text-muted-foreground'>
+				{row.original.Summary || '—'}
+			</span>
+		),
+	},
+	{
 		id: 'EmploymentType',
 		header: 'Type',
 		cell: ({ row }) => {

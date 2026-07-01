@@ -30,7 +30,7 @@ Calls `createFormHook()` with all field and form components registered. This is 
 - **Form components** — `SubmitErrors`, `CreateButton`, `ResetButton`, `SaveChangesBar`
 - Also exports `withForm` and `withFieldGroup` helpers (see Field Groups below).
 
-You can use `useAppForm` directly when you don't need proto validation (e.g. the `AddDeliverableDialog` inside `WeeklyDeliverablesList`).
+You can use `useAppForm` directly when you don't need proto validation.
 
 ### Layer 3 — `useProtoAppForm` (`src/hooks/use-proto-app-form.ts`)
 
