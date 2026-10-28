@@ -34,7 +34,7 @@ import { useFieldContext, useFormContext } from '@/hooks/form-context';
 import { cn } from '@/lib/utils';
 import { normalizeFieldErrors } from '@/hooks/use-proto-validation';
 import { matchFieldErrors } from '@/components/forms/fields/utils';
-import { slugify } from '@/lib/slugify';
+import { buildContentUrl, expectedContentUrlPrefix } from '@/lib/slugify';
 
 // Group for basic content public details
 type ChannelOption = { ChannelId?: string; DisplayName?: string };
@@ -179,16 +179,75 @@ const ContentDetailsFields = withFieldGroup({
 								<div>
 									<f.TextField label={'Title'} />
 									<group.Subscribe
-										selector={(s: any) => s?.values?.Title}
+										selector={(s: any) => ({
+											title: s?.values?.Title as string,
+											url: s?.values?.URL as string,
+											level: s?.values
+												?.SubscriptionLevel as number,
+										})}
 									>
-										{(title: string) => {
-											const slug = slugify(title ?? '');
-											const prefix = contentTypeCase
-												? contentTypeCase.toLowerCase()
-												: '';
+										{({ title, url, level }) => {
+											const current = url ?? '';
+											const suggested = buildContentUrl(
+												title,
+												contentTypeCase,
+												level,
+											);
+											const prefix =
+												expectedContentUrlPrefix(
+													contentTypeCase,
+													level,
+												);
+											const badPrefix =
+												!!current &&
+												!!prefix &&
+												!current.startsWith(prefix);
 											return (
-												<div className='text-muted-foreground mt-1 text-xs'>
-													URL: {prefix ? `/${prefix}/${slug}` : `/${slug}`}
+												<div className='mt-1 space-y-1 text-xs'>
+													<div className='text-muted-foreground'>
+														URL:{' '}
+														<span className='font-mono'>
+															{current || '(none)'}
+														</span>
+													</div>
+													{badPrefix && (
+														<div className='text-amber-600 dark:text-amber-400'>
+															This URL won&apos;t
+															resolve on the site; it
+															should start with{' '}
+															<span className='font-mono'>
+																{prefix}
+															</span>
+															.
+														</div>
+													)}
+													{suggested &&
+														suggested !== current && (
+															<div className='flex flex-wrap items-center gap-2'>
+																<span className='text-muted-foreground'>
+																	Suggested:{' '}
+																	<span className='font-mono'>
+																		{suggested}
+																	</span>
+																</span>
+																<Button
+																	type='button'
+																	variant='outline'
+																	size='sm'
+																	className='h-6 px-2 text-xs'
+																	onClick={() =>
+																		(
+																			form as any
+																		).setFieldValue(
+																			'Public.URL',
+																			suggested,
+																		)
+																	}
+																>
+																	Regenerate URL
+																</Button>
+															</div>
+														)}
 												</div>
 											);
 										}}

@@ -247,8 +247,8 @@ export function CreateThingForm() {
     schema: CreateThingRequestSchema,
     onSubmitAsync: async ({ value }) => {
       const res = await createThing(value);
-      if (res.Error?.Reason) {
-        return { form: res.Error.Message || 'Failed to create' };
+      if (isApiError(res.Error)) { // from '@/lib/apiError'
+        return { form: res.Error?.Message || 'Failed to create' };
       }
       router.push('/things');
     },

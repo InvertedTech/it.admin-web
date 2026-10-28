@@ -21,6 +21,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Separator } from '@/components/ui/separator';
 import { modifyContent } from '@/app/actions/content';
 import { useRouter } from 'next/navigation';
+import { isApiError } from '@/lib/apiError';
 export function EditContentForm({
 	contentId,
 	initial,
@@ -152,16 +153,13 @@ export function EditContentForm({
 				const res = await modifyContent(payload);
 				console.log('RES', res);
 				const err = (res as any)?.Error ?? (res as any)?.error;
-				const errorMessage =
-					err?.Message ??
-					err?.message ??
-					(err as any)?.Errors ??
-					(err as any)?.errors ??
-					(res as any)?.Error?.Errors ??
-					(res as any)?.Error?.errors ??
-					(res as any)?.message ??
-					(res as any)?.error;
-				if (err || errorMessage) {
+				if (isApiError(err)) {
+					const errorMessage =
+						err?.Message ??
+						err?.message ??
+						(err as any)?.Errors ??
+						(err as any)?.errors ??
+						(typeof err === 'string' ? err : undefined);
 					const fields: Record<string, string | string[]> = {};
 					const validation =
 						(err as any)?.Validation ?? (res as any)?.Validation;

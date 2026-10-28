@@ -14,6 +14,7 @@ import ContentPublicDataFieldGroups from './groups/content/content-public-data-f
 import ContentDetailsFields from './groups/content/content-details-fields';
 import { FormCard } from './form-card';
 import { createContent } from '@/app/actions/content';
+import { isApiError } from '@/lib/apiError';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
@@ -58,16 +59,16 @@ export function CreateContentForm() {
 		onValidSubmit: async ({ value, formApi }) => {
 			const req = create(CreateContentRequestSchema, value);
 			const res = await createContent(req);
-			const errorMessage =
-				(res as any)?.Error?.Message ??
-				(res as any)?.Error?.message ??
-				(res as any)?.Error?.Errors ??
-				(res as any)?.Error?.errors ??
-				(res as any)?.error ??
-				(res as any)?.message;
-			if (errorMessage) {
+			const err = (res as any)?.Error ?? (res as any)?.error;
+			if (isApiError(err)) {
+				const errorMessage =
+					err?.Message ??
+					err?.message ??
+					err?.Errors ??
+					err?.errors ??
+					(typeof err === 'string' ? err : undefined);
 				formApi.setErrorMap({
-					onSubmit: { form: errorMessage },
+					onSubmit: { form: errorMessage || 'Failed to create content' },
 				});
 				return;
 			}

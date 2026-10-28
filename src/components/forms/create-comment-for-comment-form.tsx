@@ -4,6 +4,7 @@ import { create } from '@bufbuild/protobuf';
 import { createCommentForComment } from '@/app/actions/comments';
 import { useProtoAppForm } from '@/hooks/use-proto-app-form';
 import { useRouter } from 'next/navigation';
+import { isApiError } from '@/lib/apiError';
 import {
 	CreateCommentForCommentRequest,
 	CreateCommentForCommentRequestSchema,
@@ -34,8 +35,8 @@ export function CreateCommentForCommentForm({
 			);
 			const res = await createCommentForComment(payload);
 
-			if (res?.Error?.Message) {
-				return { form: res.Error.Message };
+			if (isApiError(res?.Error)) {
+				return { form: res.Error?.Message || 'Failed to create reply' };
 			}
 
 			router.refresh();
